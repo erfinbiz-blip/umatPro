@@ -1,0 +1,39 @@
+{
+  "name": "UmatPro — Ekosistem Digital Masjid",
+  "short_name": "UmatPro",
+  "description": "Platform digital masjid modern untuk jamaah dan takmir",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#060D08",
+  "theme_color": "#022D1A",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["lifestyle", "utilities"],
+  "lang": "id",
+  "dir": "ltr",
+  "shortcuts": [
+    {
+      "name": "Jadwal Sholat",
+      "url": "/",
+      "description": "Lihat jadwal sholat hari ini"
+    },
+    {
+      "name": "Temukan Masjid",
+      "url": "/discover",
+      "description": "Cari masjid di sekitar Anda"
+    }
+  ]
+}
