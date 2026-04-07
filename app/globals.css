@@ -1,0 +1,224 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ================================================================
+   CSS CUSTOM PROPERTIES — DESIGN TOKENS
+   ================================================================ */
+:root {
+  --em1: #022D1A;
+  --em2: #064E3B;
+  --em3: #0A6B4A;
+  --em4: #12925A;
+  --gd3: #D4AF37;
+  --gd4: #E8C84A;
+  --tx1: #F8F6F0;
+  --bg0: #060D08;
+
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-blur: 12px;
+}
+
+/* ================================================================
+   BASE STYLES
+   ================================================================ */
+@layer base {
+  * {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: var(--bg0);
+    color: var(--tx1);
+    scroll-behavior: smooth;
+  }
+
+  body {
+    min-height: 100dvh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overscroll-behavior: none;
+  }
+
+  h1, h2, h3 {
+    font-family: 'Playfair Display', serif;
+  }
+
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(212, 175, 55, 0.3);
+    border-radius: 2px;
+  }
+}
+
+/* ================================================================
+   COMPONENT UTILITIES
+   ================================================================ */
+@layer components {
+  /* Glassmorphism card */
+  .glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+  }
+
+  .glass-dark {
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  /* Gold gradient text */
+  .text-gold {
+    background: linear-gradient(135deg, var(--gd3) 0%, var(--gd4) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Emerald gradient text */
+  .text-emerald-grad {
+    background: linear-gradient(135deg, var(--em3) 0%, var(--em4) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Adaptive atmosphere background */
+  .atmosphere-bg {
+    transition: background 2s ease-in-out;
+  }
+
+  /* Prayer highlight glow */
+  .prayer-glow {
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.3), 0 0 40px rgba(212, 175, 55, 0.1);
+  }
+
+  /* Bottom nav safe area */
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  /* Input field */
+  .input-field {
+    @apply w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-tx1 placeholder-white/30;
+    @apply focus:outline-none focus:ring-2 focus:ring-gd3/50 focus:border-gd3/50;
+    @apply transition-all duration-200;
+  }
+
+  /* Status badge */
+  .badge-approved {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium;
+    @apply bg-em4/20 text-em4 border border-em4/30;
+  }
+
+  .badge-draft {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium;
+    @apply bg-gd3/20 text-gd3 border border-gd3/30;
+  }
+
+  .badge-rejected {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium;
+    @apply bg-red-500/20 text-red-400 border border-red-500/30;
+  }
+
+  .badge-pending {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium;
+    @apply bg-yellow-500/20 text-yellow-400 border border-yellow-500/30;
+  }
+}
+
+/* ================================================================
+   ANIMATIONS
+   ================================================================ */
+@layer utilities {
+  .animate-glow {
+    animation: glow 2s ease-in-out infinite alternate;
+  }
+
+  @keyframes glow {
+    0% { box-shadow: 0 0 10px rgba(212, 175, 55, 0.2); }
+    100% { box-shadow: 0 0 25px rgba(212, 175, 55, 0.5), 0 0 50px rgba(212, 175, 55, 0.2); }
+  }
+
+  .animate-prayer-pulse {
+    animation: prayerPulse 3s ease-in-out infinite;
+  }
+
+  @keyframes prayerPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.02); }
+  }
+
+  /* TV display large text */
+  .tv-text-huge {
+    font-size: clamp(4rem, 12vw, 10rem);
+    line-height: 1;
+  }
+
+  .tv-text-large {
+    font-size: clamp(2rem, 6vw, 5rem);
+  }
+
+  /* Ticker */
+  @keyframes ticker-scroll {
+    0% { transform: translateX(100vw); }
+    100% { transform: translateX(-100%); }
+  }
+
+  .ticker-animation {
+    animation: ticker-scroll 25s linear infinite;
+    white-space: nowrap;
+  }
+}
+
+/* ================================================================
+   LEAFLET MAP OVERRIDES
+   ================================================================ */
+.leaflet-container {
+  background: var(--em1) !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+}
+
+.leaflet-popup-content-wrapper {
+  background: rgba(6, 78, 59, 0.95) !important;
+  border: 1px solid rgba(212, 175, 55, 0.3) !important;
+  color: var(--tx1) !important;
+  border-radius: 12px !important;
+  backdrop-filter: blur(12px) !important;
+}
+
+.leaflet-popup-tip {
+  background: rgba(6, 78, 59, 0.95) !important;
+}
+
+/* ================================================================
+   MOBILE BOTTOM NAV
+   ================================================================ */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: rgba(6, 13, 8, 0.9);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: env(safe-area-inset-bottom, 8px);
+}
