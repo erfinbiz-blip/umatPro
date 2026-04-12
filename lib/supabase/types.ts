@@ -19,19 +19,59 @@ export interface Database {
           photo_url: string | null
           created_at: string
         }
-        Insert: Omit<Database['public']['Tables']['mosques']['Row'], 'id' | 'created_at'>
-        Update: Partial<Database['public']['Tables']['mosques']['Insert']>
+        Insert: {
+          id?: string
+          name: string
+          address?: string | null
+          lat?: number | null
+          lng?: number | null
+          description?: string | null
+          bank_name?: string | null
+          bank_account?: string | null
+          bank_holder?: string | null
+          is_verified?: boolean
+          tier?: string
+          photo_url?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          address?: string | null
+          lat?: number | null
+          lng?: number | null
+          description?: string | null
+          bank_name?: string | null
+          bank_account?: string | null
+          bank_holder?: string | null
+          is_verified?: boolean
+          tier?: string
+          photo_url?: string | null
+        }
+        Relationships: []
       }
       mosque_roles: {
         Row: {
           id: string
           mosque_id: string
           user_id: string
-          role: 'bendahara' | 'dewan' | 'admin'
+          role: string
           created_at: string
         }
-        Insert: Omit<Database['public']['Tables']['mosque_roles']['Row'], 'id' | 'created_at'>
-        Update: Partial<Database['public']['Tables']['mosque_roles']['Insert']>
+        Insert: {
+          id?: string
+          mosque_id: string
+          user_id: string
+          role: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          mosque_id?: string
+          user_id?: string
+          role?: string
+        }
+        Relationships: []
       }
       follows: {
         Row: {
@@ -44,8 +84,25 @@ export interface Database {
           notify_darurat: boolean
           created_at: string
         }
-        Insert: Omit<Database['public']['Tables']['follows']['Row'], 'id' | 'created_at'>
-        Update: Partial<Database['public']['Tables']['follows']['Insert']>
+        Insert: {
+          id?: string
+          user_id: string
+          mosque_id: string
+          notify_kajian?: boolean
+          notify_event?: boolean
+          notify_donasi?: boolean
+          notify_darurat?: boolean
+          created_at?: string
+        }
+        Update: {
+          user_id?: string
+          mosque_id?: string
+          notify_kajian?: boolean
+          notify_event?: boolean
+          notify_donasi?: boolean
+          notify_darurat?: boolean
+        }
+        Relationships: []
       }
       prayer_schedules: {
         Row: {
@@ -64,8 +121,38 @@ export interface Database {
           iqamah_maghrib_offset: number
           iqamah_isya_offset: number
         }
-        Insert: Omit<Database['public']['Tables']['prayer_schedules']['Row'], 'id'>
-        Update: Partial<Database['public']['Tables']['prayer_schedules']['Insert']>
+        Insert: {
+          id?: string
+          mosque_id: string
+          date: string
+          subuh?: string | null
+          syuruq?: string | null
+          dzuhur?: string | null
+          ashar?: string | null
+          maghrib?: string | null
+          isya?: string | null
+          iqamah_subuh_offset?: number
+          iqamah_dzuhur_offset?: number
+          iqamah_ashar_offset?: number
+          iqamah_maghrib_offset?: number
+          iqamah_isya_offset?: number
+        }
+        Update: {
+          mosque_id?: string
+          date?: string
+          subuh?: string | null
+          syuruq?: string | null
+          dzuhur?: string | null
+          ashar?: string | null
+          maghrib?: string | null
+          isya?: string | null
+          iqamah_subuh_offset?: number
+          iqamah_dzuhur_offset?: number
+          iqamah_ashar_offset?: number
+          iqamah_maghrib_offset?: number
+          iqamah_isya_offset?: number
+        }
+        Relationships: []
       }
       kajians: {
         Row: {
@@ -80,26 +167,72 @@ export interface Database {
           is_active: boolean
           created_at: string
         }
-        Insert: Omit<Database['public']['Tables']['kajians']['Row'], 'id' | 'created_at'>
-        Update: Partial<Database['public']['Tables']['kajians']['Insert']>
+        Insert: {
+          id?: string
+          mosque_id: string
+          title: string
+          ustadz?: string | null
+          day_of_week?: number | null
+          time_start?: string | null
+          topic?: string | null
+          is_recurring?: boolean
+          is_active?: boolean
+          created_at?: string
+        }
+        Update: {
+          mosque_id?: string
+          title?: string
+          ustadz?: string | null
+          day_of_week?: number | null
+          time_start?: string | null
+          topic?: string | null
+          is_recurring?: boolean
+          is_active?: boolean
+        }
+        Relationships: []
       }
       kas_transactions: {
         Row: {
           id: string
           mosque_id: string
-          type: 'in' | 'out'
+          type: string
           amount: number
           description: string
           receipt_url: string | null
-          status: 'draft' | 'approved' | 'rejected'
+          status: string
           created_by: string | null
           approved_by: string | null
           approved_at: string | null
           rejection_reason: string | null
           created_at: string
         }
-        Insert: Omit<Database['public']['Tables']['kas_transactions']['Row'], 'id' | 'created_at'>
-        Update: Partial<Database['public']['Tables']['kas_transactions']['Insert']>
+        Insert: {
+          id?: string
+          mosque_id: string
+          type: string
+          amount: number
+          description: string
+          receipt_url?: string | null
+          status?: string
+          created_by?: string | null
+          approved_by?: string | null
+          approved_at?: string | null
+          rejection_reason?: string | null
+          created_at?: string
+        }
+        Update: {
+          mosque_id?: string
+          type?: string
+          amount?: number
+          description?: string
+          receipt_url?: string | null
+          status?: string
+          created_by?: string | null
+          approved_by?: string | null
+          approved_at?: string | null
+          rejection_reason?: string | null
+        }
+        Relationships: []
       }
       infaq_codes: {
         Row: {
@@ -110,14 +243,39 @@ export interface Database {
           unique_code: number
           total_transfer: number
           campaign_id: string | null
-          status: 'pending' | 'verified' | 'rejected' | 'expired'
+          status: string
           verified_by: string | null
           verified_at: string | null
           expires_at: string
           created_at: string
         }
-        Insert: Omit<Database['public']['Tables']['infaq_codes']['Row'], 'id' | 'created_at'>
-        Update: Partial<Database['public']['Tables']['infaq_codes']['Insert']>
+        Insert: {
+          id?: string
+          mosque_id: string
+          user_id?: string | null
+          nominal: number
+          unique_code: number
+          total_transfer: number
+          campaign_id?: string | null
+          status?: string
+          verified_by?: string | null
+          verified_at?: string | null
+          expires_at?: string
+          created_at?: string
+        }
+        Update: {
+          mosque_id?: string
+          user_id?: string | null
+          nominal?: number
+          unique_code?: number
+          total_transfer?: number
+          campaign_id?: string | null
+          status?: string
+          verified_by?: string | null
+          verified_at?: string | null
+          expires_at?: string
+        }
+        Relationships: []
       }
       campaigns: {
         Row: {
@@ -129,11 +287,32 @@ export interface Database {
           raised_amount: number
           photo_url: string | null
           deadline: string | null
-          status: 'active' | 'completed' | 'cancelled'
+          status: string
           created_at: string
         }
-        Insert: Omit<Database['public']['Tables']['campaigns']['Row'], 'id' | 'created_at'>
-        Update: Partial<Database['public']['Tables']['campaigns']['Insert']>
+        Insert: {
+          id?: string
+          mosque_id: string
+          title: string
+          description?: string | null
+          target_amount?: number | null
+          raised_amount?: number
+          photo_url?: string | null
+          deadline?: string | null
+          status?: string
+          created_at?: string
+        }
+        Update: {
+          mosque_id?: string
+          title?: string
+          description?: string | null
+          target_amount?: number | null
+          raised_amount?: number
+          photo_url?: string | null
+          deadline?: string | null
+          status?: string
+        }
+        Relationships: []
       }
       campaign_updates: {
         Row: {
@@ -144,8 +323,21 @@ export interface Database {
           created_by: string | null
           created_at: string
         }
-        Insert: Omit<Database['public']['Tables']['campaign_updates']['Row'], 'id' | 'created_at'>
-        Update: Partial<Database['public']['Tables']['campaign_updates']['Insert']>
+        Insert: {
+          id?: string
+          campaign_id: string
+          content?: string | null
+          photo_url?: string | null
+          created_by?: string | null
+          created_at?: string
+        }
+        Update: {
+          campaign_id?: string
+          content?: string | null
+          photo_url?: string | null
+          created_by?: string | null
+        }
+        Relationships: []
       }
       marketplace_products: {
         Row: {
@@ -157,12 +349,35 @@ export interface Database {
           price: number | null
           photo_url: string | null
           wa_number: string | null
-          status: 'pending' | 'approved' | 'rejected'
+          status: string
           approved_by: string | null
           created_at: string
         }
-        Insert: Omit<Database['public']['Tables']['marketplace_products']['Row'], 'id' | 'created_at'>
-        Update: Partial<Database['public']['Tables']['marketplace_products']['Insert']>
+        Insert: {
+          id?: string
+          mosque_id: string
+          seller_user_id?: string | null
+          name: string
+          description?: string | null
+          price?: number | null
+          photo_url?: string | null
+          wa_number?: string | null
+          status?: string
+          approved_by?: string | null
+          created_at?: string
+        }
+        Update: {
+          mosque_id?: string
+          seller_user_id?: string | null
+          name?: string
+          description?: string | null
+          price?: number | null
+          photo_url?: string | null
+          wa_number?: string | null
+          status?: string
+          approved_by?: string | null
+        }
+        Relationships: []
       }
       contact_hashes: {
         Row: {
@@ -171,21 +386,45 @@ export interface Database {
           phone_hash: string
           created_at: string
         }
-        Insert: Omit<Database['public']['Tables']['contact_hashes']['Row'], 'id' | 'created_at'>
-        Update: Partial<Database['public']['Tables']['contact_hashes']['Insert']>
+        Insert: {
+          id?: string
+          user_id: string
+          phone_hash: string
+          created_at?: string
+        }
+        Update: {
+          user_id?: string
+          phone_hash?: string
+        }
+        Relationships: []
       }
       announcements: {
         Row: {
           id: string
           mosque_id: string
           content: string
-          category: 'info' | 'event' | 'urgent' | 'donasi'
+          category: string
           is_active: boolean
           created_by: string | null
           created_at: string
         }
-        Insert: Omit<Database['public']['Tables']['announcements']['Row'], 'id' | 'created_at'>
-        Update: Partial<Database['public']['Tables']['announcements']['Insert']>
+        Insert: {
+          id?: string
+          mosque_id: string
+          content: string
+          category?: string
+          is_active?: boolean
+          created_by?: string | null
+          created_at?: string
+        }
+        Update: {
+          mosque_id?: string
+          content?: string
+          category?: string
+          is_active?: boolean
+          created_by?: string | null
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -195,10 +434,25 @@ export interface Database {
           avatar_url: string | null
           created_at: string
         }
-        Insert: Omit<Database['public']['Tables']['profiles']['Row'], 'created_at'>
-        Update: Partial<Database['public']['Tables']['profiles']['Insert']>
+        Insert: {
+          id: string
+          full_name?: string | null
+          phone?: string | null
+          avatar_url?: string | null
+          created_at?: string
+        }
+        Update: {
+          full_name?: string | null
+          phone?: string | null
+          avatar_url?: string | null
+        }
+        Relationships: []
       }
     }
+    Views: Record<string, never>
+    Functions: Record<string, never>
+    Enums: Record<string, never>
+    CompositeTypes: Record<string, never>
   }
 }
 
