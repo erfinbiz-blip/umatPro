@@ -103,7 +103,7 @@ export default function TakmirDashboard() {
       <div className="flex items-center justify-center min-h-dvh p-4">
         <Glass rounded="2xl" padding="lg" className="text-center max-w-sm">
           <p className="text-white/50 mb-4">Anda belum terdaftar sebagai takmir masjid apapun.</p>
-          <Link href="/settings">
+          <Link href="/dkm/settings">
             <button className="text-gd3 text-sm">Daftarkan masjid →</button>
           </Link>
         </Glass>
@@ -157,7 +157,7 @@ export default function TakmirDashboard() {
 
         {/* Alert badges */}
         <div className="grid grid-cols-2 gap-3 mb-6">
-          <Link href="/kas">
+          <Link href="/dkm/kas">
             <Glass
               rounded="xl"
               padding="md"
@@ -176,7 +176,7 @@ export default function TakmirDashboard() {
             </Glass>
           </Link>
 
-          <Link href="/verifikasi">
+          <Link href="/dkm/verifikasi">
             <Glass
               rounded="xl"
               padding="md"
@@ -208,7 +208,7 @@ export default function TakmirDashboard() {
             </div>
           </Glass>
 
-          <Link href="/broadcast">
+          <Link href="/dkm/broadcast">
             <Glass rounded="xl" padding="md" className="hover:border-gd3/40 transition-all active:scale-[0.98]">
               <div className="flex items-center justify-between">
                 <div>
@@ -228,7 +228,7 @@ export default function TakmirDashboard() {
         <div className="mb-6">
           <div className="flex items-center justify-between mb-3">
             <h2 className="font-display font-semibold text-tx1">Transaksi Terakhir</h2>
-            <Link href="/kas" className="text-xs text-white/40 hover:text-white/70">
+            <Link href="/dkm/kas" className="text-xs text-white/40 hover:text-white/70">
               Lihat semua →
             </Link>
           </div>

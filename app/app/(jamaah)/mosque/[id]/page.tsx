@@ -103,7 +103,7 @@ export default function MosqueProfilePage() {
       <div className="min-h-dvh flex items-center justify-center">
         <Glass rounded="xl" padding="lg" className="text-center">
           <p className="text-white/50">Masjid tidak ditemukan</p>
-          <Link href="/discover" className="text-gd3 text-sm mt-2 inline-block">← Kembali</Link>
+          <Link href="/app/discover" className="text-gd3 text-sm mt-2 inline-block">← Kembali</Link>
         </Glass>
       </div>
     )
@@ -126,7 +126,7 @@ export default function MosqueProfilePage() {
 
         {/* Back button */}
         <Link
-          href="/discover"
+          href="/app/discover"
           className="absolute top-4 left-4 w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 flex items-center justify-center"
         >
           <ChevronLeft size={18} className="text-white" />
@@ -134,7 +134,7 @@ export default function MosqueProfilePage() {
 
         {/* TV button */}
         <Link
-          href={`/tv/${mosque.id}`}
+          href={`/dkm/tv/${mosque.id}`}
           className="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-em2/80 backdrop-blur-sm border border-em4/30 text-xs text-em4"
         >
           <Tv size={12} /> TV Display
@@ -187,7 +187,7 @@ export default function MosqueProfilePage() {
         )}
 
         {/* Infaq CTA */}
-        <Link href={`/infaq?mosque=${mosque.id}`}>
+        <Link href={`/app/infaq?mosque=${mosque.id}`}>
           <Glass variant="gold" rounded="xl" padding="md" className="mb-4 hover:border-gd3/60 transition-all active:scale-[0.98]">
             <div className="flex items-center justify-between">
               <div>

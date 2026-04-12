@@ -74,7 +74,7 @@ export default function MosqueMap({ mosques, center, className = '' }: MosqueMap
                     </p>
                   )}
                   <a
-                    href={`/mosque/${mosque.id}`}
+                    href={`/app/mosque/${mosque.id}`}
                     style={{
                       display: 'inline-block',
                       background: 'linear-gradient(135deg,#D4AF37,#E8C84A)',

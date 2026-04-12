@@ -64,7 +64,7 @@ export default function AuthPage() {
     } else {
       setStep('done')
       setTimeout(() => {
-        window.location.href = '/'
+        window.location.href = '/app'
       }, 1500)
     }
     setLoading(false)

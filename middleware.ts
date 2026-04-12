@@ -1,7 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-const TAKMIR_ROUTES = ['/dashboard', '/kas', '/verifikasi', '/broadcast', '/settings']
+const TAKMIR_ROUTES = ['/dkm']
 
 export async function middleware(request: NextRequest) {
   try {
@@ -36,7 +36,7 @@ export async function middleware(request: NextRequest) {
     }
 
     if (pathname === '/auth' && user) {
-      return NextResponse.redirect(new URL('/', request.url))
+      return NextResponse.redirect(new URL('/app', request.url))
     }
 
     return supabaseResponse

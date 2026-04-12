@@ -7,10 +7,10 @@ import { clsx } from 'clsx'
 import AtmosphereProvider from '@/components/jamaah/AtmosphereProvider'
 
 const navItems = [
-  { href: '/', icon: Home, label: 'Beranda' },
-  { href: '/discover', icon: Search, label: 'Temukan' },
-  { href: '/notifications', icon: Bell, label: 'Notifikasi' },
-  { href: '/profile', icon: User, label: 'Profil' },
+  { href: '/app', icon: Home, label: 'Beranda' },
+  { href: '/app/discover', icon: Search, label: 'Temukan' },
+  { href: '/app/notifications', icon: Bell, label: 'Notifikasi' },
+  { href: '/app/profile', icon: User, label: 'Profil' },
 ]
 
 export default function JamaahLayout({ children }: { children: React.ReactNode }) {
@@ -26,7 +26,7 @@ export default function JamaahLayout({ children }: { children: React.ReactNode }
       <nav className="bottom-nav">
         <div className="flex items-center justify-around px-4 pt-2 pb-1">
           {navItems.map(({ href, icon: Icon, label }) => {
-            const active = pathname === href || (href !== '/' && pathname.startsWith(href))
+            const active = pathname === href || (href !== '/app' && pathname.startsWith(href))
             return (
               <Link
                 key={href}

@@ -16,7 +16,7 @@ interface MosqueCardProps {
 
 export default function MosqueCard({ mosque, className }: MosqueCardProps) {
   return (
-    <Link href={`/mosque/${mosque.id}`} className={className}>
+    <Link href={`/app/mosque/${mosque.id}`} className={className}>
       <Glass
         rounded="xl"
         padding="none"

@@ -132,7 +132,7 @@ export default function ProfilePage() {
             </h2>
             <div className="space-y-2">
               {followedMosques.map((mosque) => (
-                <Link key={mosque.id} href={`/mosque/${mosque.id}`}>
+                <Link key={mosque.id} href={`/app/mosque/${mosque.id}`}>
                   <Glass rounded="xl" padding="sm" className="flex items-center justify-between hover:border-white/20 transition-colors active:scale-[0.98]">
                     <p className="text-sm font-medium text-tx1">{mosque.name}</p>
                     <ChevronRight size={14} className="text-white/30" />
@@ -145,7 +145,7 @@ export default function ProfilePage() {
 
         {/* Settings links */}
         <section className="mb-6 space-y-2">
-          <Link href="/profile/edit">
+          <Link href="/app/profile/edit">
             <Glass rounded="xl" padding="sm" className="flex items-center justify-between hover:border-white/20 transition-colors">
               <div className="flex items-center gap-3">
                 <Settings size={16} className="text-white/50" />

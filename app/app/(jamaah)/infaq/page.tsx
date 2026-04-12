@@ -50,7 +50,7 @@ function InfaqContent() {
     return (
       <Glass rounded="xl" padding="lg" className="text-center">
         <p className="text-white/50 mb-3">Pilih masjid terlebih dahulu</p>
-        <Link href="/discover">
+        <Link href="/app/discover">
           <button className="text-gd3 text-sm">Temukan Masjid →</button>
         </Link>
       </Glass>
@@ -67,7 +67,7 @@ export default function InfaqPage() {
 
       <div className="relative z-10 px-4 pt-safe">
         <div className="flex items-center gap-3 pt-12 pb-6">
-          <Link href="/" className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
+          <Link href="/app" className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
             <ChevronLeft size={18} />
           </Link>
           <h1 className="font-display text-xl font-bold text-tx1">Infaq & Donasi</h1>

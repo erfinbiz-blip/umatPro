@@ -196,7 +196,7 @@ export default function SettingsPage() {
                     </div>
                   </div>
                   <a
-                    href={`/tv/${mosqueId}`}
+                    href={`/dkm/tv/${mosqueId}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-1 text-xs text-gd3 hover:text-gd4"

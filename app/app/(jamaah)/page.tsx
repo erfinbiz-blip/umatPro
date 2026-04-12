@@ -104,12 +104,12 @@ export default function JamaahHome() {
             </h1>
           </div>
           <div className="flex items-center gap-2">
-            <Link href="/notifications">
+            <Link href="/app/notifications">
               <button className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors">
                 <Bell size={18} className="text-white/70" />
               </button>
             </Link>
-            <Link href="/profile">
+            <Link href="/app/profile">
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-em3 to-em2 border border-em4/30 flex items-center justify-center">
                 <span className="text-tx1 text-sm font-semibold">U</span>
               </div>
@@ -124,7 +124,7 @@ export default function JamaahHome() {
         <div className="flex items-center gap-1.5 mb-4 text-white/40">
           <MapPin size={12} />
           <span className="text-xs">Jakarta, Indonesia</span>
-          <Link href="/discover" className="ml-auto text-xs text-gd3 hover:text-gd4">
+          <Link href="/app/discover" className="ml-auto text-xs text-gd3 hover:text-gd4">
             Ubah →
           </Link>
         </div>
@@ -137,7 +137,7 @@ export default function JamaahHome() {
                 <Star size={14} className="text-gd3" />
                 Masjid Saya
               </h2>
-              <Link href="/discover" className="text-xs text-white/40 hover:text-white/70 flex items-center gap-0.5">
+              <Link href="/app/discover" className="text-xs text-white/40 hover:text-white/70 flex items-center gap-0.5">
                 Lihat semua <ChevronRight size={12} />
               </Link>
             </div>
@@ -158,7 +158,7 @@ export default function JamaahHome() {
               <MapPin size={14} className="text-em4" />
               Masjid Terdekat
             </h2>
-            <Link href="/discover" className="text-xs text-white/40 hover:text-white/70 flex items-center gap-0.5">
+            <Link href="/app/discover" className="text-xs text-white/40 hover:text-white/70 flex items-center gap-0.5">
               Lihat peta <ChevronRight size={12} />
             </Link>
           </div>
@@ -174,7 +174,7 @@ export default function JamaahHome() {
           ) : nearbyMosques.length === 0 ? (
             <Glass rounded="xl" padding="md" className="text-center py-8">
               <p className="text-white/40 text-sm">Belum ada masjid terdaftar</p>
-              <Link href="/discover" className="text-gd3 text-sm mt-2 inline-block">
+              <Link href="/app/discover" className="text-gd3 text-sm mt-2 inline-block">
                 Daftarkan masjid →
               </Link>
             </Glass>
@@ -197,7 +197,7 @@ export default function JamaahHome() {
                 Kas, broadcast, verifikasi infaq
               </p>
             </div>
-            <Link href="/dashboard">
+            <Link href="/dkm">
               <button className="bg-gd3 text-em1 px-4 py-2 rounded-xl text-sm font-semibold hover:bg-gd4 transition-colors">
                 Masuk →
               </button>
