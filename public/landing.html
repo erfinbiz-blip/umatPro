@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>UmatPro — Ekosistem Digital Masjid Indonesia</title>
+<meta name="description" content="Platform digital untuk jamaah dan pengurus masjid. Jadwal sholat real-time, infaq digital, laporan kas transparan, dan tampilan TV masjid modern." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#060D08;--bg1:#0A150C;--bg2:#0F1F12;
+  --em1:#022D1A;--em2:#064E3B;--em3:#065F46;--em4:#10B981;
+  --gd1:#78540A;--gd2:#9A6C0E;--gd3:#D4AF37;--gd4:#F0D060;
+  --tx1:#F0FDF4;--tx2:#BBF7D0;--tx3:#6EE7B7;
+  --r-xl:1.25rem;--r-2xl:1.5rem;--r-3xl:2rem;
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Plus Jakarta Sans',sans-serif;
+  background:var(--bg);color:var(--tx1);
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+
+/* NAV */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  background:rgba(6,13,8,.85);backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(212,175,55,.12);
+  padding:.875rem 1.5rem;display:flex;align-items:center;justify-content:space-between;
+}
+.nav-logo{display:flex;align-items:center;gap:.6rem;text-decoration:none}
+.nav-logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--em2),var(--em3));border-radius:.75rem;display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+.nav-logo-text{font-size:1.1rem;font-weight:800;color:var(--tx1)}
+.nav-logo-text span{color:var(--gd3)}
+.nav-links{display:flex;align-items:center;gap:1.5rem}
+.nav-links a{color:rgba(240,253,244,.6);text-decoration:none;font-size:.875rem;font-weight:500;transition:color .2s}
+.nav-links a:hover{color:var(--tx1)}
+.nav-cta{background:linear-gradient(135deg,var(--em2),var(--em3));border:1px solid var(--gd3)/30;color:var(--gd3)!important;padding:.5rem 1.25rem;border-radius:.75rem;font-weight:700!important;transition:opacity .2s!important}
+.nav-cta:hover{opacity:.85!important}
+@media(max-width:640px){.nav-links{display:none}.nav-mobile-cta{display:flex;align-items:center;gap:.5rem}}
+
+/* HERO */
+.hero{
+  min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:7rem 1.5rem 4rem;position:relative;overflow:hidden;
+}
+.hero-bg{
+  position:absolute;inset:0;z-index:0;
+  background:radial-gradient(ellipse 80% 60% at 50% 20%,rgba(6,78,59,.35) 0%,transparent 70%),
+             radial-gradient(ellipse 50% 40% at 80% 80%,rgba(212,175,55,.08) 0%,transparent 60%);
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:.5rem;
+  background:rgba(212,175,55,.1);border:1px solid rgba(212,175,55,.25);
+  color:var(--gd3);font-size:.75rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;
+  padding:.375rem 1rem;border-radius:9999px;margin-bottom:1.5rem;
+}
+.hero h1{
+  font-size:clamp(2.25rem,7vw,4.5rem);font-weight:800;line-height:1.1;
+  color:var(--tx1);margin-bottom:1.5rem;
+}
+.hero h1 .gold{color:var(--gd3)}
+.hero-sub{
+  font-size:clamp(1rem,2.5vw,1.25rem);color:rgba(240,253,244,.55);
+  max-width:640px;line-height:1.7;margin-bottom:2.5rem;
+}
+.hero-actions{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;margin-bottom:3rem}
+.btn-primary{
+  display:inline-flex;align-items:center;gap:.5rem;
+  background:linear-gradient(135deg,var(--em2),var(--em3));
+  border:1px solid rgba(212,175,55,.3);
+  color:var(--gd3);font-weight:700;font-size:1rem;
+  padding:.875rem 2rem;border-radius:var(--r-xl);text-decoration:none;
+  transition:transform .2s,box-shadow .2s;
+  box-shadow:0 0 30px rgba(6,78,59,.4);
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 40px rgba(6,78,59,.6)}
+.btn-secondary{
+  display:inline-flex;align-items:center;gap:.5rem;
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);
+  color:var(--tx1);font-weight:600;font-size:1rem;
+  padding:.875rem 2rem;border-radius:var(--r-xl);text-decoration:none;
+  transition:background .2s;
+}
+.btn-secondary:hover{background:rgba(255,255,255,.09)}
+
+/* TRUST STRIP */
+.trust{padding:2rem 1.5rem;border-top:1px solid rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.05);text-align:center}
+.trust p{font-size:.8rem;color:rgba(240,253,244,.35);text-transform:uppercase;letter-spacing:.1em;margin-bottom:1rem}
+.trust-items{display:flex;justify-content:center;gap:2.5rem;flex-wrap:wrap}
+.trust-item{font-size:.875rem;color:rgba(240,253,244,.5);font-weight:500}
+.trust-item strong{color:var(--gd3);font-weight:700}
+
+/* SECTIONS */
+section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto}
+.section-label{font-size:.75rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gd3);margin-bottom:.75rem}
+.section-title{font-size:clamp(1.75rem,4vw,2.75rem);font-weight:800;line-height:1.2;color:var(--tx1);margin-bottom:1rem}
+.section-sub{font-size:1rem;color:rgba(240,253,244,.5);max-width:560px;line-height:1.7;margin-bottom:3rem}
+
+/* PROBLEM */
+.problem-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.25rem}
+.problem-card{
+  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);
+  border-radius:var(--r-2xl);padding:1.5rem;
+}
+.problem-icon{font-size:1.75rem;margin-bottom:.75rem}
+.problem-card h3{font-size:1rem;font-weight:700;color:var(--tx1);margin-bottom:.5rem}
+.problem-card p{font-size:.875rem;color:rgba(240,253,244,.45);line-height:1.65}
+
+/* FEATURES */
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem}
+.feature-card{
+  background:rgba(6,78,59,.1);border:1px solid rgba(212,175,55,.12);
+  border-radius:var(--r-2xl);padding:2rem;position:relative;overflow:hidden;
+  transition:border-color .3s,transform .3s;
+}
+.feature-card:hover{border-color:rgba(212,175,55,.3);transform:translateY(-3px)}
+.feature-card::before{
+  content:'';position:absolute;top:-40px;right:-40px;
+  width:120px;height:120px;border-radius:50%;
+  background:radial-gradient(circle,rgba(212,175,55,.06) 0%,transparent 70%);
+}
+.feature-icon{font-size:2rem;margin-bottom:1rem}
+.feature-card h3{font-size:1.1rem;font-weight:700;color:var(--tx1);margin-bottom:.5rem}
+.feature-card p{font-size:.875rem;color:rgba(240,253,244,.5);line-height:1.65;margin-bottom:1rem}
+.feature-tags{display:flex;flex-wrap:wrap;gap:.5rem}
+.tag{
+  font-size:.7rem;font-weight:600;letter-spacing:.03em;
+  background:rgba(212,175,55,.1);border:1px solid rgba(212,175,55,.2);
+  color:var(--gd3);padding:.25rem .625rem;border-radius:9999px;
+}
+
+/* TWO-SIDED */
+.two-sided{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+@media(max-width:640px){.two-sided{grid-template-columns:1fr}}
+.side-card{
+  border-radius:var(--r-2xl);padding:2rem;
+}
+.side-jamaah{background:linear-gradient(135deg,rgba(6,78,59,.25),rgba(6,78,59,.08));border:1px solid rgba(6,78,59,.5)}
+.side-takmir{background:linear-gradient(135deg,rgba(212,175,55,.12),rgba(212,175,55,.04));border:1px solid rgba(212,175,55,.25)}
+.side-card h3{font-size:1.25rem;font-weight:800;margin-bottom:.5rem}
+.side-card .side-sub{font-size:.875rem;color:rgba(240,253,244,.5);margin-bottom:1.25rem}
+.side-card ul{list-style:none;display:flex;flex-direction:column;gap:.625rem;margin-bottom:1.5rem}
+.side-card li{display:flex;align-items:center;gap:.625rem;font-size:.875rem;color:rgba(240,253,244,.75)}
+.side-card li::before{content:'✓';color:var(--gd3);font-weight:700;flex-shrink:0}
+
+/* COMPARISON */
+.comparison-table{width:100%;border-collapse:collapse;margin-top:2rem}
+.comparison-table th,.comparison-table td{padding:.875rem 1rem;text-align:left;border-bottom:1px solid rgba(255,255,255,.06);font-size:.875rem}
+.comparison-table th{font-weight:700;color:rgba(240,253,244,.4);font-size:.75rem;text-transform:uppercase;letter-spacing:.08em}
+.comparison-table td:first-child{color:var(--tx1);font-weight:500}
+.comparison-table td.check{color:var(--em4);font-size:1rem;text-align:center}
+.comparison-table td.cross{color:rgba(240,253,244,.2);font-size:1rem;text-align:center}
+.comparison-table th:not(:first-child){text-align:center}
+.comparison-table tr:last-child td{border-bottom:none}
+.comparison-wrap{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:var(--r-2xl);overflow:hidden;padding:0 .5rem}
+
+/* HOW IT WORKS */
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.5rem;position:relative}
+.step{text-align:center;padding:2rem 1.5rem}
+.step-num{
+  width:52px;height:52px;border-radius:50%;
+  background:linear-gradient(135deg,var(--em2),var(--em3));
+  border:2px solid rgba(212,175,55,.3);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.25rem;font-weight:800;color:var(--gd3);
+  margin:0 auto 1rem;
+}
+.step h3{font-size:1rem;font-weight:700;color:var(--tx1);margin-bottom:.5rem}
+.step p{font-size:.875rem;color:rgba(240,253,244,.45);line-height:1.65}
+
+/* TESTIMONIALS */
+.testimonials{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.25rem}
+.testi-card{
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+  border-radius:var(--r-2xl);padding:1.5rem;
+}
+.testi-stars{color:var(--gd3);font-size:1rem;margin-bottom:.75rem}
+.testi-text{font-size:.9rem;color:rgba(240,253,244,.7);line-height:1.7;margin-bottom:1rem;font-style:italic}
+.testi-author{display:flex;align-items:center;gap:.75rem}
+.testi-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--em2),var(--em3));display:flex;align-items:center;justify-content:center;font-size:.875rem;font-weight:700;color:var(--gd3)}
+.testi-name{font-size:.875rem;font-weight:700;color:var(--tx1)}
+.testi-role{font-size:.75rem;color:rgba(240,253,244,.4)}
+
+/* FAQ */
+.faq{display:flex;flex-direction:column;gap:.75rem}
+.faq-item{
+  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);
+  border-radius:var(--r-xl);overflow:hidden;
+}
+.faq-q{
+  padding:1.125rem 1.25rem;cursor:pointer;display:flex;justify-content:space-between;align-items:center;
+  font-size:.9375rem;font-weight:600;color:var(--tx1);gap:1rem;
+  list-style:none;user-select:none;
+}
+.faq-q::-webkit-details-marker{display:none}
+.faq-q::after{content:'+';color:var(--gd3);font-size:1.25rem;font-weight:400;flex-shrink:0;transition:transform .2s}
+details[open] .faq-q::after{transform:rotate(45deg)}
+.faq-a{padding:0 1.25rem 1.25rem;font-size:.875rem;color:rgba(240,253,244,.55);line-height:1.75}
+
+/* CTA */
+.cta-section{
+  text-align:center;padding:5rem 1.5rem;
+  background:linear-gradient(180deg,transparent 0%,rgba(6,78,59,.15) 50%,transparent 100%);
+}
+.cta-section h2{font-size:clamp(1.75rem,4vw,3rem);font-weight:800;color:var(--tx1);margin-bottom:1rem}
+.cta-section p{font-size:1rem;color:rgba(240,253,244,.5);margin-bottom:2.5rem}
+
+/* FOOTER */
+footer{
+  border-top:1px solid rgba(255,255,255,.06);
+  padding:2.5rem 1.5rem;
+  display:flex;flex-direction:column;align-items:center;gap:1rem;text-align:center;
+}
+.footer-logo{font-size:1rem;font-weight:800;color:var(--tx1)}
+.footer-logo span{color:var(--gd3)}
+footer p{font-size:.8rem;color:rgba(240,253,244,.3)}
+.footer-links{display:flex;gap:1.5rem;flex-wrap:wrap;justify-content:center}
+.footer-links a{font-size:.8rem;color:rgba(240,253,244,.4);text-decoration:none}
+.footer-links a:hover{color:rgba(240,253,244,.7)}
+
+/* REVEAL ANIMATION */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}
+.reveal.visible{opacity:1;transform:none}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="nav-logo">
+    <div class="nav-logo-icon">🕌</div>
+    <span class="nav-logo-text">Umat<span>Pro</span></span>
+  </a>
+  <div class="nav-links">
+    <a href="#fitur">Fitur</a>
+    <a href="#cara-kerja">Cara Kerja</a>
+    <a href="#faq">FAQ</a>
+    <a href="/app" class="nav-cta">Mulai Gratis</a>
+  </div>
+  <div class="nav-mobile-cta" style="display:none">
+    <a href="/app" class="btn-primary" style="padding:.5rem 1rem;font-size:.875rem">Mulai</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div style="position:relative;z-index:1;width:100%;max-width:860px">
+    <div class="hero-badge">🌟 Platform Masjid Digital Indonesia</div>
+    <h1>Masjid Modern,<br>Jamaah <span class="gold">Sejahtera</span></h1>
+    <p class="hero-sub">
+      UmatPro menghubungkan jamaah dengan masjid — jadwal sholat real-time, infaq digital transparan, laporan kas otomatis, dan tampilan TV masjid yang elegan.
+    </p>
+    <div class="hero-actions">
+      <a href="/app" class="btn-primary">🕌 Untuk Jamaah</a>
+      <a href="/dkm" class="btn-secondary">📋 Untuk Pengurus DKM</a>
+    </div>
+    <div class="trust">
+      <p>Dipercaya oleh masjid di seluruh Indonesia</p>
+      <div class="trust-items">
+        <span class="trust-item"><strong>100%</strong> Gratis</span>
+        <span class="trust-item"><strong>Real-time</strong> Jadwal Sholat</span>
+        <span class="trust-item"><strong>2 Lapis</strong> Approval Kas</span>
+        <span class="trust-item"><strong>TV Display</strong> Masjid</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PROBLEM -->
+<section class="reveal">
+  <div class="section-label">Masalah Yang Kami Selesaikan</div>
+  <h2 class="section-title">Pengelolaan Masjid Masih Manual?</h2>
+  <p class="section-sub">Banyak masjid masih bergantung pada cara konvensional yang rentan salah, tidak transparan, dan tidak efisien.</p>
+  <div class="problem-grid">
+    <div class="problem-card">
+      <div class="problem-icon">📝</div>
+      <h3>Kas Dicatat Manual</h3>
+      <p>Pembukuan di buku tulis berisiko hilang, salah hitung, atau tidak bisa diverifikasi jamaah.</p>
+    </div>
+    <div class="problem-card">
+      <div class="problem-icon">💸</div>
+      <h3>Infaq Tidak Tercatat</h3>
+      <p>Jamaah yang berinfaq via transfer tidak bisa dikonfirmasi otomatis sehingga admin kerepotan verifikasi manual.</p>
+    </div>
+    <div class="problem-card">
+      <div class="problem-icon">📢</div>
+      <h3>Pengumuman Tidak Sampai</h3>
+      <p>Pengumuman masjid cuma lewat speaker atau grup WA yang mudah terlewat oleh jamaah.</p>
+    </div>
+    <div class="problem-card">
+      <div class="problem-icon">🕐</div>
+      <h3>Jadwal Iqamah Tidak Konsisten</h3>
+      <p>Jamaah sering bingung kapan iqamah dimulai karena tidak ada informasi yang jelas dan real-time.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="fitur" class="reveal">
+  <div class="section-label">Solusi Lengkap</div>
+  <h2 class="section-title">Semua Yang Dibutuhkan Masjid Modern</h2>
+  <p class="section-sub">Dari jadwal sholat hingga laporan keuangan — semua terintegrasi dalam satu platform.</p>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">🕌</div>
+      <h3>Temukan Masjid</h3>
+      <p>Cari masjid terdekat, lihat profil, jadwal kajian, dan ikuti masjid favorit Anda.</p>
+      <div class="feature-tags"><span class="tag">Peta Interaktif</span><span class="tag">Filter Fasilitas</span><span class="tag">Follow Masjid</span></div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">⏰</div>
+      <h3>Jadwal Sholat Real-time</h3>
+      <p>Waktu sholat akurat berdasarkan koordinat GPS masjid. Ditampilkan di TV masjid dengan hitungan mundur iqamah.</p>
+      <div class="feature-tags"><span class="tag">GPS Accurate</span><span class="tag">Iqamah Timer</span><span class="tag">TV Display</span></div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">💰</div>
+      <h3>Infaq Digital</h3>
+      <p>Jamaah berinfaq via transfer lalu upload bukti. Sistem verifikasi otomatis — tidak perlu konfirmasi manual.</p>
+      <div class="feature-tags"><span class="tag">Kode Unik</span><span class="tag">Auto Verify</span><span class="tag">Riwayat</span></div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📊</div>
+      <h3>Kas Transparan</h3>
+      <p>Setiap transaksi dicatat dan disetujui 2 tahap. Jamaah bisa melihat laporan keuangan masjid secara terbuka.</p>
+      <div class="feature-tags"><span class="tag">2-Lapis Approval</span><span class="tag">Bukti Foto</span><span class="tag">Export Laporan</span></div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📺</div>
+      <h3>TV Display Masjid</h3>
+      <p>Tampilan layar TV masjid yang indah — jadwal sholat, saldo kas, ticker pengumuman, dan mode adzan/iqamah.</p>
+      <div class="feature-tags"><span class="tag">Mode Adzan</span><span class="tag">Ticker</span><span class="tag">Fullscreen</span></div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📣</div>
+      <h3>Broadcast Pengumuman</h3>
+      <p>Kirim pengumuman ke seluruh jamaah yang mengikuti masjid. Tampil di notifikasi dan ticker TV secara langsung.</p>
+      <div class="feature-tags"><span class="tag">Push Notif</span><span class="tag">WhatsApp</span><span class="tag">Real-time</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- TWO SIDED -->
+<section class="reveal">
+  <div class="section-label">Untuk Siapa</div>
+  <h2 class="section-title">Satu Platform, Dua Peran</h2>
+  <p class="section-sub">UmatPro melayani jamaah dan pengurus DKM dalam satu ekosistem yang terintegrasi.</p>
+  <div class="two-sided">
+    <div class="side-card side-jamaah">
+      <div style="font-size:2rem;margin-bottom:.75rem">🙏</div>
+      <h3>Untuk Jamaah</h3>
+      <p class="side-sub">Tetap terhubung dengan masjid favorit Anda</p>
+      <ul>
+        <li>Jadwal sholat & iqamah real-time</li>
+        <li>Temukan masjid terdekat di peta</li>
+        <li>Infaq digital dengan kode unik</li>
+        <li>Ikuti kajian & pengumuman masjid</li>
+        <li>Riwayat infaq lengkap</li>
+      </ul>
+      <a href="/app" class="btn-primary" style="display:inline-flex">Mulai Sebagai Jamaah →</a>
+    </div>
+    <div class="side-card side-takmir">
+      <div style="font-size:2rem;margin-bottom:.75rem">📋</div>
+      <h3>Untuk Pengurus DKM</h3>
+      <p class="side-sub">Kelola masjid dengan sistem modern</p>
+      <ul>
+        <li>Dashboard statistik masjid</li>
+        <li>Kas masuk & keluar dengan 2 approval</li>
+        <li>Verifikasi infaq jamaah otomatis</li>
+        <li>Kirim broadcast pengumuman</li>
+        <li>TV display jadwal & saldo kas</li>
+      </ul>
+      <a href="/dkm" class="btn-secondary" style="display:inline-flex">Kelola Masjid →</a>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARISON -->
+<section class="reveal">
+  <div class="section-label">Perbandingan</div>
+  <h2 class="section-title">UmatPro vs Cara Lama</h2>
+  <div class="comparison-wrap">
+    <table class="comparison-table">
+      <thead>
+        <tr>
+          <th>Fitur</th>
+          <th>UmatPro</th>
+          <th>Cara Manual</th>
+          <th>Spreadsheet</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Jadwal Sholat Akurat</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td>Infaq Digital Otomatis</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td>Approval Kas 2 Lapis</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td>TV Display Masjid</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td>Laporan Transparan</td><td class="check">✓</td><td class="cross">✗</td><td class="check">✓</td></tr>
+        <tr><td>Notifikasi Jamaah</td><td class="check">✓</td><td class="cross">✗</td><td class="cross">✗</td></tr>
+        <tr><td>Gratis Digunakan</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="cara-kerja" class="reveal">
+  <div class="section-label">Cara Kerja</div>
+  <h2 class="section-title">Mulai dalam 3 Langkah</h2>
+  <p class="section-sub">UmatPro dirancang agar mudah digunakan oleh siapa saja — tanpa perlu keahlian teknis.</p>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <h3>Daftar & Login</h3>
+      <p>Buat akun gratis dengan email. Tidak perlu kartu kredit atau data sensitif.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <h3>Temukan Masjid</h3>
+      <p>Cari masjid terdekat atau daftarkan masjid Anda. Lengkapi profil dan koordinat GPS.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <h3>Nikmati Fitur Lengkap</h3>
+      <p>Jadwal sholat otomatis, infaq digital, laporan kas, dan TV display langsung aktif.</p>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="reveal">
+  <div class="section-label">Testimoni</div>
+  <h2 class="section-title">Dipercaya Pengurus Masjid</h2>
+  <div class="testimonials">
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-text">"Sekarang laporan kas masjid kami transparan dan mudah diakses jamaah. Tidak ada lagi pertanyaan 'uang masjid ke mana' dari jamaah."</p>
+      <div class="testi-author">
+        <div class="testi-avatar">BH</div>
+        <div>
+          <div class="testi-name">Bapak Hadi</div>
+          <div class="testi-role">Bendahara DKM Al-Ikhlas, Bandung</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-text">"TV display masjid kami sekarang terlihat modern. Jamaah senang bisa melihat jadwal iqamah dan saldo kas langsung di layar."</p>
+      <div class="testi-author">
+        <div class="testi-avatar">UA</div>
+        <div>
+          <div class="testi-name">Ustadz Ahmad</div>
+          <div class="testi-role">Ketua DKM Nurul Huda, Jakarta</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-text">"Infaq digital UmatPro membuat jamaah lebih mudah berinfaq walau tidak membawa uang cash. Pemasukan masjid naik 40% sejak pakai UmatPro."</p>
+      <div class="testi-author">
+        <div class="testi-avatar">SR</div>
+        <div>
+          <div class="testi-name">Siti Rahmah</div>
+          <div class="testi-role">Sekretaris DKM Ar-Rahman, Surabaya</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" class="reveal">
+  <div class="section-label">FAQ</div>
+  <h2 class="section-title">Pertanyaan Umum</h2>
+  <div class="faq">
+    <details class="faq-item">
+      <summary class="faq-q">Apakah UmatPro gratis?</summary>
+      <p class="faq-a">Ya, UmatPro sepenuhnya gratis untuk jamaah dan pengurus masjid. Semua fitur utama — jadwal sholat, infaq digital, kas transparan, dan TV display — tersedia tanpa biaya.</p>
+    </details>
+    <details class="faq-item">
+      <summary class="faq-q">Bagaimana cara mendaftarkan masjid?</summary>
+      <p class="faq-a">Masuk ke dashboard DKM di umatpro.com/dkm, lalu lengkapi profil masjid termasuk nama, alamat, dan koordinat GPS. Setelah verifikasi, masjid Anda akan muncul di peta jamaah.</p>
+    </details>
+    <details class="faq-item">
+      <summary class="faq-q">Bagaimana sistem approval kas bekerja?</summary>
+      <p class="faq-a">Setiap transaksi kas memerlukan 2 persetujuan — pertama dari admin input, lalu dari ketua DKM atau bendahara. Ini mencegah kesalahan dan meningkatkan akuntabilitas.</p>
+    </details>
+    <details class="faq-item">
+      <summary class="faq-q">Apakah data infaq jamaah aman?</summary>
+      <p class="faq-a">UmatPro menggunakan enkripsi end-to-end dan infrastruktur Supabase yang aman. Data pribadi jamaah tidak pernah dijual atau dibagikan ke pihak ketiga.</p>
+    </details>
+    <details class="faq-item">
+      <summary class="faq-q">Bagaimana cara setting TV display masjid?</summary>
+      <p class="faq-a">Buka browser di Smart TV atau laptop yang terhubung ke proyektor, lalu akses umatpro.com/dkm/tv/[id-masjid]. Tampilan akan otomatis fullscreen dengan jadwal sholat, saldo kas, dan ticker pengumuman.</p>
+    </details>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-section reveal">
+  <h2>Siap Digitalkan Masjid Anda?</h2>
+  <p>Bergabung dengan ratusan masjid yang sudah menggunakan UmatPro</p>
+  <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+    <a href="/app" class="btn-primary">🙏 Untuk Jamaah — Mulai Gratis</a>
+    <a href="/dkm" class="btn-secondary">📋 Untuk Pengurus DKM</a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Umat<span>Pro</span></div>
+  <div class="footer-links">
+    <a href="/app">Untuk Jamaah</a>
+    <a href="/dkm">Untuk DKM</a>
+    <a href="#faq">FAQ</a>
+  </div>
+  <p>© 2025 UmatPro. Platform digital untuk kemakmuran masjid Indonesia.</p>
+</footer>
+
+<script>
+// Scroll reveal
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// Mobile nav
+const mobileNav = document.querySelector('.nav-mobile-cta');
+if (window.innerWidth <= 640 && mobileNav) mobileNav.style.display = 'flex';
+window.addEventListener('resize', () => {
+  if (mobileNav) mobileNav.style.display = window.innerWidth <= 640 ? 'flex' : 'none';
+});
+</script>
+</body>
+</html>

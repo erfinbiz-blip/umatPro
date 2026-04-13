@@ -14,6 +14,7 @@ interface FollowedMosque extends Mosque { id: string; name: string }
 export default function ProfilePage() {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [followedMosques, setFollowedMosques] = useState<FollowedMosque[]>([])
+  const [totalInfaq, setTotalInfaq] = useState(0)
   const [loading, setLoading] = useState(true)
   const [email, setEmail] = useState('')
 
@@ -29,12 +30,14 @@ export default function ProfilePage() {
 
       setEmail(user.email ?? '')
 
-      const [profileRes, followRes] = await Promise.all([
+      const [profileRes, followRes, infaqRes] = await Promise.all([
         supabase.from('profiles').select('*').eq('id', user.id).single(),
         supabase.from('follows').select('mosque_id').eq('user_id', user.id),
+        supabase.from('infaq_codes').select('nominal').eq('user_id', user.id).eq('status', 'verified'),
       ])
 
       setProfile(profileRes.data)
+      setTotalInfaq(infaqRes.data?.reduce((sum, r) => sum + r.nominal, 0) ?? 0)
 
       if (followRes.data?.length) {
         const ids = followRes.data.map((f) => f.mosque_id)
@@ -119,7 +122,9 @@ export default function ProfilePage() {
             <p className="text-xs text-white/40 mt-0.5">Masjid Diikuti</p>
           </Glass>
           <Glass rounded="xl" padding="md" className="text-center">
-            <p className="text-2xl font-display font-bold text-em4">0</p>
+            <p className="text-xl font-display font-bold text-em4">
+              {totalInfaq > 0 ? `Rp ${(totalInfaq / 1000).toFixed(0)}rb` : 'Rp 0'}
+            </p>
             <p className="text-xs text-white/40 mt-0.5">Total Infaq</p>
           </Glass>
         </div>

@@ -55,13 +55,28 @@ export default function TVDisplayPage() {
         if (mosqueRes.data.lat && mosqueRes.data.lng) {
           const times = formatPrayerTimes(mosqueRes.data.lat, mosqueRes.data.lng)
 
-          // TODO: fetch iqamah offsets from prayer_schedules table
+          // Fetch iqamah offsets from prayer_schedules (today)
+          const today = new Date().toISOString().split('T')[0]
+          const { data: schedule } = await supabase
+            .from('prayer_schedules')
+            .select('iqamah_subuh_offset,iqamah_dzuhur_offset,iqamah_ashar_offset,iqamah_maghrib_offset,iqamah_isya_offset')
+            .eq('mosque_id', mosque_id)
+            .eq('date', today)
+            .maybeSingle()
+
+          const addMinutes = (time: string, mins: number) => {
+            const [h, m] = time.split(':').map(Number)
+            const total = h * 60 + m + mins
+            return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`
+          }
+
+          const offsets = schedule ?? {}
           const prayers = [
-            { name: 'subuh', label: 'Subuh', time: times.subuh },
-            { name: 'dzuhur', label: 'Dzuhur', time: times.dzuhur },
-            { name: 'ashar', label: 'Ashar', time: times.ashar },
-            { name: 'maghrib', label: 'Maghrib', time: times.maghrib },
-            { name: 'isya', label: "Isya'", time: times.isya },
+            { name: 'subuh', label: 'Subuh', time: times.subuh, iqamah: addMinutes(times.subuh, (offsets as any).iqamah_subuh_offset ?? 10) },
+            { name: 'dzuhur', label: 'Dzuhur', time: times.dzuhur, iqamah: addMinutes(times.dzuhur, (offsets as any).iqamah_dzuhur_offset ?? 15) },
+            { name: 'ashar', label: 'Ashar', time: times.ashar, iqamah: addMinutes(times.ashar, (offsets as any).iqamah_ashar_offset ?? 10) },
+            { name: 'maghrib', label: 'Maghrib', time: times.maghrib, iqamah: addMinutes(times.maghrib, (offsets as any).iqamah_maghrib_offset ?? 5) },
+            { name: 'isya', label: "Isya'", time: times.isya, iqamah: addMinutes(times.isya, (offsets as any).iqamah_isya_offset ?? 10) },
           ]
           setPrayerTimes(prayers)
         }
