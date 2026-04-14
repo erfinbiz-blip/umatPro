@@ -21,9 +21,10 @@
 | URL | Keterangan | Path File |
 |-----|-----------|-----------|
 | `/` | Landing page (HTML statis) | `app/route.ts` → serve `public/landing.html` |
+| `/mosque/[id]` | **Profil publik masjid (tanpa login)** | `app/mosque/[id]/page.tsx` + `_client.tsx` |
 | `/app` | Home jamaah | `app/app/(jamaah)/page.tsx` |
 | `/app/discover` | Temukan masjid + peta | `app/app/(jamaah)/discover/page.tsx` |
-| `/app/mosque/[id]` | Detail masjid | `app/app/(jamaah)/mosque/[id]/page.tsx` |
+| `/app/mosque/[id]` | Detail masjid (login) | `app/app/(jamaah)/mosque/[id]/page.tsx` |
 | `/app/infaq` | Infaq digital jamaah | `app/app/(jamaah)/infaq/page.tsx` |
 | `/app/profile` | Profil jamaah | `app/app/(jamaah)/profile/page.tsx` |
 | `/app/profile/edit` | Edit profil (nama, WA) | `app/app/(jamaah)/profile/edit/page.tsx` |
@@ -32,11 +33,13 @@
 | `/dkm` | Dashboard DKM (protected) | `app/dkm/(takmir)/page.tsx` |
 | `/dkm/kas` | Manajemen kas | `app/dkm/(takmir)/kas/page.tsx` |
 | `/dkm/verifikasi` | Verifikasi infaq | `app/dkm/(takmir)/verifikasi/page.tsx` |
-| `/dkm/broadcast` | Kirim pengumuman | `app/dkm/(takmir)/broadcast/page.tsx` |
+| `/dkm/pengumuman` | **CRUD pengumuman** | `app/dkm/(takmir)/pengumuman/page.tsx` |
+| `/dkm/qr` | **QR Infaq — cetak & unduh** | `app/dkm/(takmir)/qr/page.tsx` |
+| `/dkm/broadcast` | Broadcast WA | `app/dkm/(takmir)/broadcast/page.tsx` |
 | `/dkm/settings` | Pengaturan masjid | `app/dkm/(takmir)/settings/page.tsx` |
 | `/dkm/tv/[mosque_id]` | TV Display masjid | `app/dkm/tv/[mosque_id]/page.tsx` |
 
-**Middleware** (`middleware.ts`): Proteksi semua route `/dkm/*` — redirect ke `/auth` jika belum login. Jika sudah login dan buka `/auth`, redirect ke `/app`.
+**Middleware** (`middleware.ts`): Proteksi semua route `/dkm/*` → redirect ke `/auth` jika belum login. Jika sudah login dan buka `/auth`, redirect ke `/app`.
 
 ---
 
@@ -52,9 +55,10 @@
 - `mosques` — data masjid (name, address, lat, lng, photo_url, is_verified)
 - `follows` — relasi user ↔ masjid
 - `infaq_codes` — kode unik infaq (nominal, status: pending/verified/rejected)
-- `kas_transactions` — transaksi kas (type: in/out, amount, status: pending/approved/rejected)
-- `announcements` — pengumuman masjid (is_active, title, body)
-- `prayer_schedules` — jadwal iqamah per masjid per tanggal (iqamah_subuh_offset, dst.)
+- `kas_transactions` — transaksi kas (type: in/out, amount, status: draft/approved/rejected)
+- `announcements` — pengumuman masjid (content, category: info/event/urgent/donasi, is_active)
+- `prayer_schedules` — jadwal iqamah per masjid per tanggal (iqamah_*_offset)
+- `kajians` — jadwal kajian (title, ustadz, day_of_week, time_start, is_recurring, is_active)
 - `campaigns` — kampanye donasi (target_amount, raised_amount)
 
 ### Storage bucket
@@ -62,29 +66,54 @@
 
 ---
 
-## Perubahan Terakhir (Sesi Ini)
+## Perubahan Sesi Sebelumnya (v1.0 Fixes)
 
-### Infrastruktur
-- Restructure route: `app/(jamaah)/` → `app/app/(jamaah)/` dan `app/(takmir)/` → `app/dkm/(takmir)/`
-- TV display dipindah: `app/tv/[id]/` → `app/dkm/tv/[mosque_id]/`
-- `app/route.ts` — Route Handler melayani `public/landing.html` di `/`
+- Route restructure: `/app/*` jamaah, `/dkm/*` takmir
+- `app/route.ts` — Route Handler serving `public/landing.html`
+- `public/landing.html` — Landing page lengkap (hero, fitur, FAQ, CTA)
+- `public/icon-192.png`, `icon-512.png`, `apple-touch-icon.png` — PWA icons
+- `app/app/(jamaah)/profile/edit/page.tsx` — Form edit nama & WA
+- Fix profile total infaq (query real dari `infaq_codes`)
+- Fix TV iqamah offsets (fetch dari `prayer_schedules`)
+- Fix middleware try-catch
+- `supabase/migrations/003_rpc_functions.sql` — RPC `increment_campaign_raised`
 
-### Bug Fix
-- **Profile total infaq** — sebelumnya hardcode `0`, sekarang query real dari tabel `infaq_codes` (status=verified)
-- **TV iqamah offsets** — sebelumnya ada TODO, sekarang fetch dari tabel `prayer_schedules` dengan fallback default (subuh: +10, dzuhur: +15, ashar: +10, maghrib: +5, isya: +10 menit)
-- **Middleware** — ditambah try-catch agar tidak throw `MIDDLEWARE_INVOCATION_FAILED`
+---
 
-### File Baru
-- `app/app/(jamaah)/profile/edit/page.tsx` — Form edit nama lengkap & nomor WA
-- `public/landing.html` — Landing page lengkap (hero, fitur, perbandingan, FAQ, CTA)
-- `public/icon-192.png`, `icon-512.png`, `apple-touch-icon.png` — PWA icons (emerald + gold)
-- `supabase/migrations/003_rpc_functions.sql` — RPC atomic update campaign
+## Perubahan Sesi Ini (Fase 2 — A, B, C)
 
-### Konfigurasi yang Diubah
-- `middleware.ts`: `TAKMIR_ROUTES = ['/dkm']` (dari list panjang ke prefix tunggal)
-- `components/takmir/Sidebar.tsx`: semua href diperbarui ke `/dkm/*`
-- `components/jamaah/MosqueCard.tsx`, `MosqueMap.tsx`: link masjid ke `/app/mosque/[id]`
-- `app/auth/page.tsx`: redirect setelah login ke `/app`
+### A. CRUD Pengumuman (`/dkm/pengumuman`)
+- **File**: `app/dkm/(takmir)/pengumuman/page.tsx`
+- Buat pengumuman dengan 4 kategori: info, event, urgent, donasi
+- Toggle aktif/nonaktif (aktif = tampil di ticker TV otomatis)
+- Hapus dengan konfirmasi
+- Counter pengumuman aktif di header
+
+### B. QR Code Infaq
+- **File**: `components/ui/InfaqQR.tsx` — reusable component (QRCodeCanvas + download + print)
+- **File**: `app/dkm/(takmir)/qr/page.tsx` — halaman `/dkm/qr` dengan QR + panduan + link
+- TV display (`app/dkm/tv/[mosque_id]/page.tsx`) — QR code 120px menggantikan teks URL
+- Settings page — shortcut grid TV Display + QR Infaq
+- Sidebar DKM — menu QR Infaq (icon QrCode)
+- QR encode URL: `[origin]/app/infaq?mosque=[mosque_id]`
+- **Package baru**: `qrcode.react ^4.2.0`
+
+### C. Halaman Publik Profil Masjid (`/mosque/[id]`)
+- **File**: `app/mosque/[id]/page.tsx` — metadata SSR (OG tags, title, description untuk WA preview)
+- **File**: `app/mosque/[id]/_client.tsx` — full public page:
+  - Buka tanpa login
+  - Jadwal sholat real-time (PrayerStrip)
+  - Tab: Info, Kajian, Pengumuman
+  - QR modal infaq (tap ikon di hero)
+  - Tombol Bagikan WA (teks pre-filled) + Salin Link
+  - CTA "Buka di Aplikasi UmatPro"
+- `app/app/(jamaah)/mosque/[id]/page.tsx` — tambah tombol Share2 → copy URL `/mosque/[id]`
+
+### Sidebar DKM (diperbaiki)
+- Semua href diperbaiki ke `/dkm/*` (sebelumnya `/dashboard`, `/kas`, dll — broken)
+- Active detection `/dkm` menggunakan exact match
+- Menu baru: Pengumuman (Bell), QR Infaq (QrCode)
+- Urutan: Dashboard → Kas → Verifikasi → **Pengumuman** → **QR Infaq** → Broadcast WA → Pengaturan
 
 ---
 
@@ -96,22 +125,41 @@
 | Domain umatpro.com | ✅ Active (nameserver Vercel) |
 | Supabase migrations 001-003 | ✅ Done |
 | Storage bucket kas-receipts | ✅ Done |
+| Fase 2A: CRUD Pengumuman | ✅ Done |
+| Fase 2B: QR Code Infaq | ✅ Done |
+| Fase 2C: Halaman Publik Masjid | ✅ Done |
 | Supabase Auth Site URL | ⬜ Set ke `https://umatpro.com` |
 | Testing alur lengkap | ⬜ Belum |
 
 ### Yang masih perlu dilakukan manual
-1. **Supabase Auth URL**: Dashboard → Authentication → URL Configuration → Site URL: `https://umatpro.com`, Redirect URLs: `https://umatpro.com/**`
+1. **Supabase Auth URL**: Dashboard → Authentication → URL Configuration
+   - Site URL: `https://umatpro.com`
+   - Redirect URLs: `https://umatpro.com/**`
 
 ---
 
-## Fase 2 (Belum Diimplementasi)
+## Fase 2 — Sisa (Belum Diimplementasi)
 
-- [ ] Manajemen kajian (CRUD jadwal kajian per masjid)
-- [ ] CRUD pengumuman via UI (saat ini langsung ke DB)
-- [ ] Push notification browser (PWA service worker sudah ada di `public/sw.js`)
-- [ ] Export laporan kas ke PDF/Excel
-- [ ] QR code infaq untuk cetak/tampil di masjid
-- [ ] Halaman publik profil masjid (tanpa login)
+- [ ] **D. Manajemen Kajian** — CRUD jadwal kajian per masjid di dashboard DKM
+- [ ] **E. Export Laporan Kas** — download transaksi kas ke CSV/Excel dari `/dkm/kas`
+- [ ] **F. Push Notification** — PWA service worker sudah ada di `public/sw.js`, tinggal logika subscribe & send
+- [ ] **G. Halaman Admin** — daftarkan masjid baru, verifikasi masjid (saat ini hanya via Supabase dashboard)
+
+---
+
+## Komponen Penting
+
+| Komponen | Path | Keterangan |
+|----------|------|-----------|
+| `InfaqQR` | `components/ui/InfaqQR.tsx` | QR code infaq dengan download & print |
+| `PrayerStrip` | `components/jamaah/PrayerStrip.tsx` | Jadwal sholat strip dengan countdown |
+| `TakmirSidebar` | `components/takmir/Sidebar.tsx` | Sidebar DKM dengan badge & nav |
+| `Glass` | `components/ui/Glass.tsx` | Glassmorphism card container |
+| `GoldButton` | `components/ui/GoldButton.tsx` | Primary button gold themed |
+| `ArabesqueBg` | `components/ui/ArabesqueBg.tsx` | Background arabesque pattern |
+| `Ticker` | `components/tv/Ticker.tsx` | Ticker pengumuman di TV display |
+| `SaldoWidget` | `components/tv/SaldoWidget.tsx` | Widget saldo kas di TV display |
+| `PrayerSchedule` | `components/tv/PrayerSchedule.tsx` | Jadwal sholat fullscreen TV |
 
 ---
 
@@ -119,10 +167,12 @@
 
 - `next`: 14.2.3
 - `@supabase/supabase-js`: ^2.43.1
-- `@supabase/ssr`: untuk server-side auth (middleware)
+- `@supabase/ssr`: server-side auth (middleware)
+- `qrcode.react`: ^4.2.0 — QR code generation (`QRCodeCanvas`, `QRCodeSVG`)
 - `adhan`: perhitungan waktu sholat berdasarkan koordinat GPS
 - `lucide-react`: ikon UI
-- Tailwind CSS dengan custom color tokens (`gd3`, `em3`, `tx1`, dll) di `tailwind.config.ts`
+- Tailwind CSS dengan custom color tokens di `tailwind.config.ts`:
+  - `gd3` = `#D4AF37` (gold), `em3` = `#065F46` (emerald), `tx1` = `#F0FDF4` (text)
 
 ---
 
