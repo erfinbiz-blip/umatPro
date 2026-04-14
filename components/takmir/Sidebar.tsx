@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard, BookOpenCheck, ShieldCheck, Megaphone,
-  Settings, Menu, X, LogOut, Mosque
+  Settings, Menu, X, LogOut, Bell,
 } from 'lucide-react'
 import { clsx } from 'clsx'
 import { createClient } from '@/lib/supabase/client'
@@ -21,33 +21,39 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   {
-    href: '/dashboard',
+    href: '/dkm',
     icon: LayoutDashboard,
     label: 'Dashboard',
     sublabel: 'Ringkasan & saldo',
   },
   {
-    href: '/kas',
+    href: '/dkm/kas',
     icon: BookOpenCheck,
     label: 'Kas Masjid',
     sublabel: 'Input & persetujuan',
     badgeKey: 'draft_kas',
   },
   {
-    href: '/verifikasi',
+    href: '/dkm/verifikasi',
     icon: ShieldCheck,
     label: 'Verifikasi Infaq',
     sublabel: 'Cocokkan kode unik',
     badgeKey: 'pending_infaq',
   },
   {
-    href: '/broadcast',
+    href: '/dkm/pengumuman',
+    icon: Bell,
+    label: 'Pengumuman',
+    sublabel: 'Kelola & tampilkan',
+  },
+  {
+    href: '/dkm/broadcast',
     icon: Megaphone,
     label: 'Broadcast WA',
     sublabel: 'Salin pesan siap kirim',
   },
   {
-    href: '/settings',
+    href: '/dkm/settings',
     icon: Settings,
     label: 'Pengaturan',
     sublabel: 'Profil & rekening',
@@ -127,7 +133,9 @@ export default function TakmirSidebar() {
       {/* Nav items */}
       <nav className="relative z-10 flex-1 p-3 space-y-1">
         {NAV_ITEMS.map(({ href, icon: Icon, label, sublabel, badgeKey }) => {
-          const active = pathname === href || pathname.startsWith(href + '/')
+          const active = href === '/dkm'
+            ? pathname === '/dkm'
+            : pathname === href || pathname.startsWith(href + '/')
           const badgeCount = badgeKey ? badges[badgeKey] : 0
 
           return (
