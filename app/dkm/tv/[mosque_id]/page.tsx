@@ -8,6 +8,7 @@ import Ticker from '@/components/tv/Ticker'
 import ArabesqueBg from '@/components/ui/ArabesqueBg'
 import { formatPrayerTimes } from '@/lib/prayer/calculate'
 import { getCurrentAtmosphere } from '@/lib/atmosphere'
+import { QRCodeCanvas } from 'qrcode.react'
 import { createClient } from '@/lib/supabase/client'
 import type { Mosque, Announcement } from '@/lib/supabase/types'
 
@@ -232,14 +233,21 @@ export default function TVDisplayPage() {
               isOffline={isOffline}
             />
 
-            {/* QR / URL */}
+            {/* QR Infaq */}
             {mosque && (
-              <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-4 text-center">
-                <p className="text-xs text-white/40 mb-2">Infaq Digital</p>
-                <p className="font-mono text-xs text-gd3/70 break-all">
-                  umatpro.id/mosque/{mosque.id.slice(0, 8)}...
-                </p>
-                <p className="text-xs text-white/30 mt-2">Scan untuk berinfaq</p>
+              <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-4 flex flex-col items-center gap-3">
+                <p className="text-xs text-white/40 uppercase tracking-widest">Infaq Digital</p>
+                <div className="p-2 bg-white rounded-xl">
+                  <QRCodeCanvas
+                    value={`${typeof window !== 'undefined' ? window.location.origin : 'https://umatpro.com'}/app/infaq?mosque=${mosque.id}`}
+                    size={120}
+                    bgColor="#ffffff"
+                    fgColor="#064E3B"
+                    level="M"
+                    includeMargin={false}
+                  />
+                </div>
+                <p className="text-xs text-white/40">Scan untuk berinfaq</p>
               </div>
             )}
 

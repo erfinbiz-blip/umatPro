@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Save, Tv, ExternalLink } from 'lucide-react'
+import { Save, Tv, ExternalLink, QrCode } from 'lucide-react'
 import Glass from '@/components/ui/Glass'
 import GoldButton from '@/components/ui/GoldButton'
 import ArabesqueBg from '@/components/ui/ArabesqueBg'
@@ -184,27 +184,42 @@ export default function SettingsPage() {
               </div>
             </Glass>
 
-            {/* TV Display link */}
+            {/* Quick links */}
             {mosqueId && (
-              <Glass variant="subtle" rounded="xl" padding="md">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Tv size={16} className="text-em4" />
-                    <div>
+              <div className="grid grid-cols-2 gap-3">
+                <Glass variant="subtle" rounded="xl" padding="md">
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-2">
+                      <Tv size={15} className="text-em4" />
                       <p className="text-sm font-medium text-tx1">TV Display</p>
-                      <p className="text-xs text-white/40">Tampilkan di layar masjid</p>
                     </div>
+                    <p className="text-xs text-white/40">Jadwal sholat & saldo</p>
+                    <a
+                      href={`/dkm/tv/${mosqueId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 text-xs text-gd3 hover:text-gd4 mt-1"
+                    >
+                      Buka <ExternalLink size={11} />
+                    </a>
                   </div>
-                  <a
-                    href={`/dkm/tv/${mosqueId}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1 text-xs text-gd3 hover:text-gd4"
-                  >
-                    Buka <ExternalLink size={12} />
-                  </a>
-                </div>
-              </Glass>
+                </Glass>
+                <Glass variant="subtle" rounded="xl" padding="md">
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-2">
+                      <QrCode size={15} className="text-gd3" />
+                      <p className="text-sm font-medium text-tx1">QR Infaq</p>
+                    </div>
+                    <p className="text-xs text-white/40">Cetak untuk masjid</p>
+                    <a
+                      href="/dkm/qr"
+                      className="flex items-center gap-1 text-xs text-gd3 hover:text-gd4 mt-1"
+                    >
+                      Buka <ExternalLink size={11} />
+                    </a>
+                  </div>
+                </Glass>
+              </div>
             )}
 
             {saved && (
