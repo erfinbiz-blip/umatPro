@@ -6,7 +6,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import {
   MapPin, Users, CheckCircle, Heart, HeartOff, Bell,
-  BookOpen, DollarSign, Info, ChevronLeft, Tv
+  BookOpen, DollarSign, Info, ChevronLeft, Tv, Share2
 } from 'lucide-react'
 import Glass from '@/components/ui/Glass'
 import GoldButton from '@/components/ui/GoldButton'
@@ -132,13 +132,28 @@ export default function MosqueProfilePage() {
           <ChevronLeft size={18} className="text-white" />
         </Link>
 
-        {/* TV button */}
-        <Link
-          href={`/dkm/tv/${mosque.id}`}
-          className="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-em2/80 backdrop-blur-sm border border-em4/30 text-xs text-em4"
-        >
-          <Tv size={12} /> TV Display
-        </Link>
+        {/* Top-right buttons */}
+        <div className="absolute top-4 right-4 flex gap-2">
+          <button
+            onClick={() => {
+              const url = `${window.location.origin}/mosque/${mosque.id}`
+              if (navigator.share) {
+                navigator.share({ title: mosque.name, url })
+              } else {
+                navigator.clipboard.writeText(url)
+              }
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 text-xs text-white/70"
+          >
+            <Share2 size={12} /> Bagikan
+          </button>
+          <Link
+            href={`/dkm/tv/${mosque.id}`}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-em2/80 backdrop-blur-sm border border-em4/30 text-xs text-em4"
+          >
+            <Tv size={12} /> TV Display
+          </Link>
+        </div>
       </div>
 
       <div className="relative z-10 px-4 -mt-8">
