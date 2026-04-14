@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard, BookOpenCheck, ShieldCheck, Megaphone,
-  Settings, Menu, X, LogOut, Bell, QrCode,
+  Settings, Menu, X, LogOut, Bell, QrCode, BookOpen,
 } from 'lucide-react'
 import { clsx } from 'clsx'
 import { createClient } from '@/lib/supabase/client'
@@ -39,6 +39,12 @@ const NAV_ITEMS: NavItem[] = [
     label: 'Verifikasi Infaq',
     sublabel: 'Cocokkan kode unik',
     badgeKey: 'pending_infaq',
+  },
+  {
+    href: '/dkm/kajian',
+    icon: BookOpen,
+    label: 'Kajian',
+    sublabel: 'Jadwal kajian masjid',
   },
   {
     href: '/dkm/pengumuman',

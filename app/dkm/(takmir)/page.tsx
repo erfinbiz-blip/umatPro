@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import GoldButton from '@/components/ui/GoldButton'
 import {
   TrendingUp, TrendingDown, Users, Clock, CheckCircle2,
   AlertCircle, DollarSign, Megaphone
@@ -22,6 +23,118 @@ interface DashboardStats {
   followerCount: number
   mosqueId: string
   mosqueName: string
+}
+
+function RegisterMosqueForm() {
+  const [form, setForm] = useState({ name: '', address: '', bank_name: '', bank_account: '', bank_holder: '' })
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!form.name.trim()) return
+    setSaving(true)
+    setError('')
+
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) { window.location.href = '/auth'; return }
+
+    // Create mosque
+    const { data: mosque, error: mErr } = await supabase
+      .from('mosques')
+      .insert({
+        name: form.name.trim(),
+        address: form.address.trim() || null,
+        bank_name: form.bank_name.trim() || null,
+        bank_account: form.bank_account.trim() || null,
+        bank_holder: form.bank_holder.trim() || null,
+      })
+      .select('id')
+      .single()
+
+    if (mErr || !mosque) { setError('Gagal membuat masjid. Coba lagi.'); setSaving(false); return }
+
+    // Assign self as admin
+    await supabase.from('mosque_roles').insert({
+      mosque_id: mosque.id,
+      user_id: user.id,
+      role: 'admin',
+    })
+
+    // Reload
+    window.location.reload()
+  }
+
+  return (
+    <div className="relative min-h-dvh lg:pt-0 pt-14 flex items-center justify-center p-4">
+      <ArabesqueBg opacity={0.025} />
+      <div className="relative z-10 w-full max-w-md">
+        <div className="text-center mb-8">
+          <div className="text-5xl mb-4">🕌</div>
+          <h1 className="font-display text-2xl font-bold text-tx1">Daftarkan Masjid Anda</h1>
+          <p className="text-sm text-white/40 mt-2">
+            Isi informasi dasar masjid untuk mulai menggunakan dashboard DKM
+          </p>
+        </div>
+
+        <Glass rounded="2xl" padding="lg">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="text-xs text-white/40 uppercase tracking-wider font-medium block mb-1.5">Nama Masjid *</label>
+              <input
+                value={form.name}
+                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                placeholder="Masjid Al-Ikhlas"
+                required
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-tx1 outline-none focus:border-gd3/40 placeholder:text-white/20"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-white/40 uppercase tracking-wider font-medium block mb-1.5">Alamat</label>
+              <textarea
+                value={form.address}
+                onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
+                placeholder="Jl. Contoh No. 1, Kelurahan, Kota"
+                rows={2}
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-tx1 outline-none focus:border-gd3/40 placeholder:text-white/20 resize-none"
+              />
+            </div>
+            <div className="pt-2 border-t border-white/6">
+              <p className="text-xs text-white/40 mb-3">Rekening Infaq (opsional, bisa diisi nanti)</p>
+              <div className="space-y-3">
+                <input
+                  value={form.bank_name}
+                  onChange={(e) => setForm((f) => ({ ...f, bank_name: e.target.value }))}
+                  placeholder="Nama Bank (BRI, BSI, Mandiri...)"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-tx1 outline-none focus:border-gd3/40 placeholder:text-white/20"
+                />
+                <input
+                  value={form.bank_account}
+                  onChange={(e) => setForm((f) => ({ ...f, bank_account: e.target.value }))}
+                  placeholder="Nomor Rekening"
+                  inputMode="numeric"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-tx1 font-mono outline-none focus:border-gd3/40 placeholder:text-white/20"
+                />
+                <input
+                  value={form.bank_holder}
+                  onChange={(e) => setForm((f) => ({ ...f, bank_holder: e.target.value }))}
+                  placeholder="Nama Pemilik Rekening"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-tx1 outline-none focus:border-gd3/40 placeholder:text-white/20"
+                />
+              </div>
+            </div>
+
+            {error && <p className="text-red-400 text-sm text-center">{error}</p>}
+
+            <GoldButton type="submit" disabled={saving || !form.name.trim()} fullWidth size="lg">
+              {saving ? 'Mendaftarkan...' : 'Daftarkan Masjid'}
+            </GoldButton>
+          </form>
+        </Glass>
+      </div>
+    </div>
+  )
 }
 
 export default function TakmirDashboard() {
@@ -99,16 +212,7 @@ export default function TakmirDashboard() {
   }
 
   if (!stats) {
-    return (
-      <div className="flex items-center justify-center min-h-dvh p-4">
-        <Glass rounded="2xl" padding="lg" className="text-center max-w-sm">
-          <p className="text-white/50 mb-4">Anda belum terdaftar sebagai takmir masjid apapun.</p>
-          <Link href="/dkm/settings">
-            <button className="text-gd3 text-sm">Daftarkan masjid →</button>
-          </Link>
-        </Glass>
-      </div>
-    )
+    return <RegisterMosqueForm />
   }
 
   return (

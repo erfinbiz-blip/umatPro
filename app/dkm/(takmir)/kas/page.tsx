@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { TrendingUp, TrendingDown, CheckCircle, XCircle, Filter } from 'lucide-react'
+import { TrendingUp, TrendingDown, CheckCircle, XCircle, Filter, Download } from 'lucide-react'
 import Glass from '@/components/ui/Glass'
 import KasForm from '@/components/takmir/KasForm'
 import ArabesqueBg from '@/components/ui/ArabesqueBg'
@@ -82,6 +82,29 @@ export default function KasPage() {
     setApproveLoading(null)
   }
 
+  function exportCSV() {
+    const rows = transactions.filter((t) => t.status === 'approved')
+    if (rows.length === 0) { alert('Tidak ada transaksi approved untuk diexport.'); return }
+
+    const header = ['Tanggal', 'Tipe', 'Keterangan', 'Jumlah (Rp)', 'Status']
+    const lines = rows.map((t) => [
+      new Date(t.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' }),
+      t.type === 'in' ? 'Masuk' : 'Keluar',
+      `"${t.description.replace(/"/g, '""')}"`,
+      t.amount,
+      'Approved',
+    ].join(','))
+
+    const csv = [header.join(','), ...lines].join('\n')
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `laporan-kas-${new Date().toISOString().slice(0, 10)}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   const filtered = filter === 'all'
     ? transactions
     : transactions.filter((t) => t.status === filter)
@@ -96,14 +119,23 @@ export default function KasPage() {
             <p className="text-sm text-white/40">Takmir Dashboard</p>
             <h1 className="font-display text-2xl font-bold text-tx1">Kas Masjid</h1>
           </div>
-          {(userRole === 'bendahara' || userRole === 'admin') && (
+          <div className="flex gap-2">
             <button
-              onClick={() => setShowForm(!showForm)}
-              className="flex items-center gap-2 px-4 py-2 bg-gd3/20 border border-gd3/40 rounded-xl text-gd3 text-sm font-medium hover:bg-gd3/30 transition-colors"
+              onClick={exportCSV}
+              className="flex items-center gap-1.5 px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-white/60 text-sm hover:bg-white/10 transition-colors"
+              title="Export CSV"
             >
-              {showForm ? 'Tutup Form' : '+ Input Transaksi'}
+              <Download size={14} /> CSV
             </button>
-          )}
+            {(userRole === 'bendahara' || userRole === 'admin') && (
+              <button
+                onClick={() => setShowForm(!showForm)}
+                className="flex items-center gap-2 px-4 py-2 bg-gd3/20 border border-gd3/40 rounded-xl text-gd3 text-sm font-medium hover:bg-gd3/30 transition-colors"
+              >
+                {showForm ? 'Tutup Form' : '+ Input Transaksi'}
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Input form */}
