@@ -41,7 +41,12 @@ export async function middleware(request: NextRequest) {
 
     return supabaseResponse
   } catch {
-    // If middleware fails for any reason, allow the request to proceed
+    // If auth check fails, still protect takmir routes
+    const pathname = request.nextUrl.pathname
+    const isTakmirRoute = TAKMIR_ROUTES.some((r) => pathname.startsWith(r))
+    if (isTakmirRoute) {
+      return NextResponse.redirect(new URL('/auth', request.url))
+    }
     return NextResponse.next()
   }
 }
