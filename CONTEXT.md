@@ -97,7 +97,32 @@ File: `components/takmir/Sidebar.tsx`
 
 ---
 
+## Testing
+
+### Setup
+- **Framework**: Vitest + `@edge-runtime/vm`
+- **Config**: `vitest.config.ts` (environment: edge-runtime)
+- **Scripts**: `npm test` (run once), `npm run test:watch` (watch mode)
+- **Pre-push hook**: `.git/hooks/pre-push` — test otomatis jalan sebelum setiap `git push`. Push dibatalkan jika test gagal.
+
+### Test files
+| File | Yang ditest |
+|------|------------|
+| `__tests__/middleware.test.ts` | 5 kasus auth middleware — `/dkm` tanpa login, dengan login, saat Supabase error, `/app` tidak diproteksi |
+
+### Cara jalankan manual
+```bash
+npm test
+```
+
+---
+
 ## Riwayat Perubahan
+
+### Fix — Middleware Security + Testing
+- Bug fix: catch block middleware redirect ke `/auth` untuk `/dkm` (bukan `NextResponse.next()`)
+- Setup Vitest + 5 test kasus middleware auth
+- Pre-push hook: test otomatis sebelum push
 
 ### v1.0 — Initial Build
 - Full project: auth, jamaah app, takmir dashboard, TV display
