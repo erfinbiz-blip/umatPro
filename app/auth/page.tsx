@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Mail, ArrowRight, CheckCircle } from 'lucide-react'
+import { Mail, ArrowRight, CheckCircle, Loader2 } from 'lucide-react'
 import Glass from '@/components/ui/Glass'
 import GoldButton from '@/components/ui/GoldButton'
 import ArabesqueBg from '@/components/ui/ArabesqueBg'
@@ -14,7 +14,15 @@ export default function AuthPage() {
   const [email, setEmail] = useState('')
   const [otp, setOtp] = useState('')
   const [loading, setLoading] = useState(false)
+  const [demoLoading, setDemoLoading] = useState<'dkm' | 'jamaah' | null>(null)
   const [error, setError] = useState('')
+
+  async function handleDemoLogin(role: 'dkm' | 'jamaah') {
+    setDemoLoading(role)
+    setError('')
+    // Navigate to the demo-session API — it generates a magic link and redirects
+    window.location.href = `/api/demo-session?role=${role}`
+  }
 
   async function handleSendOTP(e: React.FormEvent) {
     e.preventDefault()
@@ -169,6 +177,48 @@ export default function AuthPage() {
             </div>
           )}
         </Glass>
+
+        {/* Demo login section */}
+        {step === 'email' && (
+          <div className="mt-4">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="flex-1 h-px bg-white/10" />
+              <span className="text-xs text-white/30 whitespace-nowrap">atau coba akun demo</span>
+              <div className="flex-1 h-px bg-white/10" />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => handleDemoLogin('dkm')}
+                disabled={demoLoading !== null}
+                className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border border-gd3/30 bg-gd3/5 text-gd3 text-sm font-medium hover:bg-gd3/10 hover:border-gd3/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {demoLoading === 'dkm' ? (
+                  <Loader2 size={14} className="animate-spin" />
+                ) : (
+                  <span>🕌</span>
+                )}
+                Demo DKM
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDemoLogin('jamaah')}
+                disabled={demoLoading !== null}
+                className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border border-white/15 bg-white/5 text-white/70 text-sm font-medium hover:bg-white/10 hover:border-white/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {demoLoading === 'jamaah' ? (
+                  <Loader2 size={14} className="animate-spin" />
+                ) : (
+                  <span>👤</span>
+                )}
+                Demo Jamaah
+              </button>
+            </div>
+            <p className="text-center text-[11px] text-white/20 mt-2">
+              Login otomatis tanpa kode — hanya untuk demo
+            </p>
+          </div>
+        )}
       </div>
     </div>
   )
