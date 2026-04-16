@@ -162,6 +162,23 @@ npm test
 - Input: nama, alamat, rekening (opsional)
 - Auto-assign self sebagai `admin` setelah submit
 
+### Fase 2H — Demo Data & Akun Demo
+- `POST /api/seed-demo`: buat 2 user demo + data lengkap masjid via Supabase Admin API (idempoten)
+- `GET /api/demo-session?role=dkm|jamaah`: generate magic link one-time → auto-login tanpa OTP
+- `/auth`: tambah tombol "🕌 Demo DKM" dan "👤 Demo Jamaah" di bawah form login
+- `supabase/seed_demo.sql`: SQL alternatif untuk Supabase SQL Editor
+- `scripts/run-seed-demo.mjs`: script standalone Node.js untuk seed lokal
+
+#### Akun Demo (sudah di-seed ke Supabase)
+| Role | Email | UUID |
+|------|-------|------|
+| DKM Admin | `demo.dkm@umatpro.com` | `9c963e5b-3b14-4df2-a02a-ce8bd76329f8` |
+| Jamaah | `demo.jamaah@umatpro.com` | `32e3f1fd-9dec-4e58-a30c-53b3731de7ef` |
+
+- Password: `DemoUmatpro2025!`
+- Masjid: **Masjid Al-Ikhlas Demo** — ID: `aaaaaaaa-0001-0001-0001-000000000001`
+- Data: 5 kajian, 10 kas tx (8 approved + 2 draft), 4 pengumuman, 2 kampanye, 3 infaq codes, 7 hari jadwal sholat
+
 ---
 
 ## Status Deployment
@@ -172,7 +189,8 @@ npm test
 | Domain umatpro.com | ✅ Active |
 | Supabase migrations 001-003 | ✅ Done |
 | Storage bucket kas-receipts | ✅ Done |
-| Fase 2 A/B/C/D/E/G | ✅ Done |
+| Fase 2 A/B/C/D/E/G/H | ✅ Done |
+| Demo data di Supabase | ✅ Done |
 | Supabase Auth Site URL | ⬜ Set ke `https://umatpro.com` |
 | Testing alur lengkap | ⬜ Belum |
 
