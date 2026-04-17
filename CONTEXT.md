@@ -201,6 +201,15 @@ npm test
 
 ---
 
+## Backlog Jamaah
+
+- [ ] **PWA Install Banner** — muncul otomatis jika belum install, tidak mengganggu (bottom sheet / snackbar kecil), hilang kalau dismiss, tidak muncul lagi dalam X hari. Cek via `beforeinstallprompt` event.
+- [ ] **Push Notif Permission Reminder** — jika PWA sudah install tapi push notif belum di-allow, tampilkan pengingat halus (bukan popup paksa). Cek `Notification.permission === 'default'`. Butuh VAPID keys + service worker subscribe logic.
+- [ ] **Notif Jadwal Sholat** — push notification 5 menit sebelum adzan untuk 5 waktu sholat. Butuh: VAPID keys, service worker (`public/sw.js` sudah ada, belum ada subscribe/send), scheduled notification via cron atau Web Push API. Env var: `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`.
+- [ ] **Quote Islami Harian** — quote dari Al-Quran / Hadits yang berganti setiap hari, ada tombol salin (copy to clipboard). Bisa dari array lokal (tidak butuh API). Tampil di home jamaah `/app`.
+
+---
+
 ## Fase 2 — Sisa
 
 - [ ] **F. Push Notification** — butuh VAPID keys, service worker (`public/sw.js`) sudah ada tapi belum ada logika subscribe/send. Perlu env var `VAPID_PUBLIC_KEY` dan `VAPID_PRIVATE_KEY`.
