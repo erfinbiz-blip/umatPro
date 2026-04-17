@@ -201,12 +201,29 @@ npm test
 
 ---
 
-## Backlog Jamaah
+## Backlog
 
-- [ ] **PWA Install Banner** — muncul otomatis jika belum install, tidak mengganggu (bottom sheet / snackbar kecil), hilang kalau dismiss, tidak muncul lagi dalam X hari. Cek via `beforeinstallprompt` event.
-- [ ] **Push Notif Permission Reminder** — jika PWA sudah install tapi push notif belum di-allow, tampilkan pengingat halus (bukan popup paksa). Cek `Notification.permission === 'default'`. Butuh VAPID keys + service worker subscribe logic.
-- [ ] **Notif Jadwal Sholat** — push notification 5 menit sebelum adzan untuk 5 waktu sholat. Butuh: VAPID keys, service worker (`public/sw.js` sudah ada, belum ada subscribe/send), scheduled notification via cron atau Web Push API. Env var: `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`.
-- [ ] **Quote Islami Harian** — quote dari Al-Quran / Hadits yang berganti setiap hari, ada tombol salin (copy to clipboard). Bisa dari array lokal (tidak butuh API). Tampil di home jamaah `/app`.
+### Jamaah
+- [ ] **Quote Islami Harian** — quote Al-Quran/Hadits berganti tiap hari + tombol salin. Array lokal, tidak butuh API. Tampil di `/app`.
+- [ ] **PWA Install Banner** — bottom sheet kecil muncul jika belum install PWA. Cek `beforeinstallprompt`. Dismiss → tidak muncul lagi 7 hari (localStorage).
+- [ ] **Push Notif Permission Reminder** — pengingat halus jika PWA install tapi notif belum di-allow (`Notification.permission === 'default'`). Bukan popup paksa.
+- [ ] **Notif Jadwal Sholat** — push notification 5 menit sebelum adzan (5 waktu). Butuh VAPID keys + service worker subscribe/send logic. Env: `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`.
+
+### DKM / Takmir
+- [ ] **Kampanye Donasi UI** — halaman kampanye untuk jamaah: daftar campaign aktif, progress bar, tombol donasi. Tabel `campaigns` + `campaign_updates` sudah ada di DB.
+- [ ] **Update Progress Kampanye** — DKM bisa posting update teks/foto ke kampanye. Tabel `campaign_updates` sudah ada.
+- [ ] **Jadwal Imam & Khatib** — manajemen jadwal imam sholat harian dan khatib Jumat. Belum ada tabel, perlu migrasi baru.
+- [ ] **Absensi Jamaah Kajian** — check-in jamaah saat hadir kajian. Belum ada tabel.
+- [ ] **Laporan Keuangan PDF** — export laporan kas bulanan ke PDF dengan kop masjid. Client-side via `jspdf` atau server-side.
+- [ ] **Multi-Masjid** — satu akun bisa kelola lebih dari satu masjid. Perlu UI switcher masjid di sidebar.
+
+### Marketplace & Komunitas
+- [ ] **Pasar Masjid** — jamaah bisa jual produk halal di halaman masjid. Tabel `marketplace_products` sudah ada di DB (status: pending → approved oleh admin).
+- [ ] **Social Check** — cari teman sesama jamaah via nomor kontak (privacy-first, pakai hash SHA-256). Tabel `contact_hashes` sudah ada.
+
+### Platform / Admin
+- [ ] **Verifikasi Masjid** — admin UmatPro bisa verifikasi masjid (`is_verified = true`). Butuh halaman admin terpisah.
+- [ ] **Tier Premium** — fitur eksklusif untuk DKM premium (misal: broadcast WA unlimited, laporan PDF, analytics jamaah). Kolom `tier` sudah ada di tabel `mosques`.
 
 ---
 
