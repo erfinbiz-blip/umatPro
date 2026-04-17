@@ -5,6 +5,41 @@
 
 ---
 
+## Jiwa Proyek — Kenapa UmatPro Ada
+
+> Baca ini setiap sesi. Ini bukan sekadar proyek software.
+
+Latar belakang utama membangun UmatPro bukan karena bisnis — tapi karena **kerinduan untuk dekat dengan masjid dan berkontribusi untuk masjid**, terutama masjid di dekat rumah.
+
+Karena kondisi yang belum memungkinkan untuk hadir rutin dan ikut meramaikan masjid secara fisik, **UmatPro diharapkan bisa mewakili secara digital kehadiran dan kontribusi** — agar hubungan dengan masjid tetap terjaga, infaq tetap mengalir, dan ilmu dari kajian tetap terhubung, meski dari jauh.
+
+Setiap fitur yang dibangun harus memancarkan nilai ini:
+- **Transparansi** — jamaah percaya uangnya dikelola dengan amanah
+- **Kedekatan** — jamaah merasa terhubung dengan masjidnya meski tidak hadir fisik
+- **Kemudahan** — DKM non-teknis pun bisa pakai tanpa hambatan
+- **Keberkahan** — setiap baris kode adalah amal jariyah
+
+### ⚠️ Pengingat Keberlanjutan
+
+> **UmatPro harus bisa self-funding agar bisa terus hidup dan bermanfaat.**
+
+Tanpa keberlanjutan finansial, proyek ini tidak bisa dirawat, dikembangkan, dan pada akhirnya tidak bisa melayani jamaah dan masjid yang membutuhkan.
+
+**Fitur monetisasi yang harus selalu diprioritaskan:**
+
+| Fitur | Model | Status |
+|-------|-------|--------|
+| Tier Premium DKM | Subscription bulanan | Kolom `tier` ada, UI belum |
+| Broadcast WA Unlimited | Premium only | Sudah ada halaman, belum di-gate |
+| Laporan PDF | Premium only | Belum dibangun |
+| Verifikasi Masjid (badge) | Premium benefit | Belum dibangun |
+| Pasar Masjid | Revenue share / listing fee | Tabel ada, UI belum |
+
+**Aturan pengembangan**: Setiap kali menambah fitur besar, tanyakan —
+*"Apakah ini bisa menjadi bagian dari tier premium yang membuat DKM mau berlangganan?"*
+
+---
+
 ## Gambaran Proyek
 
 **UmatPro** adalah platform digital ekosistem masjid Indonesia.
