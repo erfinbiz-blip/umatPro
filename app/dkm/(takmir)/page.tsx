@@ -144,60 +144,63 @@ export default function TakmirDashboard() {
 
   useEffect(() => {
     async function fetchDashboard() {
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        window.location.href = '/auth'
-        return
-      }
+      try {
+        const supabase = createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) {
+          window.location.href = '/auth'
+          return
+        }
 
-      const { data: role } = await supabase
-        .from('mosque_roles')
-        .select('mosque_id, mosques(name)')
-        .eq('user_id', user.id)
-        .limit(1)
-        .single()
+        const { data: role } = await supabase
+          .from('mosque_roles')
+          .select('mosque_id, mosques(name)')
+          .eq('user_id', user.id)
+          .limit(1)
+          .single()
 
-      if (!role?.mosque_id) {
+        if (!role?.mosque_id) {
+          return
+        }
+
+        const mosqueId = role.mosque_id
+        const mosqueName = (role.mosques as unknown as { name: string } | null)?.name ?? 'Masjid Anda'
+
+        const [kasRes, draftRes, infaqRes, followRes] = await Promise.all([
+          supabase.from('kas_transactions').select('type, amount').eq('mosque_id', mosqueId).eq('status', 'approved'),
+          supabase.from('kas_transactions').select('id', { count: 'exact' }).eq('mosque_id', mosqueId).eq('status', 'draft'),
+          supabase.from('infaq_codes').select('id', { count: 'exact' }).eq('mosque_id', mosqueId).eq('status', 'pending'),
+          supabase.from('follows').select('id', { count: 'exact' }).eq('mosque_id', mosqueId),
+        ])
+
+        const transactions = kasRes.data ?? []
+        const totalIn = transactions.filter((t) => t.type === 'in').reduce((sum, t) => sum + t.amount, 0)
+        const totalOut = transactions.filter((t) => t.type === 'out').reduce((sum, t) => sum + t.amount, 0)
+
+        setStats({
+          saldo: totalIn - totalOut,
+          totalIn,
+          totalOut,
+          draftCount: draftRes.count ?? 0,
+          pendingInfaqCount: infaqRes.count ?? 0,
+          followerCount: followRes.count ?? 0,
+          mosqueId,
+          mosqueName,
+        })
+
+        const { data: recent } = await supabase
+          .from('kas_transactions')
+          .select('*')
+          .eq('mosque_id', mosqueId)
+          .order('created_at', { ascending: false })
+          .limit(5)
+
+        setRecentTransactions(recent ?? [])
+      } catch {
+        // network error — loading will stop, stats stays null → tampilkan form register
+      } finally {
         setLoading(false)
-        return
       }
-
-      const mosqueId = role.mosque_id
-      const mosqueName = (role.mosques as unknown as { name: string } | null)?.name ?? 'Masjid Anda'
-
-      const [kasRes, draftRes, infaqRes, followRes] = await Promise.all([
-        supabase.from('kas_transactions').select('type, amount').eq('mosque_id', mosqueId).eq('status', 'approved'),
-        supabase.from('kas_transactions').select('id', { count: 'exact' }).eq('mosque_id', mosqueId).eq('status', 'draft'),
-        supabase.from('infaq_codes').select('id', { count: 'exact' }).eq('mosque_id', mosqueId).eq('status', 'pending'),
-        supabase.from('follows').select('id', { count: 'exact' }).eq('mosque_id', mosqueId),
-      ])
-
-      const transactions = kasRes.data ?? []
-      const totalIn = transactions.filter((t) => t.type === 'in').reduce((sum, t) => sum + t.amount, 0)
-      const totalOut = transactions.filter((t) => t.type === 'out').reduce((sum, t) => sum + t.amount, 0)
-
-      setStats({
-        saldo: totalIn - totalOut,
-        totalIn,
-        totalOut,
-        draftCount: draftRes.count ?? 0,
-        pendingInfaqCount: infaqRes.count ?? 0,
-        followerCount: followRes.count ?? 0,
-        mosqueId,
-        mosqueName,
-      })
-
-      // Recent approved transactions
-      const { data: recent } = await supabase
-        .from('kas_transactions')
-        .select('*')
-        .eq('mosque_id', mosqueId)
-        .order('created_at', { ascending: false })
-        .limit(5)
-
-      setRecentTransactions(recent ?? [])
-      setLoading(false)
     }
 
     fetchDashboard()
