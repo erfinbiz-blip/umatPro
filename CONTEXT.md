@@ -29,8 +29,8 @@ Tanpa keberlanjutan finansial, proyek ini tidak bisa dirawat, dikembangkan, dan 
 
 | Fitur | Model | Status |
 |-------|-------|--------|
-| Tier Premium DKM | Subscription bulanan | Kolom `tier` ada, UI belum |
-| Broadcast WA Unlimited | Premium only | Sudah ada halaman, belum di-gate |
+| Tier Premium DKM | Subscription bulanan | ✅ Halaman `/dkm/upgrade` live |
+| Broadcast WA Unlimited | Premium only | ✅ Di-gate — free lihat paywall |
 | Laporan PDF | Premium only | Belum dibangun |
 | Verifikasi Masjid (badge) | Premium benefit | Belum dibangun |
 | Pasar Masjid | Revenue share / listing fee | Tabel ada, UI belum |
@@ -196,6 +196,14 @@ npm test
 - `/dkm` tampilkan form Register jika user belum punya `mosque_roles`
 - Input: nama, alamat, rekening (opsional)
 - Auto-assign self sebagai `admin` setelah submit
+
+### Fase Monetisasi — Upgrade & Premium Gate
+- `/dkm/upgrade`: halaman pricing Free vs Premium (Rp 99rb/bln, Rp 899rb/thn)
+- CTA "Upgrade" → buka WA chat ke admin dengan pesan pre-filled
+- `/dkm/broadcast`: di-gate ke premium — free lihat paywall Crown
+- Sidebar: tombol "Upgrade Premium" muncul untuk tier free (di atas logout)
+- Env var: `NEXT_PUBLIC_WA_ADMIN_NUMBER` (set di Vercel dengan nomor WA admin)
+- Demo masjid sudah `tier: premium` → demo DKM bisa akses broadcast
 
 ### Fase 2H — Demo Data & Akun Demo
 - `POST /api/seed-demo`: buat 2 user demo + data lengkap masjid via Supabase Admin API (idempoten)
