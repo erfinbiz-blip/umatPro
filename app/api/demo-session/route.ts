@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
       },
     })
 
-    if (error || !data?.properties?.action_link) {
+    if (error || !data?.properties?.hashed_token) {
       console.error('[demo-session] generateLink error:', error)
       return NextResponse.json(
         { error: 'Gagal membuat sesi demo. Pastikan seed-demo sudah dijalankan.' },
@@ -42,8 +42,13 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    // Redirect browser to the magic link — Supabase will verify and redirect to app
-    return NextResponse.redirect(data.properties.action_link)
+    // Use server-side confirm route so session is set in cookies (not hash fragment)
+    // Hash-fragment sessions are client-only and get blocked by middleware before cookies are set
+    const confirmUrl = new URL('/auth/confirm', req.url)
+    confirmUrl.searchParams.set('token_hash', data.properties.hashed_token)
+    confirmUrl.searchParams.set('type', 'magiclink')
+    confirmUrl.searchParams.set('next', redirectTo)
+    return NextResponse.redirect(confirmUrl)
   } catch (err) {
     console.error('[demo-session]', err)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
