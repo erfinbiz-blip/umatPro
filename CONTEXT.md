@@ -224,6 +224,35 @@ npm test
 
 ---
 
+## Pre-Release Status
+
+> Diupdate setiap kali `/pre-release` dijalankan.
+
+### Review Terakhir — 18 April 2026
+
+**Fitur yang direview**: v1.0 Initial Build, Fase 2A–H, Fase Monetisasi (Upgrade Page, Broadcast Gate, Sidebar CTA), Demo Data
+
+| Perspektif | Status | Catatan |
+|-----------|--------|---------|
+| 🕌 Syariah | ✅ | Akad hibah/sedekah, transparansi kas, anti-riba |
+| 📱 Product | ⚠️ | Fitur premium dijanjikan belum semua tersedia → sudah diberi label "(segera hadir)" |
+| 💼 Bisnis | ✅ | WA-based payment, harga terjangkau, viral via QR & TV Display |
+| 🔧 Engineering | ⚠️ | WA_ADMIN_NUMBER kritis + minor TypeScript casts |
+| 🧪 QA | ⚠️ | WA_ADMIN_NUMBER kritis + edge case user tanpa mosque |
+
+**Keputusan**: ⚠️ **SIAP DENGAN CATATAN**
+
+**Issues WAJIB sebelum go-live:**
+1. ❌ Set `NEXT_PUBLIC_WA_ADMIN_NUMBER` di Vercel dengan nomor WA admin real
+2. ✅ ~~Fitur premium belum ada diberi label "(segera hadir)"~~ → sudah diperbaiki
+
+**Issues setelah release:**
+1. Error state di `fetchTier` (upgrade page) untuk network failure
+2. WA link menyebut "Masjid Saya" jika user belum punya mosque
+3. Pertimbangkan server-side tier enforcement via API route
+
+---
+
 ## Status Deployment
 
 | Item | Status |

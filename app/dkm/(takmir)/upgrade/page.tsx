@@ -21,9 +21,9 @@ const FREE_FEATURES = [
 const PREMIUM_FEATURES = [
   { text: 'Semua fitur Free', highlight: false },
   { text: 'Broadcast WA — unlimited', highlight: true },
-  { text: 'Export laporan PDF bulanan', highlight: true },
-  { text: 'Badge "Masjid Terverifikasi"', highlight: true },
-  { text: 'Kampanye donasi unlimited', highlight: true },
+  { text: 'Export laporan PDF bulanan (segera hadir)', highlight: false },
+  { text: 'Badge "Masjid Terverifikasi" (segera hadir)', highlight: false },
+  { text: 'Kampanye donasi unlimited (segera hadir)', highlight: false },
   { text: 'Pasar Masjid (segera hadir)', highlight: false },
   { text: 'Prioritas dukungan teknis', highlight: false },
 ]
