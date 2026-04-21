@@ -65,6 +65,7 @@ Tanpa keberlanjutan finansial, proyek ini tidak bisa dirawat, dikembangkan, dan 
 | `/app/profile/edit` | Edit profil (nama, WA) | `app/app/(jamaah)/profile/edit/page.tsx` |
 | `/app/notifications` | Notifikasi | `app/app/(jamaah)/notifications/page.tsx` |
 | `/auth` | Login / Register | `app/auth/page.tsx` |
+| `/auth/confirm` | Callback verifikasi magic link (demo session) | `app/auth/confirm/route.ts` |
 | `/dkm` | Dashboard DKM — jika belum punya masjid tampilkan form Register | `app/dkm/(takmir)/page.tsx` |
 | `/dkm/kas` | Manajemen kas + Export CSV | `app/dkm/(takmir)/kas/page.tsx` |
 | `/dkm/verifikasi` | Verifikasi infaq | `app/dkm/(takmir)/verifikasi/page.tsx` |
@@ -205,6 +206,13 @@ npm test
 - Env var: `NEXT_PUBLIC_WA_ADMIN_NUMBER` (set di Vercel dengan nomor WA admin)
 - Demo masjid sudah `tier: premium` → demo DKM bisa akses broadcast
 
+### Fix Bug — Server Errors & Demo Login (21 Apr 2026)
+- `app/mosque/[id]/page.tsx`: tambah `await` pada `createClient()` di `generateMetadata` → fix 500 di semua halaman publik masjid
+- `app/dkm/(takmir)/page.tsx`: bungkus `fetchDashboard` dengan try-finally → fix stuck loading spinner
+- `app/api/demo-session/route.ts`: ganti alur `action_link` (hash fragment) ke `/auth/confirm?token_hash=...` agar session di-set via cookie server-side → fix demo login tidak bisa masuk ke `/dkm`
+- `app/auth/confirm/route.ts` *(baru)*: server-side magic link verifier menggunakan `supabase.auth.verifyOtp({ token_hash, type })`
+- `app/dkm/(takmir)/upgrade/page.tsx`: fitur premium belum tersedia diberi label "(segera hadir)"
+
 ### Fase 2H — Demo Data & Akun Demo
 - `POST /api/seed-demo`: buat 2 user demo + data lengkap masjid via Supabase Admin API (idempoten)
 - `GET /api/demo-session?role=dkm|jamaah`: generate magic link one-time → auto-login tanpa OTP
@@ -263,13 +271,9 @@ npm test
 | Storage bucket kas-receipts | ✅ Done |
 | Fase 2 A/B/C/D/E/G/H | ✅ Done |
 | Demo data di Supabase | ✅ Done |
-| Supabase Auth Site URL | ⬜ Set ke `https://umatpro.com` |
-| Testing alur lengkap | ⬜ Belum |
-
-### Yang masih perlu dilakukan manual
-1. **Supabase Auth URL**: Dashboard → Authentication → URL Configuration
-   - Site URL: `https://umatpro.com`
-   - Redirect URLs: `https://umatpro.com/**`
+| Supabase Auth Site URL + Redirect URLs | ✅ Done |
+| NEXT_PUBLIC_WA_ADMIN_NUMBER di Vercel | ⬜ Wajib diset — nomor WA admin real |
+| Testing demo login (DKM + Jamaah) | ⬜ Belum diverifikasi di production |
 
 ---
 
@@ -327,11 +331,11 @@ npm test
 ## Env Vars yang Dibutuhkan
 
 ```
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_ROLE_KEY=
-WHATSAPP_API_TOKEN=        # broadcast WA (opsional)
-WHATSAPP_PHONE_ID=         # broadcast WA (opsional)
-VAPID_PUBLIC_KEY=          # push notif — belum diimplementasi
-VAPID_PRIVATE_KEY=         # push notif — belum diimplementasi
+NEXT_PUBLIC_SUPABASE_URL=        # ✅ set di Vercel
+NEXT_PUBLIC_SUPABASE_ANON_KEY=   # ✅ set di Vercel
+SUPABASE_SERVICE_ROLE_KEY=       # ✅ set di Vercel
+NEXT_PUBLIC_APP_URL=             # ✅ https://umatpro.com
+NEXT_PUBLIC_WA_ADMIN_NUMBER=     # ⬜ WAJIB: nomor WA admin real (format: 628xxx)
+VAPID_PUBLIC_KEY=                # push notif — belum diimplementasi
+VAPID_PRIVATE_KEY=               # push notif — belum diimplementasi
 ```
