@@ -14,13 +14,20 @@ const DEMO_USERS = {
 
 export async function GET(req: NextRequest) {
   const role = req.nextUrl.searchParams.get('role') as 'dkm' | 'jamaah' | null
+  const origin = req.nextUrl.origin
+
+  function errorRedirect(reason: string) {
+    const url = new URL('/auth', req.url)
+    url.searchParams.set('error', 'demo_session')
+    url.searchParams.set('reason', reason)
+    return NextResponse.redirect(url)
+  }
 
   if (!role || !DEMO_USERS[role]) {
-    return NextResponse.json({ error: 'Role tidak valid. Gunakan ?role=dkm atau ?role=jamaah' }, { status: 400 })
+    return errorRedirect('Role tidak valid')
   }
 
   const { email, redirectTo } = DEMO_USERS[role]
-  const origin = req.nextUrl.origin
 
   try {
     const admin = createAdminClient()
@@ -36,10 +43,7 @@ export async function GET(req: NextRequest) {
 
     if (error || !data?.properties?.hashed_token) {
       console.error('[demo-session] generateLink error:', error)
-      return NextResponse.json(
-        { error: 'Gagal membuat sesi demo. Pastikan seed-demo sudah dijalankan.' },
-        { status: 500 }
-      )
+      return errorRedirect(error?.message ?? 'User demo belum di-seed')
     }
 
     // Use server-side confirm route so session is set in cookies (not hash fragment)
@@ -51,6 +55,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(confirmUrl)
   } catch (err) {
     console.error('[demo-session]', err)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    const message = err instanceof Error ? err.message : 'Internal error'
+    return errorRedirect(message)
   }
 }

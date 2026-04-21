@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Mail, ArrowRight, CheckCircle, Loader2 } from 'lucide-react'
 import Glass from '@/components/ui/Glass'
 import GoldButton from '@/components/ui/GoldButton'
@@ -9,6 +9,12 @@ import { createClient } from '@/lib/supabase/client'
 
 type AuthStep = 'email' | 'otp' | 'done'
 
+const AUTH_ERROR_MESSAGES: Record<string, string> = {
+  invalid_link: 'Link login tidak valid atau sudah kadaluarsa.',
+  verify_failed: 'Verifikasi sesi gagal. Silakan coba lagi.',
+  demo_session: 'Gagal membuat sesi demo. Pastikan data demo sudah di-seed.',
+}
+
 export default function AuthPage() {
   const [step, setStep] = useState<AuthStep>('email')
   const [email, setEmail] = useState('')
@@ -16,6 +22,18 @@ export default function AuthPage() {
   const [loading, setLoading] = useState(false)
   const [demoLoading, setDemoLoading] = useState<'dkm' | 'jamaah' | null>(null)
   const [error, setError] = useState('')
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const params = new URLSearchParams(window.location.search)
+    const errKey = params.get('error')
+    if (!errKey) return
+    const reason = params.get('reason')
+    const base = AUTH_ERROR_MESSAGES[errKey] ?? 'Terjadi kesalahan saat login.'
+    setError(reason ? `${base} (${reason})` : base)
+    // Clear the query string so refresh doesn't show the same error
+    window.history.replaceState({}, '', window.location.pathname)
+  }, [])
 
   async function handleDemoLogin(role: 'dkm' | 'jamaah') {
     setDemoLoading(role)
