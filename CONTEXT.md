@@ -144,6 +144,7 @@ File: `components/takmir/Sidebar.tsx`
 | File | Yang ditest |
 |------|------------|
 | `__tests__/middleware.test.ts` | 5 kasus auth middleware — `/dkm` tanpa login, dengan login, saat Supabase error, `/app` tidak diproteksi |
+| `__tests__/quotes.test.ts` | 4 kasus daily quote — array valid, determinisme per tanggal, rotasi siklik |
 
 ### Cara jalankan manual
 ```bash
@@ -205,6 +206,17 @@ npm test
 - Env var: `NEXT_PUBLIC_WA_ADMIN_NUMBER` (set di Vercel dengan nomor WA admin)
 - Demo masjid sudah `tier: premium` → demo DKM bisa akses broadcast
 
+### Hardening — Upgrade Page Error & No-Mosque Guard
+- `/dkm/upgrade`: try/catch di `fetchTier` + error state dengan tombol "Coba lagi"
+- Jika user belum punya mosque → tampilkan card "Daftarkan masjid dulu" (link ke `/dkm`), tidak lagi pakai placeholder "Masjid Saya" di WA link
+- `mosqueName` sekarang `string | null` — WA link hanya dirender setelah mosque terkonfirmasi
+
+### Quote Islami Harian
+- `lib/quotes/daily.ts`: 31 quote Al-Qur'an & Hadits, rotasi deterministik berdasarkan day-of-year (semua jamaah lihat quote sama di hari yang sama)
+- `components/jamaah/DailyQuote.tsx`: card quote dengan ikon kitab + tombol "Salin"
+- Tampil di home jamaah `/app` antara PrayerStrip dan daftar masjid
+- Test: `__tests__/quotes.test.ts` — 4 kasus (valid array, determinisme, rotasi)
+
 ### Fase 2H — Demo Data & Akun Demo
 - `POST /api/seed-demo`: buat 2 user demo + data lengkap masjid via Supabase Admin API (idempoten)
 - `GET /api/demo-session?role=dkm|jamaah`: generate magic link one-time → auto-login tanpa OTP
@@ -247,8 +259,8 @@ npm test
 2. ✅ ~~Fitur premium belum ada diberi label "(segera hadir)"~~ → sudah diperbaiki
 
 **Issues setelah release:**
-1. Error state di `fetchTier` (upgrade page) untuk network failure
-2. WA link menyebut "Masjid Saya" jika user belum punya mosque
+1. ✅ ~~Error state di `fetchTier` (upgrade page) untuk network failure~~ → ditangani (error card + retry)
+2. ✅ ~~WA link menyebut "Masjid Saya" jika user belum punya mosque~~ → ditangani (guard "Daftarkan masjid dulu")
 3. Pertimbangkan server-side tier enforcement via API route
 
 ---
@@ -276,7 +288,7 @@ npm test
 ## Backlog
 
 ### Jamaah
-- [ ] **Quote Islami Harian** — quote Al-Quran/Hadits berganti tiap hari + tombol salin. Array lokal, tidak butuh API. Tampil di `/app`.
+- [x] ~~**Quote Islami Harian**~~ — selesai (31 quote, rotasi harian, tombol salin)
 - [ ] **PWA Install Banner** — bottom sheet kecil muncul jika belum install PWA. Cek `beforeinstallprompt`. Dismiss → tidak muncul lagi 7 hari (localStorage).
 - [ ] **Push Notif Permission Reminder** — pengingat halus jika PWA install tapi notif belum di-allow (`Notification.permission === 'default'`). Bukan popup paksa.
 - [ ] **Notif Jadwal Sholat** — push notification 5 menit sebelum adzan (5 waktu). Butuh VAPID keys + service worker subscribe/send logic. Env: `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`.
