@@ -44,9 +44,14 @@ export async function GET(req: NextRequest) {
       `NEXT_PUBLIC_SUPABASE_URL tidak valid: "${supabaseUrl.slice(0, 60)}". Harus diawali https:// (cek env var di Vercel)`
     )
   }
-  try {
-    new URL(supabaseUrl)
-  } catch {
+  const parsedUrl = (() => {
+    try {
+      return new URL(supabaseUrl)
+    } catch {
+      return null
+    }
+  })()
+  if (!parsedUrl) {
     return errorRedirect(
       `NEXT_PUBLIC_SUPABASE_URL tidak bisa di-parse sebagai URL: "${supabaseUrl.slice(0, 60)}"`
     )
@@ -55,6 +60,26 @@ export async function GET(req: NextRequest) {
   const { email, redirectTo } = DEMO_USERS[role]
 
   try {
+    // Step 0: sanity-check Supabase reachability. "fetch failed" at this layer
+    // means the project URL doesn't resolve (typo / project paused / deleted).
+    try {
+      const pingRes = await fetch(`${parsedUrl.origin}/auth/v1/health`, {
+        method: 'GET',
+        headers: { apikey: serviceKey },
+        cache: 'no-store',
+      })
+      if (!pingRes.ok && pingRes.status >= 500) {
+        return errorRedirect(
+          `Supabase tidak respond sehat (host=${parsedUrl.host}, status=${pingRes.status}). Cek apakah project di-pause di Supabase Dashboard.`
+        )
+      }
+    } catch (pingErr) {
+      const pmsg = pingErr instanceof Error ? pingErr.message : String(pingErr)
+      return errorRedirect(
+        `Tidak bisa reach Supabase (host=${parsedUrl.host}): ${pmsg}. Kemungkinan: project di-pause, URL salah ketik, atau env var belum redeploy.`
+      )
+    }
+
     const admin = createAdminClient()
 
     // Step 1: make sure the demo user exists (seed-demo should have been run).
@@ -62,7 +87,7 @@ export async function GET(req: NextRequest) {
     const { data: list, error: listErr } = await admin.auth.admin.listUsers()
     if (listErr) {
       console.error('[demo-session] listUsers error:', listErr)
-      return errorRedirect(`listUsers: ${listErr.message}`)
+      return errorRedirect(`listUsers (host=${parsedUrl.host}): ${listErr.message}`)
     }
     const user = list?.users?.find((u) => u.email === email)
     if (!user) {
