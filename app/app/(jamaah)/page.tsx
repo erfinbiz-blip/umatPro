@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Bell, MapPin, ChevronRight, Star } from 'lucide-react'
 import PrayerStrip from '@/components/jamaah/PrayerStrip'
+import DailyQuote from '@/components/jamaah/DailyQuote'
 import MosqueCard from '@/components/jamaah/MosqueCard'
 import ArabesqueBg from '@/components/ui/ArabesqueBg'
 import Glass from '@/components/ui/Glass'
@@ -118,7 +119,10 @@ export default function JamaahHome() {
         </div>
 
         {/* Prayer times */}
-        <PrayerStrip lat={location.lat} lng={location.lng} className="mb-5" />
+        <PrayerStrip lat={location.lat} lng={location.lng} className="mb-4" />
+
+        {/* Daily quote */}
+        <DailyQuote className="mb-5" />
 
         {/* Location */}
         <div className="flex items-center gap-1.5 mb-4 text-white/40">
