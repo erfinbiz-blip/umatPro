@@ -29,11 +29,26 @@ export async function GET(req: NextRequest) {
 
   // Check required env vars upfront so we can give a clear error instead of
   // a generic "Internal error" when Supabase creds are missing in the deploy.
-  const hasUrl = !!process.env.NEXT_PUBLIC_SUPABASE_URL
-  const hasServiceKey = !!process.env.SUPABASE_SERVICE_ROLE_KEY
-  if (!hasUrl || !hasServiceKey) {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() ?? ''
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() ?? ''
+  if (!supabaseUrl || !serviceKey) {
     return errorRedirect(
-      `Env var Supabase kurang di server (url=${hasUrl}, service_key=${hasServiceKey})`
+      `Env var Supabase kurang di server (url=${!!supabaseUrl}, service_key=${!!serviceKey})`
+    )
+  }
+
+  // Validate URL format — Supabase createClient throws "Invalid supabaseUrl"
+  // when the value is not a valid http/https URL. Give a direct hint instead.
+  if (!/^https?:\/\//i.test(supabaseUrl)) {
+    return errorRedirect(
+      `NEXT_PUBLIC_SUPABASE_URL tidak valid: "${supabaseUrl.slice(0, 60)}". Harus diawali https:// (cek env var di Vercel)`
+    )
+  }
+  try {
+    new URL(supabaseUrl)
+  } catch {
+    return errorRedirect(
+      `NEXT_PUBLIC_SUPABASE_URL tidak bisa di-parse sebagai URL: "${supabaseUrl.slice(0, 60)}"`
     )
   }
 
