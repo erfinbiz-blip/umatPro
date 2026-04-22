@@ -218,6 +218,8 @@ npm test
 - `/auth/confirm`: sebelumnya `verifyOtp` set session cookie via `cookies().set()` tapi `NextResponse.redirect()` buat response baru yang TIDAK membawa cookie itu → session hilang, middleware lihat user belum login → redirect loop ke `/auth`. Fix: bangun redirect response dulu, lalu set cookie langsung ke `response.cookies` di `setAll` callback
 - `/api/demo-session`: cek env var Supabase + listUsers untuk verifikasi user demo ada → pesan error spesifik per titik kegagalan (bukan "Internal error" generik). Pada error, redirect ke `/auth?error=demo_session&reason=...` daripada tampilkan JSON
 - `/auth`: baca query `?error=&reason=` dan tampilkan pesan friendly, lalu clear query string via `history.replaceState`
+- Validasi `NEXT_PUBLIC_SUPABASE_URL` sebelum `createAdminClient` — tampilkan 60 char pertama jika invalid
+- **Health ping** ke `/auth/v1/health` Supabase sebelum `listUsers` → jika "fetch failed" langsung ngasih tahu host + kemungkinan penyebab (project di-pause, URL typo, env belum redeploy)
 
 ### Hardening — Upgrade Page Error & No-Mosque Guard
 - `/dkm/upgrade`: try/catch di `fetchTier` + error state dengan tombol "Coba lagi"
@@ -252,6 +254,20 @@ npm test
 ## Pre-Release Status
 
 > Diupdate setiap kali `/pre-release` dijalankan.
+
+### Audit Readiness — 22 April 2026
+
+**Status**: ⚠️ **SIAP DENGAN CATATAN** — 1 blocker env var + 1 verifikasi manual tersisa.
+
+| Check | Hasil |
+|-------|-------|
+| Tests | ✅ 9/9 pass |
+| Build config | ✅ `ignoreBuildErrors: true` — 21 TS error pre-existing tidak blok Vercel |
+| Supabase infra | ✅ migrasi, bucket, Auth URLs, demo data |
+| Vercel env core | ✅ SUPABASE_URL, ANON_KEY, SERVICE_ROLE, APP_URL |
+| Branch sync | ✅ semua commit di `main`, Vercel redeploy setelah `f875267` |
+| `NEXT_PUBLIC_WA_ADMIN_NUMBER` | ⬜ **BLOCKER** — masih fallback ke `6281234567890` |
+| Demo login verifikasi produksi | ⬜ butuh cek manual setelah redeploy selesai |
 
 ### Review Terakhir — 18 April 2026
 
