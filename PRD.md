@@ -1,172 +1,91 @@
-# UmatPro — PRD (Status Living Document)
-
-> Baca di awal setiap sesi AI. File ini adalah **zona operasi**: mana yang boleh disentuh, mana yang tidak.
-> Diupdate setiap phase selesai / ada perubahan status.
-
----
-
-## 1. What Already Works — ZONA AMAN (jangan disentuh AI tanpa izin eksplisit)
-
-Semua fitur di bawah ini sudah hidup di produksi dan tested secara manual/otomatis. AI **tidak boleh** refactor, "rapikan", atau menambah abstraksi di file-file ini kecuali user eksplisit minta.
-
-### Foundation
-- **Auth Magic Link (Supabase OTP)** — `app/auth/page.tsx`, `app/auth/confirm/route.ts`. Cookie attachment fix sudah di-apply — jangan ganti pola `response.cookies.set()` di `setAll` callback.
-- **Middleware proteksi `/dkm/*`** — `middleware.ts`. 5 test case di `__tests__/middleware.test.ts`.
-- **Supabase client (SSR + browser)** — `lib/supabase/{client,server,admin}.ts`.
-- **Landing page statis** — `public/landing.html` (Bahasa Indonesia, SEO-ready).
-
-### Jamaah (`/app`)
-- **Home Jamaah** — `app/app/(jamaah)/page.tsx`: prayer strip, quote harian, daftar masjid terdekat + followed, CTA DKM, greeting by time.
-- **Prayer Strip** — `components/jamaah/PrayerStrip.tsx` (adhan lib, countdown next prayer).
-- **Daily Quote Islami** — `components/jamaah/DailyQuote.tsx` + `lib/quotes/daily.ts` (31 quote, rotasi deterministik, tombol Salin). Test: `__tests__/quotes.test.ts`.
-- **Discover/Map masjid** — `app/app/(jamaah)/discover/page.tsx`.
-- **Detail masjid** — `app/app/(jamaah)/mosque/[id]/page.tsx` (butuh login).
-- **Infaq digital** — `app/app/(jamaah)/infaq/page.tsx`.
-- **Profile + Edit** — `app/app/(jamaah)/profile/{,edit/}page.tsx`.
-- **Notifications** — `app/app/(jamaah)/notifications/page.tsx`.
-
-### Publik (tanpa login)
-- **Profil publik masjid** — `app/mosque/[id]/page.tsx` + `_client.tsx`. OG tags SSR, share WA, QR modal.
-
-### DKM / Takmir (`/dkm`)
-- **Dashboard** — `app/dkm/(takmir)/page.tsx` (auto-register form jika belum ada mosque).
-- **Kas Masjid + Export CSV** — `app/dkm/(takmir)/kas/page.tsx`.
-- **Verifikasi Infaq** — `app/dkm/(takmir)/verifikasi/page.tsx`.
-- **CRUD Kajian** — `app/dkm/(takmir)/kajian/page.tsx` (muncul di mosque publik).
-- **CRUD Pengumuman** — `app/dkm/(takmir)/pengumuman/page.tsx` (4 kategori, muncul di TV ticker).
-- **QR Infaq** — `app/dkm/(takmir)/qr/page.tsx` + `components/ui/InfaqQR.tsx` (download + print).
-- **Broadcast WA** — `app/dkm/(takmir)/broadcast/page.tsx` (client-side tier gate: free lihat paywall Crown).
-- **Settings masjid** — `app/dkm/(takmir)/settings/page.tsx`.
-- **Sidebar** — `components/takmir/Sidebar.tsx` (badge draft kas & pending infaq, tombol Upgrade untuk tier free).
-
-### TV Display (publik per masjid)
-- **TV** — `app/dkm/tv/[mosque_id]/page.tsx` + komponen `Ticker`, `SaldoWidget`, `PrayerSchedule`, `InfaqQR 120px`.
-
-### Monetisasi (partial live)
-- **Halaman Upgrade** — `app/dkm/(takmir)/upgrade/page.tsx`. Free vs Premium (Rp 99rb/bln, Rp 899rb/thn). CTA buka WA admin. Fitur premium belum jadi dilabeli "(segera hadir)". Error state + retry + "Daftarkan masjid dulu" guard untuk user tanpa mosque.
-
-### Database & Infra
-- **Migrasi 001–003** — initial schema, RLS policies, RPC `increment_campaign_raised`.
-- **Storage bucket** `kas-receipts`.
-- **Demo data** — `POST /api/seed-demo` (idempoten) + `GET /api/demo-session?role=dkm|jamaah` (magic link auto-login).
-- **Auth URLs Supabase** — Site URL + Redirect URLs sudah diset.
-
-### Testing
-- `npm test` — 9/9 pass. Pre-push hook blokir push kalau test gagal.
+# PRD — UmatPro
+**Status:** Mid-Development
+**Last Updated:** 22 April 2026
 
 ---
 
-## 2. Current Phase — Fix Demo Login di Produksi (1 task per sesi)
-
-**Context**: Project Supabase lama (`nmbfrqtzxcmkxmfxbsxr.supabase.co`) hilang/typo, project baru (`olbsgsxccrjqyffvxblf.supabase.co`) sudah hidup. Vercel env var sudah diupdate per user. Tinggal verifikasi end-to-end.
-
-### Task 2.1 — Seed data demo di project Supabase baru ⬜ USER
-**Siapa**: User (dari browser/device, karena sandbox AI di-deny ke `umatpro.com`)
-**Cara**:
-```js
-// Di DevTools Console pada https://umatpro.com
-fetch('/api/seed-demo', { method: 'POST' }).then(r => r.json()).then(console.log)
-```
-**DoD**: JSON balasan berisi UUID 2 user demo (DKM + Jamaah) + UUID masjid Al-Ikhlas Demo. Screenshot ke AI.
-
-### Task 2.2 — Verifikasi Demo DKM login ⬜ USER
-**Langkah**: Buka `umatpro.com/auth` → klik "🕌 Demo DKM".
-**DoD**: Redirect sukses ke `/dkm`, dashboard muncul dengan data masjid Al-Ikhlas Demo (5 kajian, 10 kas tx, 4 pengumuman). Sidebar tampil dengan badge.
-
-### Task 2.3 — Verifikasi Demo Jamaah login ⬜ USER
-**Langkah**: Buka `umatpro.com/auth` → klik "👤 Demo Jamaah".
-**DoD**: Redirect sukses ke `/app`, home jamaah muncul (prayer strip, quote harian, daftar masjid).
-
-### Task 2.4 — Set `NEXT_PUBLIC_WA_ADMIN_NUMBER` di Vercel ⬜ USER
-**Langkah**: Vercel → Settings → Environment Variables → Production → tambah `NEXT_PUBLIC_WA_ADMIN_NUMBER=628xxx` (nomor admin real) → Redeploy.
-**DoD**: Di `/dkm` klik "Upgrade Premium" → buka WA ke nomor admin real (bukan dummy `6281234567890`).
-
-### Task 2.5 — Update CONTEXT.md setelah semua task di atas done ⬜ AI
-Tandai Pre-Release Status checkbox "Testing demo login" + "WA_ADMIN_NUMBER" → ✅. Commit + push.
-
----
-
-## 3. What's Broken / Half-Done
-
-### 3.1 Demo login di produksi — BLOCKED by Task 2.1-2.3
-Status: sudah fix di kode (`app/auth/confirm/route.ts` cookie attachment + `app/api/demo-session/route.ts` health ping diagnostic). Tinggal verifikasi setelah user seed data.
-
-### 3.2 `NEXT_PUBLIC_WA_ADMIN_NUMBER` fallback dummy
-File: `app/dkm/(takmir)/upgrade/page.tsx:31` — `const WA_ADMIN = process.env.NEXT_PUBLIC_WA_ADMIN_NUMBER ?? '6281234567890'`.
-Impact: Tombol Upgrade Premium saat ini buka WA ke nomor dummy.
-Fix: Task 2.4.
-
-### 3.3 Server-side tier enforcement untuk /dkm/broadcast
-File: `app/dkm/(takmir)/broadcast/page.tsx`. Saat ini tier check hanya di client — user bisa bypass via devtools.
-Phase breakdown:
-- **3.3a**: Extract tier check ke server component / API route `/api/dkm/broadcast` yang return 403 jika tier ≠ premium.
-- **3.3b**: Hapus client-side gate redundant (atau pertahankan untuk UX cepat, tapi API tetap enforce).
-- **3.3c**: Add test: request API dengan user tier free → expect 403.
-
-### 3.4 Fitur premium "(segera hadir)" — UI promise tanpa backend
-File: `app/dkm/(takmir)/upgrade/page.tsx` — menjanjikan broadcast unlimited, laporan PDF, verifikasi masjid, analytics jamaah. Yang sudah jadi: broadcast unlimited (karena sudah di-gate). Sisanya belum.
-Split ke phase 4 (next phases): Laporan PDF, Verifikasi Masjid, Analytics.
-
-### 3.5 21 TypeScript error pre-existing
-Build tidak terganggu (`ignoreBuildErrors: true`). Tapi signal-to-noise saat typecheck manual jelek.
-Phase breakdown:
-- **3.5a**: Fix `components/takmir/Sidebar.tsx` — 8 error dari lucide-react `ForwardRefExoticComponent` vs `ComponentType` mismatch di `NavItem` props typing.
-- **3.5b**: Fix `components/jamaah/PrayerStrip.tsx:38` — `PrayerTimeStrings` tidak assignable ke `Record<string, string> | null`.
-- **3.5c**: Fix `app/app/(jamaah)/notifications/page.tsx:102` — index type string ke struct keys `{info|event|urgent|donasi}`.
-- **3.5d**: Sisa TS error di file lain (12).
+## ✅ Already Done (Jangan Diubah)
+- **Auth Magic Link OTP** — login via email, session via cookie server-side, middleware proteksi `/dkm/*`
+- **Home Jamaah** — prayer strip, quote Islami harian (31 quote rotasi deterministik), daftar masjid terdekat/followed
+- **Discover Masjid + Peta** — `/app/discover`
+- **Detail Masjid (login)** — `/app/mosque/[id]` + follow button
+- **Profil Publik Masjid (no login)** — `/mosque/[id]` dengan OG tags SSR, share WA, QR modal, tab Kajian
+- **Infaq Digital Jamaah** — `/app/infaq`
+- **Profile + Edit Jamaah** — `/app/profile`, `/app/profile/edit`
+- **Notifications** — `/app/notifications`
+- **Landing Page Statis** — `public/landing.html` (SEO-ready Bahasa Indonesia)
+- **Dashboard DKM** — `/dkm` (auto-tampil form Register jika user belum punya masjid)
+- **Kas Masjid + Export CSV** — `/dkm/kas`
+- **Verifikasi Infaq** — `/dkm/verifikasi`
+- **CRUD Kajian** — `/dkm/kajian` (auto-tampil di `/mosque/[id]`)
+- **CRUD Pengumuman** — `/dkm/pengumuman` (4 kategori, auto-tampil di TV ticker)
+- **QR Code Infaq** — `/dkm/qr` + komponen `InfaqQR` (download + print)
+- **Broadcast WA** — `/dkm/broadcast` (client-side gate: free lihat paywall Crown)
+- **Settings Masjid** — `/dkm/settings`
+- **TV Display per Masjid** — `/dkm/tv/[mosque_id]` (ticker, saldo widget, jadwal sholat fullscreen, QR 120px)
+- **Halaman Upgrade Premium** — `/dkm/upgrade` (Free vs Premium, CTA WA admin, error state + retry, guard user tanpa masjid)
+- **Sidebar DKM** — badge draft kas + pending infaq, tombol Upgrade untuk tier free
+- **Demo Data & Auto-Login Demo** — `POST /api/seed-demo` + `GET /api/demo-session?role=dkm|jamaah` + tombol di `/auth`
+- **Landing page statis + SEO** — `public/landing.html`
+- **Migrasi DB 001-003** — schema, RLS policies, RPC `increment_campaign_raised`
+- **Storage bucket** — `kas-receipts`
+- **Testing** — 9 test case (middleware auth + daily quote), pre-push hook blokir push kalau fail
 
 ---
 
-## 4. Next Phases
-
-### Phase A — Kampanye Donasi UI (≈ 2-3 sesi) — RECOMMENDED
-Tabel `campaigns` + `campaign_updates` sudah ada di DB.
-- **A1**: Halaman list campaign `/app/kampanye` (jamaah) — grid card dengan progress bar, target, raised amount.
-- **A2**: Halaman detail `/app/kampanye/[id]` — deskripsi, progress, tombol Donasi (pre-fill infaq), list updates.
-- **A3**: Halaman DKM `/dkm/kampanye` — CRUD campaign (title, target, status, cover image).
-- **A4**: Form Post Update di DKM → tabel `campaign_updates` (text + optional foto).
-- **A5**: Notifikasi ke follower masjid saat ada campaign baru (optional, butuh push notif).
-
-### Phase B — Laporan Keuangan PDF (premium benefit) (≈ 1-2 sesi)
-- **B1**: Install `jspdf` + `jspdf-autotable`.
-- **B2**: Endpoint `/api/dkm/laporan-pdf?month=YYYY-MM` yang fetch kas approved bulan tsb → generate PDF dengan kop masjid (nama, alamat, logo).
-- **B3**: Tombol "Download PDF" di `/dkm/kas` (gate ke premium).
-- **B4**: Unit test generator PDF.
-
-### Phase C — PWA Install Banner (≈ 1 sesi, quick win)
-- Listen `beforeinstallprompt` event, simpan ke state.
-- Bottom sheet glass di `/app` jika belum install, tombol "Install" + "Nanti".
-- Dismiss → simpan `localStorage['pwa_dismiss_at']`, jangan tampil lagi 7 hari.
-
-### Phase D — Push Notif Jadwal Sholat (≈ 3-4 sesi, butuh infra)
-- **D1**: Generate VAPID keys, set di Vercel env.
-- **D2**: Service worker logic subscribe (`public/sw.js`) + simpan subscription ke tabel baru `push_subscriptions`.
-- **D3**: Cron job Vercel / Supabase Edge Function: setiap 5 menit cek waktu sholat per subscription (pakai lokasi), send push 5 menit sebelum adzan.
-- **D4**: UI jamaah: toggle on/off notif sholat di `/app/profile`.
-
-### Phase E — Verifikasi Masjid (admin-only) (≈ 1-2 sesi)
-- **E1**: Tabel `admin_users` atau kolom `is_platform_admin` di `profiles`.
-- **E2**: Halaman `/admin/mosques` — list masjid, tombol "Verifikasi" → set `is_verified = true`.
-- **E3**: Badge "Verified" muncul di `/mosque/[id]`, home jamaah, search result.
-- **E4**: Middleware proteksi `/admin/*`.
-
-### Phase F — Fase 2 Sisa (Push Notif) — lihat Phase D.
-
-### Phase G — Long-term Backlog (belum di-breakdown)
-- Multi-Masjid (satu user kelola > 1 masjid) — butuh UI switcher masjid di sidebar.
-- Pasar Masjid UI — tabel `marketplace_products` sudah ada.
-- Social Check (SHA-256 contact hash) — tabel `contact_hashes` sudah ada.
-- Jadwal Imam & Khatib — butuh tabel baru.
-- Absensi Jamaah Kajian — butuh tabel baru.
-- Tier Premium analytics — dashboard metrics per masjid.
+## ⚠️ Do Not Touch (Tanpa Izin Eksplisit)
+- `middleware.ts` — auth protection critical, setiap perubahan butuh test coverage update di `__tests__/middleware.test.ts`
+- `app/auth/confirm/route.ts` — pola cookie attachment `response.cookies.set()` di `setAll` callback harus dipertahankan (jika diganti → session hilang, redirect loop)
+- `app/api/demo-session/route.ts` — diagnostic berlapis (env check → URL validasi → health ping → listUsers → generateLink). Urutan check penting untuk debug produksi
+- `lib/supabase/{client,server,admin}.ts` — wrapper client Supabase, ganti → semua halaman bisa break
+- `public/landing.html` — copy SEO Bahasa Indonesia, ganti → impact ranking search
+- `supabase/migrations/001_initial_schema.sql` — sudah dijalankan di produksi, jangan modif. Butuh schema change → bikin `004_*.sql` baru
+- `next.config.mjs` `ignoreBuildErrors: true` — intentional supaya Vercel build tidak blok; jangan di-off sampai semua TS error diselesaikan
 
 ---
 
-## Aturan Kerja AI
+## 🔧 Half-Done (Perlu Diselesaikan)
+- **Demo login di produksi** — fix kode sudah live, tapi butuh seed data di project Supabase baru + verifikasi E2E. Blocked by Current Phase di bawah.
+- **`NEXT_PUBLIC_WA_ADMIN_NUMBER`** — belum diset di Vercel, fallback ke nomor dummy `6281234567890` di `app/dkm/(takmir)/upgrade/page.tsx:31`. Klik Upgrade saat ini buka WA ke nomor dummy.
+- **Server-side tier enforcement** — `/dkm/broadcast` tier check hanya di client, bisa di-bypass via devtools. Butuh API route yang return 403 untuk tier free.
+- **Fitur premium "(segera hadir)"** — Upgrade page menjanjikan laporan PDF, verifikasi masjid, analytics jamaah — UI label sudah ada, implementasi belum.
+- **21 TypeScript error pre-existing** — `components/takmir/Sidebar.tsx` (8 error lucide icon typing), `components/jamaah/PrayerStrip.tsx:38` (PrayerTimeStrings), `app/app/(jamaah)/notifications/page.tsx:102` (index type string), sisa 11 di file lain. Build tidak terganggu karena `ignoreBuildErrors`.
+- **Push Notification** — service worker `public/sw.js` ada tapi belum ada logic subscribe/send. Butuh VAPID keys di env.
 
-1. **Sebelum ngoding**: baca Section 1, pastikan tidak menyentuh file "zona aman" kecuali user minta eksplisit.
-2. **Pecah task**: kalau current phase task > 1 sesi, pecah lagi di Section 2.
-3. **Monetisasi first**: setiap fitur besar, tanyakan — *"Bisa jadi bagian tier premium?"*
-4. **Update file ini**: setiap task selesai, pindahkan ke Section 1. Setiap bug ditemukan, masuk Section 3.
-5. **Default no comments**: ikut rules di `.claude/instructions`. Comment hanya untuk WHY non-obvious.
-6. **Test sebelum push**: pre-push hook sudah ada, jangan bypass (`--no-verify` terlarang).
+---
+
+## 🎯 Current Phase: Fix Demo Login di Produksi
+**Goal:** Demo DKM + Demo Jamaah berhasil login end-to-end di `umatpro.com`, tombol Upgrade arahkan ke nomor WA admin real.
+
+Tasks:
+- [ ] Seed data demo di project Supabase baru — POST `/api/seed-demo` dari browser DevTools Console *(USER)*
+- [ ] Verifikasi Demo DKM login → harus sampai `/dkm` dengan data masjid Al-Ikhlas Demo *(USER)*
+- [ ] Verifikasi Demo Jamaah login → harus sampai `/app` dengan home jamaah *(USER)*
+- [ ] Set `NEXT_PUBLIC_WA_ADMIN_NUMBER` di Vercel (format `628xxx`) + Redeploy *(USER)*
+- [ ] Update `CONTEXT.md` + `PRD.md` — centang semua item pre-release, pindah ke ✅ Done *(AI)*
+
+**Done when:** 2 tombol Demo di `/auth` berhasil masuk ke dashboard masing-masing, dan klik "Upgrade Premium" di sidebar DKM buka WA ke nomor admin real (bukan dummy).
+
+---
+
+## 📋 Next Phases (Boleh Masih Kasar)
+- **Phase A — Kampanye Donasi UI** (recommended): halaman kampanye untuk jamaah (list + detail + tombol donasi + progress bar) + DKM bisa posting update foto/teks ke kampanye. Tabel `campaigns` + `campaign_updates` sudah ada.
+- **Phase B — Laporan Keuangan PDF** (premium benefit): export kas bulanan ke PDF dengan kop masjid via `jspdf` — monetization driver untuk tier premium.
+- **Phase C — PWA Install Banner**: bottom sheet kecil di `/app` pakai `beforeinstallprompt`, dismiss 7 hari via localStorage. Quick win ~1 sesi.
+- **Phase D — Push Notif Jadwal Sholat**: VAPID keys + service worker subscribe + cron kirim 5 menit sebelum adzan. Fase terbesar, butuh infra baru.
+- **Phase E — Verifikasi Masjid (admin-only)**: halaman admin platform untuk verifikasi masjid → badge "Verified" di publik profile + home jamaah.
+- **Phase F — Server-side Tier Enforcement**: refactor broadcast gate ke API route, enforce di backend (fix Half-Done).
+- **Phase G — Backlog Panjang**: Multi-Masjid, Pasar Masjid, Social Check (SHA-256 contact hash), Jadwal Imam & Khatib, Absensi Jamaah Kajian, Analytics jamaah (premium).
+
+---
+
+## 🛠️ Tech Stack (Existing)
+- **Frontend:** Next.js 14 App Router + TypeScript + Tailwind CSS (custom tokens `gd3`/`gd4` gold, `em3`/`em4` emerald, `tx1`/`bg0`), `lucide-react` icons, `clsx`, `qrcode.react`
+- **Backend:** Next.js Route Handlers (`app/api/*`, `app/auth/confirm/route.ts`), Supabase Auth Admin API
+- **Database:** Supabase PostgreSQL — tabel utama: `profiles`, `mosques`, `mosque_roles`, `follows`, `infaq_codes`, `kas_transactions`, `announcements`, `kajians`, `prayer_schedules`, `campaigns`. Migrasi 001-003 live, RLS policies aktif
+- **Auth:** Supabase Auth (magic link OTP + SSR cookies via `@supabase/ssr`)
+- **Storage:** Supabase Storage bucket `kas-receipts`
+- **Deploy:** Vercel auto-deploy dari `main`, domain `umatpro.com` (nameserver `ns1/ns2.vercel-dns.com`)
+- **Testing:** Vitest + `@edge-runtime/vm`, pre-push hook blokir push kalau fail
+- **Prayer times:** `adhan` lib (hitung waktu sholat dari koordinat GPS)
+- **PWA:** icon set di `public/`, service worker `public/sw.js` (subscribe/send logic belum diimplementasi)
