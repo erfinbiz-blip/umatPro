@@ -5,6 +5,41 @@
 
 ---
 
+## Jiwa Proyek — Kenapa UmatPro Ada
+
+> Baca ini setiap sesi. Ini bukan sekadar proyek software.
+
+Latar belakang utama membangun UmatPro bukan karena bisnis — tapi karena **kerinduan untuk dekat dengan masjid dan berkontribusi untuk masjid**, terutama masjid di dekat rumah.
+
+Karena kondisi yang belum memungkinkan untuk hadir rutin dan ikut meramaikan masjid secara fisik, **UmatPro diharapkan bisa mewakili secara digital kehadiran dan kontribusi** — agar hubungan dengan masjid tetap terjaga, infaq tetap mengalir, dan ilmu dari kajian tetap terhubung, meski dari jauh.
+
+Setiap fitur yang dibangun harus memancarkan nilai ini:
+- **Transparansi** — jamaah percaya uangnya dikelola dengan amanah
+- **Kedekatan** — jamaah merasa terhubung dengan masjidnya meski tidak hadir fisik
+- **Kemudahan** — DKM non-teknis pun bisa pakai tanpa hambatan
+- **Keberkahan** — setiap baris kode adalah amal jariyah
+
+### ⚠️ Pengingat Keberlanjutan
+
+> **UmatPro harus bisa self-funding agar bisa terus hidup dan bermanfaat.**
+
+Tanpa keberlanjutan finansial, proyek ini tidak bisa dirawat, dikembangkan, dan pada akhirnya tidak bisa melayani jamaah dan masjid yang membutuhkan.
+
+**Fitur monetisasi yang harus selalu diprioritaskan:**
+
+| Fitur | Model | Status |
+|-------|-------|--------|
+| Tier Premium DKM | Subscription bulanan | ✅ Halaman `/dkm/upgrade` live |
+| Broadcast WA Unlimited | Premium only | ✅ Di-gate — free lihat paywall |
+| Laporan PDF | Premium only | Belum dibangun |
+| Verifikasi Masjid (badge) | Premium benefit | Belum dibangun |
+| Pasar Masjid | Revenue share / listing fee | Tabel ada, UI belum |
+
+**Aturan pengembangan**: Setiap kali menambah fitur besar, tanyakan —
+*"Apakah ini bisa menjadi bagian dari tier premium yang membuat DKM mau berlangganan?"*
+
+---
+
 ## Gambaran Proyek
 
 **UmatPro** adalah platform digital ekosistem masjid Indonesia.
@@ -30,6 +65,7 @@
 | `/app/profile/edit` | Edit profil (nama, WA) | `app/app/(jamaah)/profile/edit/page.tsx` |
 | `/app/notifications` | Notifikasi | `app/app/(jamaah)/notifications/page.tsx` |
 | `/auth` | Login / Register | `app/auth/page.tsx` |
+| `/auth/confirm` | Callback verifikasi magic link (demo session) | `app/auth/confirm/route.ts` |
 | `/dkm` | Dashboard DKM — jika belum punya masjid tampilkan form Register | `app/dkm/(takmir)/page.tsx` |
 | `/dkm/kas` | Manajemen kas + Export CSV | `app/dkm/(takmir)/kas/page.tsx` |
 | `/dkm/verifikasi` | Verifikasi infaq | `app/dkm/(takmir)/verifikasi/page.tsx` |
@@ -109,6 +145,7 @@ File: `components/takmir/Sidebar.tsx`
 | File | Yang ditest |
 |------|------------|
 | `__tests__/middleware.test.ts` | 5 kasus auth middleware — `/dkm` tanpa login, dengan login, saat Supabase error, `/app` tidak diproteksi |
+| `__tests__/quotes.test.ts` | 4 kasus daily quote — array valid, determinisme per tanggal, rotasi siklik |
 
 ### Cara jalankan manual
 ```bash
@@ -162,11 +199,75 @@ npm test
 - Input: nama, alamat, rekening (opsional)
 - Auto-assign self sebagai `admin` setelah submit
 
+### Fase Monetisasi — Upgrade & Premium Gate
+- `/dkm/upgrade`: halaman pricing Free vs Premium (Rp 99rb/bln, Rp 899rb/thn)
+- CTA "Upgrade" → buka WA chat ke admin dengan pesan pre-filled
+- `/dkm/broadcast`: di-gate ke premium — free lihat paywall Crown
+- Sidebar: tombol "Upgrade Premium" muncul untuk tier free (di atas logout)
+- Env var: `NEXT_PUBLIC_WA_ADMIN_NUMBER` (set di Vercel dengan nomor WA admin)
+- Demo masjid sudah `tier: premium` → demo DKM bisa akses broadcast
+
+### Fix Bug — Server Errors & Demo Login (21 Apr 2026)
+- `app/mosque/[id]/page.tsx`: tambah `await` pada `createClient()` di `generateMetadata` → fix 500 di semua halaman publik masjid
+- `app/dkm/(takmir)/page.tsx`: bungkus `fetchDashboard` dengan try-finally → fix stuck loading spinner
+- `app/api/demo-session/route.ts`: ganti alur `action_link` (hash fragment) ke `/auth/confirm?token_hash=...` agar session di-set via cookie server-side → fix demo login tidak bisa masuk ke `/dkm`
+- `app/auth/confirm/route.ts` *(baru)*: server-side magic link verifier menggunakan `supabase.auth.verifyOtp({ token_hash, type })`
+- `app/dkm/(takmir)/upgrade/page.tsx`: fitur premium belum tersedia diberi label "(segera hadir)"
+
+### Fix — Demo Login Cookie Attachment + Diagnostics (21 Apr 2026, lanjutan)
+- `/auth/confirm`: sebelumnya `verifyOtp` set session cookie via `cookies().set()` tapi `NextResponse.redirect()` buat response baru yang TIDAK membawa cookie itu → session hilang, middleware lihat user belum login → redirect loop ke `/auth`. Fix: bangun redirect response dulu, lalu set cookie langsung ke `response.cookies` di `setAll` callback
+- `/api/demo-session`: cek env var Supabase + listUsers untuk verifikasi user demo ada → pesan error spesifik per titik kegagalan (bukan "Internal error" generik). Pada error, redirect ke `/auth?error=demo_session&reason=...` daripada tampilkan JSON
+- `/auth`: baca query `?error=&reason=` dan tampilkan pesan friendly, lalu clear query string via `history.replaceState`
+- Validasi `NEXT_PUBLIC_SUPABASE_URL` sebelum `createAdminClient` — tampilkan 60 char pertama jika invalid
+- **Health ping** ke `/auth/v1/health` Supabase sebelum `listUsers` → jika "fetch failed" langsung ngasih tahu host + kemungkinan penyebab (project di-pause, URL typo, env belum redeploy)
+
+### Hardening — Upgrade Page Error & No-Mosque Guard
+- `/dkm/upgrade`: try/catch di `fetchTier` + error state dengan tombol "Coba lagi"
+- Jika user belum punya mosque → tampilkan card "Daftarkan masjid dulu" (link ke `/dkm`), tidak lagi pakai placeholder "Masjid Saya" di WA link
+- `mosqueName` sekarang `string | null` — WA link hanya dirender setelah mosque terkonfirmasi
+
+### Quote Islami Harian
+- `lib/quotes/daily.ts`: 31 quote Al-Qur'an & Hadits, rotasi deterministik berdasarkan day-of-year (semua jamaah lihat quote sama di hari yang sama)
+- `components/jamaah/DailyQuote.tsx`: card quote dengan ikon kitab + tombol "Salin"
+- Tampil di home jamaah `/app` antara PrayerStrip dan daftar masjid
+- Test: `__tests__/quotes.test.ts` — 4 kasus (valid array, determinisme, rotasi)
+
+### Fase 2H — Demo Data & Akun Demo
+- `POST /api/seed-demo`: buat 2 user demo + data lengkap masjid via Supabase Admin API (idempoten)
+- `GET /api/demo-session?role=dkm|jamaah`: generate magic link one-time → auto-login tanpa OTP
+- `/auth`: tambah tombol "🕌 Demo DKM" dan "👤 Demo Jamaah" di bawah form login
+- `supabase/seed_demo.sql`: SQL alternatif untuk Supabase SQL Editor
+- `scripts/run-seed-demo.mjs`: script standalone Node.js untuk seed lokal
+
+#### Akun Demo (sudah di-seed ke Supabase)
+| Role | Email | UUID |
+|------|-------|------|
+| DKM Admin | `demo.dkm@umatpro.com` | `9c963e5b-3b14-4df2-a02a-ce8bd76329f8` |
+| Jamaah | `demo.jamaah@umatpro.com` | `32e3f1fd-9dec-4e58-a30c-53b3731de7ef` |
+
+- Password: `DemoUmatpro2025!`
+- Masjid: **Masjid Al-Ikhlas Demo** — ID: `aaaaaaaa-0001-0001-0001-000000000001`
+- Data: 5 kajian, 10 kas tx (8 approved + 2 draft), 4 pengumuman, 2 kampanye, 3 infaq codes, 7 hari jadwal sholat
+
 ---
 
 ## Pre-Release Status
 
 > Diupdate setiap kali `/pre-release` dijalankan.
+
+### Audit Readiness — 22 April 2026
+
+**Status**: ⚠️ **SIAP DENGAN CATATAN** — 1 blocker env var + 1 verifikasi manual tersisa.
+
+| Check | Hasil |
+|-------|-------|
+| Tests | ✅ 9/9 pass |
+| Build config | ✅ `ignoreBuildErrors: true` — 21 TS error pre-existing tidak blok Vercel |
+| Supabase infra | ✅ migrasi, bucket, Auth URLs, demo data |
+| Vercel env core | ✅ SUPABASE_URL, ANON_KEY, SERVICE_ROLE, APP_URL |
+| Branch sync | ✅ semua commit di `main`, Vercel redeploy setelah `f875267` |
+| `NEXT_PUBLIC_WA_ADMIN_NUMBER` | ⬜ **BLOCKER** — masih fallback ke `6281234567890` |
+| Demo login verifikasi produksi | ⬜ butuh cek manual setelah redeploy selesai |
 
 ### Review Terakhir — 18 April 2026
 
@@ -187,8 +288,8 @@ npm test
 2. ✅ ~~Fitur premium belum ada diberi label "(segera hadir)"~~ → sudah diperbaiki
 
 **Issues setelah release:**
-1. Error state di `fetchTier` (upgrade page) untuk network failure
-2. WA link menyebut "Masjid Saya" jika user belum punya mosque
+1. ✅ ~~Error state di `fetchTier` (upgrade page) untuk network failure~~ → ditangani (error card + retry)
+2. ✅ ~~WA link menyebut "Masjid Saya" jika user belum punya mosque~~ → ditangani (guard "Daftarkan masjid dulu")
 3. Pertimbangkan server-side tier enforcement via API route
 
 ---
@@ -201,14 +302,37 @@ npm test
 | Domain umatpro.com | ✅ Active |
 | Supabase migrations 001-003 | ✅ Done |
 | Storage bucket kas-receipts | ✅ Done |
-| Fase 2 A/B/C/D/E/G | ✅ Done |
-| Supabase Auth Site URL | ⬜ Set ke `https://umatpro.com` |
-| Testing alur lengkap | ⬜ Belum |
+| Fase 2 A/B/C/D/E/G/H | ✅ Done |
+| Demo data di Supabase | ✅ Done |
+| Supabase Auth Site URL + Redirect URLs | ✅ Done |
+| NEXT_PUBLIC_WA_ADMIN_NUMBER di Vercel | ⬜ Wajib diset — nomor WA admin real |
+| Testing demo login (DKM + Jamaah) | ⬜ Belum diverifikasi di production |
 
-### Yang masih perlu dilakukan manual
-1. **Supabase Auth URL**: Dashboard → Authentication → URL Configuration
-   - Site URL: `https://umatpro.com`
-   - Redirect URLs: `https://umatpro.com/**`
+---
+
+## Backlog
+
+### Jamaah
+- [x] ~~**Quote Islami Harian**~~ — selesai (31 quote, rotasi harian, tombol salin)
+- [ ] **PWA Install Banner** — bottom sheet kecil muncul jika belum install PWA. Cek `beforeinstallprompt`. Dismiss → tidak muncul lagi 7 hari (localStorage).
+- [ ] **Push Notif Permission Reminder** — pengingat halus jika PWA install tapi notif belum di-allow (`Notification.permission === 'default'`). Bukan popup paksa.
+- [ ] **Notif Jadwal Sholat** — push notification 5 menit sebelum adzan (5 waktu). Butuh VAPID keys + service worker subscribe/send logic. Env: `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`.
+
+### DKM / Takmir
+- [ ] **Kampanye Donasi UI** — halaman kampanye untuk jamaah: daftar campaign aktif, progress bar, tombol donasi. Tabel `campaigns` + `campaign_updates` sudah ada di DB.
+- [ ] **Update Progress Kampanye** — DKM bisa posting update teks/foto ke kampanye. Tabel `campaign_updates` sudah ada.
+- [ ] **Jadwal Imam & Khatib** — manajemen jadwal imam sholat harian dan khatib Jumat. Belum ada tabel, perlu migrasi baru.
+- [ ] **Absensi Jamaah Kajian** — check-in jamaah saat hadir kajian. Belum ada tabel.
+- [ ] **Laporan Keuangan PDF** — export laporan kas bulanan ke PDF dengan kop masjid. Client-side via `jspdf` atau server-side.
+- [ ] **Multi-Masjid** — satu akun bisa kelola lebih dari satu masjid. Perlu UI switcher masjid di sidebar.
+
+### Marketplace & Komunitas
+- [ ] **Pasar Masjid** — jamaah bisa jual produk halal di halaman masjid. Tabel `marketplace_products` sudah ada di DB (status: pending → approved oleh admin).
+- [ ] **Social Check** — cari teman sesama jamaah via nomor kontak (privacy-first, pakai hash SHA-256). Tabel `contact_hashes` sudah ada.
+
+### Platform / Admin
+- [ ] **Verifikasi Masjid** — admin UmatPro bisa verifikasi masjid (`is_verified = true`). Butuh halaman admin terpisah.
+- [ ] **Tier Premium** — fitur eksklusif untuk DKM premium (misal: broadcast WA unlimited, laporan PDF, analytics jamaah). Kolom `tier` sudah ada di tabel `mosques`.
 
 ---
 
@@ -240,11 +364,11 @@ npm test
 ## Env Vars yang Dibutuhkan
 
 ```
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_ROLE_KEY=
-WHATSAPP_API_TOKEN=        # broadcast WA (opsional)
-WHATSAPP_PHONE_ID=         # broadcast WA (opsional)
-VAPID_PUBLIC_KEY=          # push notif — belum diimplementasi
-VAPID_PRIVATE_KEY=         # push notif — belum diimplementasi
+NEXT_PUBLIC_SUPABASE_URL=        # ✅ set di Vercel
+NEXT_PUBLIC_SUPABASE_ANON_KEY=   # ✅ set di Vercel
+SUPABASE_SERVICE_ROLE_KEY=       # ✅ set di Vercel
+NEXT_PUBLIC_APP_URL=             # ✅ https://umatpro.com
+NEXT_PUBLIC_WA_ADMIN_NUMBER=     # ⬜ WAJIB: nomor WA admin real (format: 628xxx)
+VAPID_PUBLIC_KEY=                # push notif — belum diimplementasi
+VAPID_PRIVATE_KEY=               # push notif — belum diimplementasi
 ```
