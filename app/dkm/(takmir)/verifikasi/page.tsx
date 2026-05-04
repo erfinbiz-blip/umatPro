@@ -6,6 +6,7 @@ import Glass from '@/components/ui/Glass'
 import VerifyItem from '@/components/takmir/VerifyItem'
 import ArabesqueBg from '@/components/ui/ArabesqueBg'
 import { createClient } from '@/lib/supabase/client'
+import { getCurrentMosqueRole } from '@/lib/auth/mosque'
 
 interface InfaqCodeFull {
   id: string
@@ -51,19 +52,10 @@ export default function VerifikasiPage() {
   useEffect(() => {
     async function init() {
       const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { window.location.href = '/auth'; return }
-
-      const { data: role } = await supabase
-        .from('mosque_roles')
-        .select('mosque_id')
-        .eq('user_id', user.id)
-        .limit(1)
-        .single()
-
-      if (role?.mosque_id) {
-        setMosqueId(role.mosque_id)
-        await fetchCodes(role.mosque_id)
+      const current = await getCurrentMosqueRole(supabase)
+      if (current) {
+        setMosqueId(current.mosqueId)
+        await fetchCodes(current.mosqueId)
       }
       setLoading(false)
     }

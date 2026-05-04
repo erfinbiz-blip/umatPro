@@ -6,6 +6,7 @@ import Glass from '@/components/ui/Glass'
 import GoldButton from '@/components/ui/GoldButton'
 import ArabesqueBg from '@/components/ui/ArabesqueBg'
 import { createClient } from '@/lib/supabase/client'
+import { getCurrentMosqueRole } from '@/lib/auth/mosque'
 import type { Mosque } from '@/lib/supabase/types'
 
 export default function SettingsPage() {
@@ -26,24 +27,15 @@ export default function SettingsPage() {
   useEffect(() => {
     async function fetchData() {
       const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { window.location.href = '/auth'; return }
+      const current = await getCurrentMosqueRole(supabase)
+      if (!current) { setLoading(false); return }
 
-      const { data: role } = await supabase
-        .from('mosque_roles')
-        .select('mosque_id')
-        .eq('user_id', user.id)
-        .limit(1)
-        .single()
-
-      if (!role?.mosque_id) { setLoading(false); return }
-
-      setMosqueId(role.mosque_id)
+      setMosqueId(current.mosqueId)
 
       const { data: mosqueData } = await supabase
         .from('mosques')
         .select('*')
-        .eq('id', role.mosque_id)
+        .eq('id', current.mosqueId)
         .single()
 
       if (mosqueData) {

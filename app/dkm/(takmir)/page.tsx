@@ -11,6 +11,7 @@ import Glass from '@/components/ui/Glass'
 import LiquidCounter from '@/components/ui/LiquidCounter'
 import ArabesqueBg from '@/components/ui/ArabesqueBg'
 import { createClient } from '@/lib/supabase/client'
+import { getCurrentMosqueRole } from '@/lib/auth/mosque'
 import { formatRupiah } from '@/lib/infaq/code'
 import type { KasTransaction } from '@/lib/supabase/types'
 
@@ -146,25 +147,11 @@ export default function TakmirDashboard() {
     async function fetchDashboard() {
       try {
         const supabase = createClient()
-        const { data: { user } } = await supabase.auth.getUser()
-        if (!user) {
-          window.location.href = '/auth'
-          return
-        }
+        const current = await getCurrentMosqueRole<{ name: string }>(supabase, { mosqueFields: 'name' })
+        if (!current) return
 
-        const { data: role } = await supabase
-          .from('mosque_roles')
-          .select('mosque_id, mosques(name)')
-          .eq('user_id', user.id)
-          .limit(1)
-          .single()
-
-        if (!role?.mosque_id) {
-          return
-        }
-
-        const mosqueId = role.mosque_id
-        const mosqueName = (role.mosques as unknown as { name: string } | null)?.name ?? 'Masjid Anda'
+        const mosqueId = current.mosqueId
+        const mosqueName = current.mosque?.name ?? 'Masjid Anda'
 
         const [kasRes, draftRes, infaqRes, followRes] = await Promise.all([
           supabase.from('kas_transactions').select('type, amount').eq('mosque_id', mosqueId).eq('status', 'approved'),
