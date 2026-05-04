@@ -7,6 +7,7 @@ import Glass from '@/components/ui/Glass'
 import GoldButton from '@/components/ui/GoldButton'
 import ArabesqueBg from '@/components/ui/ArabesqueBg'
 import { createClient } from '@/lib/supabase/client'
+import { getCurrentMosqueRole } from '@/lib/auth/mosque'
 
 const FREE_FEATURES = [
   'Dashboard kas masjid',
@@ -46,20 +47,10 @@ export default function UpgradePage() {
   useEffect(() => {
     async function fetchTier() {
       const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { window.location.href = '/auth'; return }
-
-      const { data: role } = await supabase
-        .from('mosque_roles')
-        .select('mosque_id, mosques(name, tier)')
-        .eq('user_id', user.id)
-        .limit(1)
-        .single()
-
-      if (role?.mosque_id) {
-        const mosque = role.mosques as unknown as { name: string; tier: string } | null
-        setMosqueName(mosque?.name ?? 'Masjid Saya')
-        setTier((mosque?.tier ?? 'free') as 'free' | 'premium')
+      const current = await getCurrentMosqueRole<{ name: string; tier: string }>(supabase, { mosqueFields: 'name, tier' })
+      if (current) {
+        setMosqueName(current.mosque?.name ?? 'Masjid Saya')
+        setTier((current.mosque?.tier ?? 'free') as 'free' | 'premium')
       }
       setLoading(false)
     }

@@ -6,6 +6,7 @@ import Glass from '@/components/ui/Glass'
 import InfaqQR from '@/components/ui/InfaqQR'
 import ArabesqueBg from '@/components/ui/ArabesqueBg'
 import { createClient } from '@/lib/supabase/client'
+import { getCurrentMosqueRole } from '@/lib/auth/mosque'
 
 export default function QRPage() {
   const [mosque, setMosque] = useState<{ id: string; name: string } | null>(null)
@@ -14,20 +15,11 @@ export default function QRPage() {
   useEffect(() => {
     async function init() {
       const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { window.location.href = '/auth'; return }
-
-      const { data: role } = await supabase
-        .from('mosque_roles')
-        .select('mosque_id, mosques(name)')
-        .eq('user_id', user.id)
-        .limit(1)
-        .single()
-
-      if (role?.mosque_id) {
+      const current = await getCurrentMosqueRole<{ name: string }>(supabase, { mosqueFields: 'name' })
+      if (current) {
         setMosque({
-          id: role.mosque_id,
-          name: (role.mosques as unknown as { name: string } | null)?.name ?? 'Masjid',
+          id: current.mosqueId,
+          name: current.mosque?.name ?? 'Masjid',
         })
       }
       setLoading(false)
