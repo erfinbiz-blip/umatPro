@@ -117,7 +117,9 @@ export async function GET(req: NextRequest) {
     // Use server-side confirm route so session is set via cookies (not hash fragment).
     const confirmUrl = new URL('/auth/confirm', req.url)
     confirmUrl.searchParams.set('token_hash', data.properties.hashed_token)
-    confirmUrl.searchParams.set('type', 'magiclink')
+    // Use 'email' type for verifyOtp — 'magiclink' is deprecated in Supabase Auth.
+    // 'email' is the unified type for all email-based verifications.
+    confirmUrl.searchParams.set('type', 'email')
     confirmUrl.searchParams.set('next', redirectTo)
     return NextResponse.redirect(confirmUrl)
   } catch (err) {

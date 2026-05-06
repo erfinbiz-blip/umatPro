@@ -7,7 +7,10 @@ type EmailOtpType = 'magiclink' | 'email' | 'signup' | 'invite' | 'recovery' | '
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url)
   const token_hash = searchParams.get('token_hash')
-  const type = searchParams.get('type') as EmailOtpType | null
+  let type = searchParams.get('type') as EmailOtpType | null
+  // Normalize deprecated 'magiclink' to 'email' for verifyOtp compatibility.
+  // Supabase Auth docs recommend 'email' as the unified type for all email verifications.
+  if (type === 'magiclink') type = 'email'
   const next = searchParams.get('next') ?? '/'
 
   if (!token_hash || !type) {
