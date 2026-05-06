@@ -23,3 +23,12 @@
 - Identified 10 architectural debt items (3 critical, 3 high, 3 medium, 3 low)
 - Created [[concepts/architecture]] — full architecture analysis with depth assessment
 - Updated [[index]] with new concept page
+
+## [2026-05-07] upgrade | Next.js 14 → 16 + React 18 → 19
+- Upgraded `next` from 14.2.3 to 16.2.5
+- Upgraded `react` and `react-dom` from 18.3.1 to 19.2.6
+- Updated `@types/react` and `@types/react-dom` to v19
+- Ran `next-async-request-api` codemod: converted `params` to `Promise` in `app/mosque/[id]/page.tsx`
+- Removed deprecated `eslint` config from `next.config.mjs`
+- All tests pass (9/9), build succeeds
+- Branch: `next-15-upgrade`
