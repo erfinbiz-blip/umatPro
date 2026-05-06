@@ -7,6 +7,7 @@ import Glass from '@/components/ui/Glass'
 import GoldButton from '@/components/ui/GoldButton'
 import ArabesqueBg from '@/components/ui/ArabesqueBg'
 import { createClient } from '@/lib/supabase/client'
+import { getCurrentMosqueRole } from '@/lib/auth/mosque'
 
 const FREE_FEATURES = [
   'Dashboard kas masjid',
@@ -39,29 +40,25 @@ function waUpgradeLink(mosqueName: string, plan: 'bulanan' | 'tahunan') {
 }
 
 export default function UpgradePage() {
-  const [mosqueName, setMosqueName] = useState('Masjid Saya')
+  const [mosqueName, setMosqueName] = useState<string | null>(null)
   const [tier, setTier] = useState<'free' | 'premium'>('free')
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     async function fetchTier() {
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { window.location.href = '/auth'; return }
-
-      const { data: role } = await supabase
-        .from('mosque_roles')
-        .select('mosque_id, mosques(name, tier)')
-        .eq('user_id', user.id)
-        .limit(1)
-        .single()
-
-      if (role?.mosque_id) {
-        const mosque = role.mosques as unknown as { name: string; tier: string } | null
-        setMosqueName(mosque?.name ?? 'Masjid Saya')
-        setTier((mosque?.tier ?? 'free') as 'free' | 'premium')
+      try {
+        const supabase = createClient()
+        const current = await getCurrentMosqueRole<{ name: string; tier: string }>(supabase, { mosqueFields: 'name, tier' })
+        if (current) {
+          setMosqueName(current.mosque?.name ?? null)
+          setTier((current.mosque?.tier ?? 'free') as 'free' | 'premium')
+        }
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'Gagal memuat status langganan')
+      } finally {
+        setLoading(false)
       }
-      setLoading(false)
     }
     fetchTier()
   }, [])
@@ -70,6 +67,46 @@ export default function UpgradePage() {
     return (
       <div className="flex items-center justify-center min-h-dvh">
         <div className="w-8 h-8 rounded-full border-2 border-gd3/30 border-t-gd3 animate-spin" />
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="relative min-h-dvh lg:pt-0 pt-14">
+        <ArabesqueBg opacity={0.025} />
+        <div className="relative z-10 p-4 md:p-6 lg:p-8 max-w-md mx-auto mt-12">
+          <Glass rounded="2xl" padding="lg" className="text-center">
+            <p className="text-white/80 mb-2">Tidak dapat memuat status langganan</p>
+            <p className="text-xs text-white/40 mb-4">{error}</p>
+            <button
+              onClick={() => { setError(null); setLoading(true); location.reload() }}
+              className="px-4 py-2 rounded-xl bg-gd3/15 border border-gd3/30 text-gd3 text-sm hover:bg-gd3/25"
+            >
+              Coba lagi
+            </button>
+          </Glass>
+        </div>
+      </div>
+    )
+  }
+
+  if (!mosqueName) {
+    return (
+      <div className="relative min-h-dvh lg:pt-0 pt-14">
+        <ArabesqueBg opacity={0.025} />
+        <div className="relative z-10 p-4 md:p-6 lg:p-8 max-w-md mx-auto mt-12">
+          <Glass rounded="2xl" padding="lg" className="text-center">
+            <Crown size={28} className="text-gd3 mx-auto mb-3" />
+            <p className="font-semibold text-tx1 mb-1">Daftarkan masjid dulu</p>
+            <p className="text-sm text-white/50 mb-5">
+              Anda belum terdaftar sebagai takmir. Daftarkan masjid sebelum upgrade ke Premium.
+            </p>
+            <Link href="/dkm">
+              <GoldButton size="md">Daftar Masjid</GoldButton>
+            </Link>
+          </Glass>
+        </div>
       </div>
     )
   }

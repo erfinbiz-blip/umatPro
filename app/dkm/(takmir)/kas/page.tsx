@@ -6,6 +6,7 @@ import Glass from '@/components/ui/Glass'
 import KasForm from '@/components/takmir/KasForm'
 import ArabesqueBg from '@/components/ui/ArabesqueBg'
 import { createClient } from '@/lib/supabase/client'
+import { getCurrentMosqueRole } from '@/lib/auth/mosque'
 import { formatRupiah } from '@/lib/infaq/code'
 import type { KasTransaction } from '@/lib/supabase/types'
 
@@ -40,20 +41,11 @@ export default function KasPage() {
   useEffect(() => {
     async function init() {
       const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { window.location.href = '/auth'; return }
-
-      const { data: role } = await supabase
-        .from('mosque_roles')
-        .select('mosque_id, role')
-        .eq('user_id', user.id)
-        .limit(1)
-        .single()
-
-      if (role) {
-        setMosqueId(role.mosque_id)
-        setUserRole(role.role as 'bendahara' | 'dewan' | 'admin')
-        await fetchTransactions(role.mosque_id)
+      const current = await getCurrentMosqueRole(supabase)
+      if (current) {
+        setMosqueId(current.mosqueId)
+        setUserRole(current.role)
+        await fetchTransactions(current.mosqueId)
       }
       setLoading(false)
     }

@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard, BookOpenCheck, ShieldCheck, Megaphone,
-  Settings, Menu, X, LogOut, Bell, QrCode, BookOpen,
+  Settings, Menu, X, LogOut, Bell, QrCode, BookOpen, Crown,
 } from 'lucide-react'
 import { clsx } from 'clsx'
 import { createClient } from '@/lib/supabase/client'
@@ -82,6 +82,7 @@ export default function TakmirSidebar() {
   const [open, setOpen] = useState(false)
   const [badges, setBadges] = useState<Badges>({ draft_kas: 0, pending_infaq: 0 })
   const [mosqueName, setMosqueName] = useState('Masjid Saya')
+  const [tier, setTier] = useState<'free' | 'premium'>('free')
 
   useEffect(() => {
     async function fetchBadges() {
@@ -92,7 +93,7 @@ export default function TakmirSidebar() {
       // Get user's mosque
       const { data: role } = await supabase
         .from('mosque_roles')
-        .select('mosque_id, mosques(name)')
+        .select('mosque_id, mosques(name, tier)')
         .eq('user_id', user.id)
         .limit(1)
         .single()
@@ -100,8 +101,9 @@ export default function TakmirSidebar() {
       if (!role?.mosque_id) return
 
       const mosqueId = role.mosque_id
-      const mosqueData = role.mosques as unknown as { name: string } | null
+      const mosqueData = role.mosques as unknown as { name: string; tier: string } | null
       if (mosqueData?.name) setMosqueName(mosqueData.name)
+      if (mosqueData?.tier) setTier(mosqueData.tier as 'free' | 'premium')
 
       const [draftKas, pendingInfaq] = await Promise.all([
         supabase
@@ -190,6 +192,25 @@ export default function TakmirSidebar() {
           )
         })}
       </nav>
+
+      {/* Upgrade CTA — only for free tier */}
+      {tier === 'free' && (
+        <div className="relative z-10 px-3 pb-2">
+          <Link
+            href="/dkm/upgrade"
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-3 px-3 py-3 rounded-xl border border-gd3/30 bg-gd3/5 hover:bg-gd3/10 transition-all"
+          >
+            <div className="w-9 h-9 rounded-xl bg-gd3/20 flex items-center justify-center shrink-0">
+              <Crown size={16} className="text-gd3" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-gd3">Upgrade Premium</p>
+              <p className="text-[11px] text-white/30">Mulai Rp 99rb/bulan</p>
+            </div>
+          </Link>
+        </div>
+      )}
 
       {/* Logout */}
       <div className="relative z-10 p-3 border-t border-white/8">
