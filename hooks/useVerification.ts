@@ -31,26 +31,24 @@ export function useVerification(
         .eq('id', infaqCodeId)
 
       if (!error && campaignId) {
-        await supabase
-          .rpc('increment_campaign_raised', {
+        try {
+          await supabase.rpc('increment_campaign_raised', {
             p_campaign_id: campaignId,
             p_amount: nominal,
           })
-          .catch(() => {
-            supabase
+        } catch {
+          const { data } = await supabase
+            .from('campaigns')
+            .select('raised_amount')
+            .eq('id', campaignId)
+            .single()
+          if (data) {
+            await supabase
               .from('campaigns')
-              .select('raised_amount')
+              .update({ raised_amount: (data.raised_amount || 0) + nominal })
               .eq('id', campaignId)
-              .single()
-              .then(({ data }) => {
-                if (data) {
-                  supabase
-                    .from('campaigns')
-                    .update({ raised_amount: (data.raised_amount || 0) + nominal })
-                    .eq('id', campaignId)
-                }
-              })
-          })
+          }
+        }
       }
 
       setLoading(null)

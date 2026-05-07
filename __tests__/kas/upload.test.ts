@@ -39,13 +39,15 @@ describe('uploadReceipt', () => {
   })
 
   it('uses correct path format with timestamp and extension', async () => {
-    const supabase = createMockSupabase()
     const uploadMock = vi.fn(async () => ({ data: { path: 'receipts/m1/123456.jpg' }, error: null }))
-    const fromMock = vi.fn(() => ({
-      upload: uploadMock,
-      getPublicUrl: vi.fn(() => ({ data: { publicUrl: 'url' } })),
-    }))
-    supabase.storage.from = fromMock
+    const supabase = {
+      storage: {
+        from: vi.fn(() => ({
+          upload: uploadMock,
+          getPublicUrl: vi.fn(() => ({ data: { publicUrl: 'url' } })),
+        })),
+      },
+    } as unknown as SupabaseClient
 
     const file = new File(['blob'], 'nota.png', { type: 'image/png' })
     await uploadReceipt(supabase, 'mosque-1', file)
