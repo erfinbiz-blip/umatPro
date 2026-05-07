@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 
 const TAKMIR_ROUTES = ['/dkm']
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   try {
     let supabaseResponse = NextResponse.next({ request })
 

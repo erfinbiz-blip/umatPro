@@ -7,7 +7,7 @@ vi.mock('@supabase/ssr', () => ({
 }))
 
 import { createServerClient } from '@supabase/ssr'
-import { middleware } from '../middleware'
+import { proxy } from '../proxy'
 
 function makeRequest(path: string) {
   return new NextRequest(new URL(`http://localhost${path}`))
@@ -25,39 +25,39 @@ function mockAuthError() {
   })
 }
 
-describe('middleware — auth protection', () => {
+describe('proxy — auth protection', () => {
   beforeEach(() => vi.clearAllMocks())
 
   it('/dkm tanpa login → redirect /auth', async () => {
     mockUser(null)
-    const res = await middleware(makeRequest('/dkm'))
+    const res = await proxy(makeRequest('/dkm'))
     expect(res.status).toBe(307)
     expect(res.headers.get('location')).toContain('/auth')
   })
 
   it('/dkm/kas tanpa login → redirect /auth', async () => {
     mockUser(null)
-    const res = await middleware(makeRequest('/dkm/kas'))
+    const res = await proxy(makeRequest('/dkm/kas'))
     expect(res.status).toBe(307)
     expect(res.headers.get('location')).toContain('/auth')
   })
 
   it('/dkm dengan login → lanjut', async () => {
     mockUser({ id: 'user-123' })
-    const res = await middleware(makeRequest('/dkm'))
+    const res = await proxy(makeRequest('/dkm'))
     expect(res.status).not.toBe(307)
   })
 
   it('/dkm saat Supabase error → tetap redirect /auth', async () => {
     mockAuthError()
-    const res = await middleware(makeRequest('/dkm'))
+    const res = await proxy(makeRequest('/dkm'))
     expect(res.status).toBe(307)
     expect(res.headers.get('location')).toContain('/auth')
   })
 
   it('/app tanpa login → lanjut (tidak diproteksi)', async () => {
     mockUser(null)
-    const res = await middleware(makeRequest('/app'))
+    const res = await proxy(makeRequest('/app'))
     expect(res.status).not.toBe(307)
   })
 })

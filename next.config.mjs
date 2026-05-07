@@ -4,9 +4,6 @@ const nextConfig = {
     // Type errors are caught in local dev — allow build to proceed on Vercel
     ignoreBuildErrors: true,
   },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: '*.supabase.co' },

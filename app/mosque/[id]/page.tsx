@@ -2,10 +2,11 @@ import { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 
 interface Props {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params;
   const supabase = await createClient()
   const { data: mosque } = await supabase
     .from('mosques')
