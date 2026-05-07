@@ -32,3 +32,14 @@
 - Removed deprecated `eslint` config from `next.config.mjs`
 - All tests pass (9/9), build succeeds
 - Branch: `next-15-upgrade`
+
+## [2026-05-07] refactor | Business logic extraction from UI
+- Extracted embedded business logic from 5 HIGH-priority components into `lib/` and `hooks/`
+- **Infaq domain**: `lib/infaq/validation.ts`, `campaign.ts`, `constants.ts`, `calculation.ts`, `status.ts`, `qr.ts`; `hooks/useInfaqFlow.ts`, `useClipboard.ts`
+- **Kas domain**: `lib/money/format.ts`, `lib/kas/validation.ts`, `upload.ts`; `hooks/useKasForm.ts`
+- **Prayer domain**: `lib/prayer/countdown.ts`, `constants.ts`; `hooks/usePrayerCountdown.ts`
+- **Verification**: `hooks/useVerification.ts`
+- **Refactored components**: `InfaqFlow.tsx`, `KasForm.tsx`, `PrayerSchedule.tsx`, `InfaqQR.tsx`, `VerifyItem.tsx`, `DailyQuote.tsx`, `WABroadcast.tsx`
+- **Tests**: 12 test files, 70 tests all passing
+- **Commits**: `feat: extract infaq business logic`, `feat: extract kas business logic`, `feat: extract prayer/qr/verification business logic`, `fix: ts errors in useVerification and upload test`
+- Branch: `fix/business-logic-extraction`
