@@ -1,11 +1,11 @@
 'use client'
 
-import { useState } from 'react'
 import { Upload, Plus, Minus } from 'lucide-react'
 import Glass from '@/components/ui/Glass'
 import GoldButton from '@/components/ui/GoldButton'
 import { createClient } from '@/lib/supabase/client'
-import { formatRupiah } from '@/lib/infaq/code'
+import { formatRupiah } from '@/lib/money/format'
+import { useKasForm } from '@/hooks/useKasForm'
 
 interface KasFormProps {
   mosqueId: string
@@ -13,74 +13,26 @@ interface KasFormProps {
 }
 
 export default function KasForm({ mosqueId, onSuccess }: KasFormProps) {
-  const [type, setType] = useState<'in' | 'out'>('in')
-  const [amount, setAmount] = useState('')
-  const [description, setDescription] = useState('')
-  const [receiptFile, setReceiptFile] = useState<File | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [success, setSuccess] = useState(false)
-
-  const numAmount = parseInt(amount.replace(/\D/g, '')) || 0
+  const {
+    type,
+    description,
+    receiptFile,
+    loading,
+    error,
+    success,
+    formattedAmount,
+    numAmount,
+    setType,
+    setAmount,
+    setDescription,
+    setReceiptFile,
+    submit,
+  } = useKasForm(onSuccess)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!numAmount || numAmount < 100) {
-      setError('Nominal minimal Rp 100')
-      return
-    }
-    if (!description.trim()) {
-      setError('Keterangan wajib diisi')
-      return
-    }
-
-    setLoading(true)
-    setError('')
-
     const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) { setError('Anda belum login'); setLoading(false); return }
-
-    let receiptUrl: string | null = null
-
-    // Upload receipt photo if provided
-    if (receiptFile) {
-      const ext = receiptFile.name.split('.').pop()
-      const path = `receipts/${mosqueId}/${Date.now()}.${ext}`
-      const { data: uploaded, error: uploadError } = await supabase.storage
-        .from('kas-receipts')
-        .upload(path, receiptFile)
-
-      if (uploadError) {
-        setError('Gagal upload foto. Lanjut tanpa foto.')
-      } else {
-        const { data: { publicUrl } } = supabase.storage.from('kas-receipts').getPublicUrl(path)
-        receiptUrl = publicUrl
-      }
-    }
-
-    const { error: insertError } = await supabase.from('kas_transactions').insert({
-      mosque_id: mosqueId,
-      type,
-      amount: numAmount,
-      description: description.trim(),
-      receipt_url: receiptUrl,
-      status: 'draft',
-      created_by: user.id,
-    })
-
-    if (insertError) {
-      setError('Gagal menyimpan transaksi. Pastikan Anda bendahara masjid ini.')
-    } else {
-      setSuccess(true)
-      setAmount('')
-      setDescription('')
-      setReceiptFile(null)
-      onSuccess?.()
-      setTimeout(() => setSuccess(false), 3000)
-    }
-
-    setLoading(false)
+    await submit(supabase, mosqueId)
   }
 
   return (
@@ -126,11 +78,11 @@ export default function KasForm({ mosqueId, onSuccess }: KasFormProps) {
               inputMode="numeric"
               placeholder="0"
               className="input-field pl-10 text-lg font-mono"
-              value={numAmount > 0 ? numAmount.toLocaleString('id-ID') : ''}
-              onChange={(e) => setAmount(e.target.value.replace(/\D/g, ''))}
+              value={formattedAmount}
+              onChange={(e) => setAmount(e.target.value)}
             />
           </div>
-          {numAmount > 0 && (
+          {formattedAmount && (
             <p className="text-xs text-white/40 mt-1">{formatRupiah(numAmount)}</p>
           )}
         </div>

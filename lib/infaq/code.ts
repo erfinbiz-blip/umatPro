@@ -90,10 +90,5 @@ export async function generateInfaqCode(
   }
 }
 
-export function formatRupiah(amount: number): string {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    minimumFractionDigits: 0,
-  }).format(amount)
-}
+// Re-export formatRupiah from lib/money/format for backward compatibility
+export { formatRupiah } from '@/lib/money/format'
