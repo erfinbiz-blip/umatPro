@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Copy, Check, MessageCircle } from 'lucide-react'
 import Glass from '@/components/ui/Glass'
 import GoldButton from '@/components/ui/GoldButton'
+import { useClipboard } from '@/hooks/useClipboard'
 import { formatRupiah } from '@/lib/infaq/code'
 
 interface WABroadcastProps {
@@ -21,7 +22,7 @@ export default function WABroadcast({
   followerCount,
   mosqueId,
 }: WABroadcastProps) {
-  const [copied, setCopied] = useState(false)
+  const { copied, copy } = useClipboard(3000)
   const [customMessage, setCustomMessage] = useState('')
 
   const today = new Date().toLocaleDateString('id-ID', {
@@ -55,9 +56,7 @@ _Infaq via transfer bank tersedia di aplikasi UmatPro. Kode unik memastikan dona
 Jazakumullah khairan katsiran 🤲`
 
   async function handleCopy() {
-    await navigator.clipboard.writeText(defaultMessage)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 3000)
+    await copy(defaultMessage)
   }
 
   return (

@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import { clsx } from 'clsx'
+import { usePrayerCountdown } from '@/hooks/usePrayerCountdown'
+import { filterMainPrayers } from '@/lib/prayer/constants'
 
 interface PrayerTime {
   name: string
@@ -16,68 +17,21 @@ interface PrayerScheduleProps {
   className?: string
 }
 
-function getSecondsUntil(timeStr: string): number {
-  if (!timeStr) return Infinity
-  const [h, m] = timeStr.split(':').map(Number)
-  const now = new Date()
-  const target = new Date()
-  target.setHours(h, m, 0, 0)
-  if (target < now) target.setDate(target.getDate() + 1)
-  return Math.floor((target.getTime() - now.getTime()) / 1000)
-}
-
-function formatCountdown(seconds: number): string {
-  if (seconds === Infinity || seconds < 0) return '--:--'
-  const h = Math.floor(seconds / 3600)
-  const m = Math.floor((seconds % 3600) / 60)
-  const s = seconds % 60
-  if (h > 0) return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
-  return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
-}
-
 export default function PrayerSchedule({ prayers, currentPrayer, className }: PrayerScheduleProps) {
-  const [now, setNow] = useState(new Date())
-  const [countdown, setCountdown] = useState(0)
-  const [nextPrayerIdx, setNextPrayerIdx] = useState(0)
+  const { countdown, nextPrayerIdx, nextPrayer } = usePrayerCountdown(prayers)
 
-  useEffect(() => {
-    const tick = setInterval(() => {
-      const n = new Date()
-      setNow(n)
-
-      // Find next prayer
-      let nextIdx = -1
-      let minSeconds = Infinity
-
-      prayers.forEach((p, i) => {
-        const secs = getSecondsUntil(p.time)
-        if (secs < minSeconds) {
-          minSeconds = secs
-          nextIdx = i
-        }
-      })
-
-      if (nextIdx >= 0) {
-        setNextPrayerIdx(nextIdx)
-        setCountdown(getSecondsUntil(prayers[nextIdx].time))
-      }
-    }, 1000)
-
-    return () => clearInterval(tick)
-  }, [prayers])
-
-  const mainPrayers = prayers.filter((p) => p.name !== 'syuruq')
+  const mainPrayers = filterMainPrayers(prayers)
 
   return (
     <div className={clsx('space-y-3', className)}>
       {/* Countdown to next prayer */}
-      {prayers[nextPrayerIdx] && (
+      {nextPrayer && (
         <div className="text-center mb-6">
           <p className="text-white/40 text-sm uppercase tracking-widest mb-1">
-            Menuju {prayers[nextPrayerIdx].label}
+            Menuju {nextPrayer.label}
           </p>
           <p className="tv-text-large font-display font-bold text-gd3 tabular-nums">
-            {formatCountdown(countdown)}
+            {countdown}
           </p>
         </div>
       )}

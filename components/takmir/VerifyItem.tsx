@@ -4,8 +4,12 @@ import { useState } from 'react'
 import { CheckCircle, XCircle, Clock, User, Hash } from 'lucide-react'
 import Glass from '@/components/ui/Glass'
 import GoldButton from '@/components/ui/GoldButton'
-import { createClient } from '@/lib/supabase/client'
+import { useVerification } from '@/hooks/useVerification'
+import { getStatusBadge } from '@/lib/infaq/status'
+import { formatUniqueCode } from '@/lib/infaq/calculation'
 import { formatRupiah } from '@/lib/infaq/code'
+import { isExpired } from '@/lib/infaq/validation'
+import { createClient } from '@/lib/supabase/client'
 import type { InfaqCode } from '@/lib/supabase/types'
 
 interface InfaqCodeWithCampaign extends InfaqCode {
@@ -19,77 +23,25 @@ interface VerifyItemProps {
 }
 
 export default function VerifyItem({ infaqCode, onUpdate }: VerifyItemProps) {
-  const [loading, setLoading] = useState<'verify' | 'reject' | null>(null)
   const [rejectReason, setRejectReason] = useState('')
   const [showReject, setShowReject] = useState(false)
 
-  const expiresAt = new Date(infaqCode.expires_at)
-  const isExpired = expiresAt < new Date()
+  const supabase = createClient()
+  const { loading, verify, reject } = useVerification(supabase, onUpdate)
+
+  const expired = isExpired(infaqCode.expires_at)
+  const badge = getStatusBadge(infaqCode.status, expired)
 
   async function handleVerify() {
-    setLoading('verify')
-    const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-
-    const { error } = await supabase
-      .from('infaq_codes')
-      .update({
-        status: 'verified',
-        verified_by: user?.id,
-        verified_at: new Date().toISOString(),
-      })
-      .eq('id', infaqCode.id)
-
-    if (!error && infaqCode.campaign_id) {
-      // Update campaign raised_amount
-      await supabase.rpc('increment_campaign_raised', {
-        p_campaign_id: infaqCode.campaign_id,
-        p_amount: infaqCode.nominal,
-      }).catch(() => {
-        // Fallback manual update if RPC not available
-        supabase
-          .from('campaigns')
-          .select('raised_amount')
-          .eq('id', infaqCode.campaign_id!)
-          .single()
-          .then(({ data }) => {
-            if (data) {
-              supabase
-                .from('campaigns')
-                .update({ raised_amount: (data.raised_amount || 0) + infaqCode.nominal })
-                .eq('id', infaqCode.campaign_id!)
-            }
-          })
-      })
-    }
-
-    setLoading(null)
-    onUpdate?.()
+    await verify(infaqCode.id, infaqCode.campaign_id, infaqCode.nominal)
   }
 
   async function handleReject() {
-    setLoading('reject')
-    const supabase = createClient()
-
-    await supabase
-      .from('infaq_codes')
-      .update({ status: 'rejected' })
-      .eq('id', infaqCode.id)
-
-    setLoading(null)
+    await reject(infaqCode.id)
     setShowReject(false)
-    onUpdate?.()
   }
 
-  const statusBadge = () => {
-    if (infaqCode.status === 'verified')
-      return <span className="badge-approved">✓ Terverifikasi</span>
-    if (infaqCode.status === 'rejected')
-      return <span className="badge-rejected">✗ Ditolak</span>
-    if (isExpired)
-      return <span className="text-xs px-2 py-0.5 rounded-full bg-gray-500/20 text-gray-400 border border-gray-500/30">Kadaluarsa</span>
-    return <span className="badge-pending">⏳ Menunggu</span>
-  }
+  const expiresAt = new Date(infaqCode.expires_at)
 
   return (
     <Glass rounded="xl" padding="md">
@@ -99,9 +51,9 @@ export default function VerifyItem({ infaqCode, onUpdate }: VerifyItemProps) {
           <div className="flex items-center gap-2 mb-1">
             <Hash size={14} className="text-gd3" />
             <span className="font-mono font-bold text-gd3 text-lg">
-              {infaqCode.unique_code.toString().padStart(3, '0')}
+              {formatUniqueCode(infaqCode.unique_code)}
             </span>
-            {statusBadge()}
+            <span className={badge.className}>{badge.label}</span>
           </div>
 
           {/* Amount */}
@@ -133,7 +85,7 @@ export default function VerifyItem({ infaqCode, onUpdate }: VerifyItemProps) {
           <div className="flex items-center gap-1 text-xs text-white/30">
             <Clock size={11} />
             <span>
-              {isExpired
+              {expired
                 ? 'Kadaluarsa'
                 : `s/d ${expiresAt.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}`}
             </span>
@@ -145,7 +97,7 @@ export default function VerifyItem({ infaqCode, onUpdate }: VerifyItemProps) {
       </div>
 
       {/* Actions for pending items */}
-      {infaqCode.status === 'pending' && !isExpired && (
+      {infaqCode.status === 'pending' && !expired && (
         <>
           {!showReject ? (
             <div className="flex gap-2">

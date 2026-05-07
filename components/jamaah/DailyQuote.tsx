@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { BookOpen, Copy, Check } from 'lucide-react'
 import Glass from '@/components/ui/Glass'
+import { useClipboard } from '@/hooks/useClipboard'
 import { getTodayQuote } from '@/lib/quotes/daily'
 
 interface DailyQuoteProps {
@@ -11,7 +12,7 @@ interface DailyQuoteProps {
 
 export default function DailyQuote({ className }: DailyQuoteProps) {
   const [quote, setQuote] = useState(() => getTodayQuote())
-  const [copied, setCopied] = useState(false)
+  const { copied, copy } = useClipboard(2500)
 
   useEffect(() => {
     setQuote(getTodayQuote())
@@ -19,13 +20,7 @@ export default function DailyQuote({ className }: DailyQuoteProps) {
 
   async function handleCopy() {
     const text = `"${quote.text}"\n— ${quote.source}`
-    try {
-      await navigator.clipboard.writeText(text)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2500)
-    } catch {
-      // Clipboard may be blocked — ignore silently
-    }
+    await copy(text)
   }
 
   return (
