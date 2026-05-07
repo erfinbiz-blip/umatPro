@@ -1,85 +1,40 @@
 'use client'
 
-import { useState } from 'react'
 import { Copy, Check, AlertCircle, Clock } from 'lucide-react'
 import Glass from '@/components/ui/Glass'
 import GoldButton from '@/components/ui/GoldButton'
 import type { Campaign, Mosque } from '@/lib/supabase/types'
 import { formatRupiah } from '@/lib/infaq/code'
+import { useInfaqFlow } from '@/hooks/useInfaqFlow'
+import { QUICK_AMOUNTS } from '@/lib/infaq/constants'
+import { calculateProgress } from '@/lib/infaq/campaign'
 
 interface InfaqFlowProps {
   mosque: Mosque
   campaigns: Campaign[]
 }
 
-type Step = 'select' | 'amount' | 'code' | 'done'
-
-interface GeneratedCode {
-  code: number
-  nominal: number
-  total_transfer: number
-  expires_at: string
-  infaq_id: string
-}
-
-const QUICK_AMOUNTS = [10_000, 25_000, 50_000, 100_000, 200_000, 500_000]
-
 export default function InfaqFlow({ mosque, campaigns }: InfaqFlowProps) {
-  const [step, setStep] = useState<Step>('select')
-  const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null)
-  const [amount, setAmount] = useState('')
-  const [customAmount, setCustomAmount] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [generatedCode, setGeneratedCode] = useState<GeneratedCode | null>(null)
-  const [copied, setCopied] = useState(false)
-
-  const numericAmount = parseInt(amount.replace(/\D/g, '')) || 0
-
-  async function handleGenerateCode() {
-    if (!mosque.bank_account) {
-      setError('Masjid ini belum mengatur rekening bank')
-      return
-    }
-    if (numericAmount < 5000) {
-      setError('Nominal minimum Rp 5.000')
-      return
-    }
-
-    setLoading(true)
-    setError('')
-
-    try {
-      const res = await fetch('/api/infaq/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          mosque_id: mosque.id,
-          nominal: numericAmount,
-          campaign_id: selectedCampaign?.id,
-        }),
-      })
-
-      const data = await res.json()
-
-      if (!res.ok) {
-        setError(data.error || 'Gagal generate kode')
-        return
-      }
-
-      setGeneratedCode(data)
-      setStep('code')
-    } catch {
-      setError('Terjadi kesalahan. Coba lagi.')
-    } finally {
-      setLoading(false)
-    }
-  }
+  const {
+    step,
+    selectedCampaign,
+    amount,
+    customAmount,
+    loading,
+    error,
+    generatedCode,
+    numericAmount,
+    copied,
+    setStep,
+    selectCampaign,
+    setAmount,
+    setCustomAmount,
+    generateCode,
+    copy,
+  } = useInfaqFlow()
 
   async function handleCopy(text: string) {
-    await navigator.clipboard.writeText(text)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2500)
+    await copy(text)
   }
 
   if (step === 'select') {
@@ -89,7 +44,7 @@ export default function InfaqFlow({ mosque, campaigns }: InfaqFlowProps) {
 
         {/* Kas Masjid (default) */}
         <button
-          onClick={() => { setSelectedCampaign(null); setStep('amount') }}
+          onClick={() => { selectCampaign(null); setStep('amount') }}
           className="w-full text-left"
         >
           <Glass
@@ -110,14 +65,12 @@ export default function InfaqFlow({ mosque, campaigns }: InfaqFlowProps) {
 
         {/* Active campaigns */}
         {campaigns.map((campaign) => {
-          const progress = campaign.target_amount
-            ? Math.min((campaign.raised_amount / campaign.target_amount) * 100, 100)
-            : null
+          const progress = calculateProgress(campaign.raised_amount, campaign.target_amount)
 
           return (
             <button
               key={campaign.id}
-              onClick={() => { setSelectedCampaign(campaign); setStep('amount') }}
+              onClick={() => { selectCampaign(campaign); setStep('amount') }}
               className="w-full text-left"
             >
               <Glass
@@ -233,7 +186,7 @@ export default function InfaqFlow({ mosque, campaigns }: InfaqFlowProps) {
           size="lg"
           loading={loading}
           disabled={numericAmount < 5000}
-          onClick={handleGenerateCode}
+          onClick={() => generateCode(mosque)}
         >
           Generate Kode Unik →
         </GoldButton>

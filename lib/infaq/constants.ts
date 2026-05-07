@@ -1,0 +1,2 @@
+export const QUICK_AMOUNTS = [10_000, 25_000, 50_000, 100_000, 200_000, 500_000]
+export const MIN_INFAQ_AMOUNT = 5_000
