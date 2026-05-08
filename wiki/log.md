@@ -33,7 +33,17 @@
 - All tests pass (9/9), build succeeds
 - Branch: `next-15-upgrade`
 
-## [2026-05-08] fix | Demo login cookie API fix
+## [2026-05-08] feature | DKM Onboarding Improvement
+- **Goal**: Pisahkan tab login Jamaah/DKM di `/auth`, dan buat dedicated onboarding flow untuk user DKM baru tanpa masjid
+- **Changes**:
+  - `app/auth/page.tsx` — Tab switcher **Jamaah** | **DKM** dengan redirect berbeda (`/app` vs `/dkm`)
+  - `app/dkm/onboarding/page.tsx` — Halaman onboarding 2-step (Data Masjid → Rekening opsional) untuk user DKM baru
+  - `app/dkm/(takmir)/page.tsx` — Hapus `RegisterMosqueForm` (pindah ke onboarding), redirect ke `/dkm/onboarding` jika belum punya mosque
+  - `proxy.ts` — Middleware logic: `/dkm` tanpa mosque → redirect `/dkm/onboarding`, `/dkm/onboarding` tanpa login → `/auth`, sudah punya mosque → `/dkm`
+  - `__tests__/middleware.test.ts` — 3 test case baru untuk onboarding redirect (8/8 pass)
+- **Tests**: 73/73 pass (12 test files)
+- **Plan**: `wiki/plans/dkm-onboarding.md`
+
 - **Root cause**: `@supabase/ssr` v0.3.0 changed cookie API from `getAll/setAll` to `get/set/remove`. Production code still used old API, causing session cookies to not be read by middleware after demo login.
 - **Symptom**: "Demo DKM" and "Demo Jamaah" buttons showed spinner indefinitely, redirecting back to `/auth`.
 - **Files changed**:

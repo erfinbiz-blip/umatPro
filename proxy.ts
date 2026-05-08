@@ -38,6 +38,39 @@ export async function proxy(request: NextRequest) {
       return NextResponse.redirect(new URL('/auth', request.url))
     }
 
+    // DKM user without mosque → redirect to onboarding
+    if (isTakmirRoute && user && pathname !== '/dkm/onboarding') {
+      // Check if user has a mosque role
+      const { data: roleData } = await supabase
+        .from('mosque_roles')
+        .select('id')
+        .eq('user_id', user.id)
+        .limit(1)
+        .single()
+      
+      if (!roleData) {
+        return NextResponse.redirect(new URL('/dkm/onboarding', request.url))
+      }
+    }
+
+    // Onboarding page protections
+    if (pathname === '/dkm/onboarding') {
+      if (!user) {
+        return NextResponse.redirect(new URL('/auth', request.url))
+      }
+      // If user already has mosque, redirect to dashboard
+      const { data: roleData } = await supabase
+        .from('mosque_roles')
+        .select('id')
+        .eq('user_id', user.id)
+        .limit(1)
+        .single()
+      
+      if (roleData) {
+        return NextResponse.redirect(new URL('/dkm', request.url))
+      }
+    }
+
     if (pathname === '/auth' && user) {
       return NextResponse.redirect(new URL('/app', request.url))
     }

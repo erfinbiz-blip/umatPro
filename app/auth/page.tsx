@@ -8,6 +8,7 @@ import ArabesqueBg from '@/components/ui/ArabesqueBg'
 import { createClient } from '@/lib/supabase/client'
 
 type AuthStep = 'email' | 'otp' | 'done'
+type AuthRole = 'jamaah' | 'dkm'
 
 const AUTH_ERROR_MESSAGES: Record<string, string> = {
   invalid_link: 'Link login tidak valid atau sudah kadaluarsa.',
@@ -15,8 +16,13 @@ const AUTH_ERROR_MESSAGES: Record<string, string> = {
   demo_session: 'Gagal membuat sesi demo. Pastikan data demo sudah di-seed.',
 }
 
+function getRedirectPath(role: AuthRole): string {
+  return role === 'dkm' ? '/dkm' : '/app'
+}
+
 export default function AuthPage() {
   const [step, setStep] = useState<AuthStep>('email')
+  const [role, setRole] = useState<AuthRole>('jamaah')
   const [email, setEmail] = useState('')
   const [otp, setOtp] = useState('')
   const [loading, setLoading] = useState(false)
@@ -90,7 +96,7 @@ export default function AuthPage() {
     } else {
       setStep('done')
       setTimeout(() => {
-        window.location.href = '/app'
+        window.location.href = getRedirectPath(role)
       }, 1500)
     }
     setLoading(false)
@@ -113,6 +119,34 @@ export default function AuthPage() {
         </div>
 
         <Glass rounded="2xl" padding="lg">
+          {/* Role tabs */}
+          {step === 'email' && (
+            <div className="flex gap-1 mb-4 p-1 rounded-xl bg-white/5 border border-white/10">
+              <button
+                type="button"
+                onClick={() => setRole('jamaah')}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-medium transition-all ${
+                  role === 'jamaah'
+                    ? 'bg-gd3/20 text-gd3 border border-gd3/30'
+                    : 'text-white/50 hover:text-white/70'
+                }`}
+              >
+                <span>👤</span> Jamaah
+              </button>
+              <button
+                type="button"
+                onClick={() => setRole('dkm')}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-medium transition-all ${
+                  role === 'dkm'
+                    ? 'bg-gd3/20 text-gd3 border border-gd3/30'
+                    : 'text-white/50 hover:text-white/70'
+                }`}
+              >
+                <span>🕌</span> DKM
+              </button>
+            </div>
+          )}
+
           {step === 'email' && (
             <form onSubmit={handleSendOTP} className="space-y-4">
               <div>

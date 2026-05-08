@@ -16,6 +16,30 @@ function makeRequest(path: string) {
 function mockUser(user: object | null) {
   ;(createServerClient as ReturnType<typeof vi.fn>).mockReturnValue({
     auth: { getUser: async () => ({ data: { user } }) },
+    from: () => ({
+      select: () => ({
+        eq: () => ({
+          limit: () => ({
+            single: async () => ({ data: user ? { id: 'role-123' } : null }),
+          }),
+        }),
+      }),
+    }),
+  })
+}
+
+function mockUserWithoutMosque() {
+  ;(createServerClient as ReturnType<typeof vi.fn>).mockReturnValue({
+    auth: { getUser: async () => ({ data: { user: { id: 'user-123' } } }) },
+    from: () => ({
+      select: () => ({
+        eq: () => ({
+          limit: () => ({
+            single: async () => ({ data: null }),
+          }),
+        }),
+      }),
+    }),
   })
 }
 
@@ -40,6 +64,27 @@ describe('proxy — auth protection', () => {
     const res = await proxy(makeRequest('/dkm/kas'))
     expect(res.status).toBe(307)
     expect(res.headers.get('location')).toContain('/auth')
+  })
+
+  it('/dkm dengan login tapi tanpa mosque → redirect /dkm/onboarding', async () => {
+    mockUserWithoutMosque()
+    const res = await proxy(makeRequest('/dkm'))
+    expect(res.status).toBe(307)
+    expect(res.headers.get('location')).toContain('/dkm/onboarding')
+  })
+
+  it('/dkm/onboarding tanpa login → redirect /auth', async () => {
+    mockUser(null)
+    const res = await proxy(makeRequest('/dkm/onboarding'))
+    expect(res.status).toBe(307)
+    expect(res.headers.get('location')).toContain('/auth')
+  })
+
+  it('/dkm/onboarding dengan mosque → redirect /dkm', async () => {
+    mockUser({ id: 'user-123' })
+    const res = await proxy(makeRequest('/dkm/onboarding'))
+    expect(res.status).toBe(307)
+    expect(res.headers.get('location')).toContain('/dkm')
   })
 
   it('/dkm dengan login → lanjut', async () => {
