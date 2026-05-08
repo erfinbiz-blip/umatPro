@@ -14,13 +14,15 @@ tags: [prd, umat-pro, requirements]
 Product requirements for UmatPro — a mosque ecosystem platform. Document defines what's done, what not to touch, what's half-done, current phase, and next phases.
 
 ## Already Done
-- Auth (magic link OTP, SSR cookies, middleware)
+- Auth (magic link OTP, SSR cookies, middleware, dual role login)
 - Jamaah app (prayer strip, quotes, discover, mosque detail, infaq, profile)
 - DKM dashboard (kas, verifikasi, kajian, pengumuman, QR, broadcast, settings)
+- DKM onboarding (dedicated flow for new admins)
 - TV Display
 - Premium upgrade page
 - Demo data & auto-login
 - Landing page + SEO
+- **Phase A: Kampanye Donasi** (2026-05-09) — DKM CRUD + Jamaah discovery + donation flow
 
 ## Do Not Touch (Critical)
 - `middleware.ts` — auth protection, needs test coverage update
@@ -40,12 +42,14 @@ Product requirements for UmatPro — a mosque ecosystem platform. Document defin
 - Push notifications (service worker exists, no logic)
 
 ## Current Phase
-**Fix Demo Login in Production**
-- Goal: Demo DKM + Jamaah login E2E works on `umatpro.com`
-- Tasks: seed data, verify login, set WA admin number, update docs
+**Next: Phase B — Laporan Keuangan PDF**
+- Goal: Export kas bulanan ke PDF dengan kop masjid (premium benefit)
+- Driver: monetization untuk tier premium
+
+## Phase History
+- ✅ **Phase A**: Kampanye donasi UI — completed 2026-05-09
 
 ## Next Phases
-- **Phase A**: Kampanye donasi UI
 - **Phase B**: Laporan keuangan PDF (premium)
 - **Phase C**: PWA install banner
 - **Phase D**: Push notif jadwal sholat

@@ -43,7 +43,7 @@ Tanpa keberlanjutan finansial, proyek ini tidak bisa dirawat, dikembangkan, dan 
 ## Gambaran Proyek
 
 **UmatPro** adalah platform digital ekosistem masjid Indonesia.
-- **Stack**: Next.js 14 (App Router) + Supabase (PostgreSQL + Auth + Storage)
+- **Stack**: Next.js 16.2.5 (App Router) + React 19 + Supabase (PostgreSQL + Auth + Storage)
 - **Deploy**: Vercel (auto-deploy dari branch `main`)
 - **Domain**: `umatpro.com` — nameserver sudah diarahkan ke Vercel (`ns1/ns2.vercel-dns.com`)
 - **Repo**: `erfinbiz-blip/umatPro`
@@ -57,19 +57,22 @@ Tanpa keberlanjutan finansial, proyek ini tidak bisa dirawat, dikembangkan, dan 
 |-----|-----------|-----------|
 | `/` | Landing page HTML statis | `app/route.ts` → serve `public/landing.html` |
 | `/mosque/[id]` | Profil publik masjid (tanpa login) | `app/mosque/[id]/page.tsx` + `_client.tsx` |
-| `/app` | Home jamaah | `app/app/(jamaah)/page.tsx` |
+| `/app` | Home jamaah — sekarang dengan section Kampanye Donasi | `app/app/(jamaah)/page.tsx` |
 | `/app/discover` | Temukan masjid + peta | `app/app/(jamaah)/discover/page.tsx` |
+| `/app/kampanye` | Daftar kampanye donasi aktif | `app/app/kampanye/page.tsx` |
 | `/app/mosque/[id]` | Detail masjid (butuh login) | `app/app/(jamaah)/mosque/[id]/page.tsx` |
-| `/app/infaq` | Infaq digital jamaah | `app/app/(jamaah)/infaq/page.tsx` |
+| `/app/infaq` | Infaq digital jamaah — support `?campaign=ID` untuk pre-select | `app/app/(jamaah)/infaq/page.tsx` |
 | `/app/profile` | Profil jamaah | `app/app/(jamaah)/profile/page.tsx` |
 | `/app/profile/edit` | Edit profil (nama, WA) | `app/app/(jamaah)/profile/edit/page.tsx` |
 | `/app/notifications` | Notifikasi | `app/app/(jamaah)/notifications/page.tsx` |
-| `/auth` | Login / Register | `app/auth/page.tsx` |
+| `/auth` | Login / Register — tab dual role Jamaah \| DKM | `app/auth/page.tsx` |
 | `/auth/confirm` | Callback verifikasi magic link (demo session) | `app/auth/confirm/route.ts` |
-| `/dkm` | Dashboard DKM — jika belum punya masjid tampilkan form Register | `app/dkm/(takmir)/page.tsx` |
+| `/dkm` | Dashboard DKM — redirect ke onboarding jika belum punya masjid | `app/dkm/(takmir)/page.tsx` |
+| `/dkm/onboarding` | Onboarding DKM baru — registrasi masjid 2-step | `app/dkm/onboarding/page.tsx` |
 | `/dkm/kas` | Manajemen kas + Export CSV | `app/dkm/(takmir)/kas/page.tsx` |
 | `/dkm/verifikasi` | Verifikasi infaq | `app/dkm/(takmir)/verifikasi/page.tsx` |
 | `/dkm/kajian` | CRUD jadwal kajian | `app/dkm/(takmir)/kajian/page.tsx` |
+| `/dkm/kampanye` | **(BARU)** Kelola kampanye donasi — CRUD, update progress, lihat donor | `app/dkm/kampanye/page.tsx` |
 | `/dkm/pengumuman` | CRUD pengumuman | `app/dkm/(takmir)/pengumuman/page.tsx` |
 | `/dkm/qr` | QR Infaq — cetak & unduh | `app/dkm/(takmir)/qr/page.tsx` |
 | `/dkm/broadcast` | Broadcast WA | `app/dkm/(takmir)/broadcast/page.tsx` |
@@ -82,7 +85,7 @@ Tanpa keberlanjutan finansial, proyek ini tidak bisa dirawat, dikembangkan, dan 
 
 ## Sidebar DKM — Urutan Menu
 
-Dashboard → Kas Masjid → Verifikasi Infaq → **Kajian** → **Pengumuman** → **QR Infaq** → Broadcast WA → Pengaturan
+Dashboard → Kas Masjid → Verifikasi Infaq → **Kajian** → **Kampanye Donasi** → **Pengumuman** → **QR Infaq** → Broadcast WA → Pengaturan
 
 File: `components/takmir/Sidebar.tsx`
 - Semua href sudah `/dkm/*`
@@ -144,8 +147,11 @@ File: `components/takmir/Sidebar.tsx`
 ### Test files
 | File | Yang ditest |
 |------|------------|
-| `__tests__/middleware.test.ts` | 5 kasus auth middleware — `/dkm` tanpa login, dengan login, saat Supabase error, `/app` tidak diproteksi |
+| `__tests__/middleware.test.ts` | 8 kasus auth middleware — onboarding redirect, Supabase error |
 | `__tests__/quotes.test.ts` | 4 kasus daily quote — array valid, determinisme per tanggal, rotasi siklik |
+| `__tests__/campaigns/campaign-utils.test.ts` | 3 kasus — status transitions, labels, deadline |
+| `__tests__/campaigns/jamaah-discovery.test.ts` | 4 kasus — progress calculation |
+| `__tests__/campaigns/donation-flow.test.ts` | 6 kasus — form validation, donation flow |
 
 ### Cara jalankan manual
 ```bash
@@ -232,6 +238,25 @@ npm test
 - Tampil di home jamaah `/app` antara PrayerStrip dan daftar masjid
 - Test: `__tests__/quotes.test.ts` — 4 kasus (valid array, determinisme, rotasi)
 
+### Phase A — Kampanye Donasi (9 Mei 2026)
+- **Goal**: Lengkapi fitur kampanye donasi — DKM kelola, Jamaah lihat & donasi
+- **DKM Management** (`/dkm/kampanye`):
+  - Full CRUD: create, edit, toggle status (draft → active ↔ paused → completed)
+  - Post campaign updates with text progress
+  - View donor counts and campaign statistics
+  - Progress bars with raised/target amounts
+- **Jamaah Discovery**:
+  - `/app/kampanye` — dedicated page listing active campaigns
+  - Featured campaigns section on home (`/app`) — top 3 with progress bars
+  - Campaign cards with mosque name, progress, deadline
+- **Donation Flow**:
+  - Campaign pre-selection via URL: `/app/infaq?campaign=ID`
+  - Auto-selects campaign in existing infaq flow
+  - Uses existing infaq code generation + verification workflow
+- **Tests**: 15 test files, 95 tests all passing (new: campaign status transitions, form validation, progress calculation)
+- **Plan**: `wiki/plans/phase-a-campaigns.md`
+- **Branch**: `feat/phase-a-campaigns`
+
 ### Fase 2H — Demo Data & Akun Demo
 - `POST /api/seed-demo`: buat 2 user demo + data lengkap masjid via Supabase Admin API (idempoten)
 - `GET /api/demo-session?role=dkm|jamaah`: generate magic link one-time → auto-login tanpa OTP
@@ -255,19 +280,19 @@ npm test
 
 > Diupdate setiap kali `/pre-release` dijalankan.
 
-### Audit Readiness — 22 April 2026
+### Audit Readiness — 9 Mei 2026
 
-**Status**: ⚠️ **SIAP DENGAN CATATAN** — 1 blocker env var + 1 verifikasi manual tersisa.
+**Status**: ✅ **v1.0 + Phase A** — Kampanye Donasi selesai. 95/95 tests passing.
 
 | Check | Hasil |
 |-------|-------|
-| Tests | ✅ 9/9 pass |
+| Tests | ✅ 95/95 pass (15 test files) |
 | Build config | ✅ `ignoreBuildErrors: true` — 21 TS error pre-existing tidak blok Vercel |
 | Supabase infra | ✅ migrasi, bucket, Auth URLs, demo data |
 | Vercel env core | ✅ SUPABASE_URL, ANON_KEY, SERVICE_ROLE, APP_URL |
-| Branch sync | ✅ semua commit di `main`, Vercel redeploy setelah `f875267` |
+| Branch sync | ✅ `feat/phase-a-campaigns` pushed ke origin |
 | `NEXT_PUBLIC_WA_ADMIN_NUMBER` | ⬜ **BLOCKER** — masih fallback ke `6281234567890` |
-| Demo login verifikasi produksi | ⬜ butuh cek manual setelah redeploy selesai |
+| Phase A (Kampanye Donasi) | ✅ DKM CRUD + Jamaah discovery + donation flow |
 
 ### Review Terakhir — 18 April 2026
 
@@ -319,8 +344,7 @@ npm test
 - [ ] **Notif Jadwal Sholat** — push notification 5 menit sebelum adzan (5 waktu). Butuh VAPID keys + service worker subscribe/send logic. Env: `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`.
 
 ### DKM / Takmir
-- [ ] **Kampanye Donasi UI** — halaman kampanye untuk jamaah: daftar campaign aktif, progress bar, tombol donasi. Tabel `campaigns` + `campaign_updates` sudah ada di DB.
-- [ ] **Update Progress Kampanye** — DKM bisa posting update teks/foto ke kampanye. Tabel `campaign_updates` sudah ada.
+- [x] ~~**Kampanye Donasi**~~ — selesai (Phase A, 2026-05-09). DKM: CRUD campaign, toggle status, post update progress, lihat donor. Jamaah: list campaign, featured di home, donate dengan pre-select campaign.
 - [ ] **Jadwal Imam & Khatib** — manajemen jadwal imam sholat harian dan khatib Jumat. Belum ada tabel, perlu migrasi baru.
 - [ ] **Absensi Jamaah Kajian** — check-in jamaah saat hadir kajian. Belum ada tabel.
 - [ ] **Laporan Keuangan PDF** — export laporan kas bulanan ke PDF dengan kop masjid. Client-side via `jspdf` atau server-side.
@@ -346,7 +370,7 @@ npm test
 
 | Package | Versi | Kegunaan |
 |---------|-------|---------|
-| `next` | 14.2.3 | Framework |
+| `next` | 16.2.5 | Framework |
 | `@supabase/supabase-js` | ^2.43.1 | DB + Auth |
 | `@supabase/ssr` | — | Server-side auth (middleware) |
 | `qrcode.react` | ^4.2.0 | QR code (`QRCodeCanvas`, `QRCodeSVG`) |

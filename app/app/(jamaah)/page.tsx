@@ -2,15 +2,16 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Bell, MapPin, ChevronRight, Star } from 'lucide-react'
+import { Bell, MapPin, ChevronRight, Star, Target, Heart } from 'lucide-react'
 import PrayerStrip from '@/components/jamaah/PrayerStrip'
 import DailyQuote from '@/components/jamaah/DailyQuote'
 import MosqueCard from '@/components/jamaah/MosqueCard'
 import ArabesqueBg from '@/components/ui/ArabesqueBg'
 import Glass from '@/components/ui/Glass'
 import { createClient } from '@/lib/supabase/client'
-import type { Mosque } from '@/lib/supabase/types'
+import type { Mosque, Campaign } from '@/lib/supabase/types'
 import { useAtmosphere } from '@/components/jamaah/AtmosphereProvider'
+import { formatRupiah } from '@/lib/infaq/code'
 
 const DEFAULT_LAT = -6.2088  // Jakarta default
 const DEFAULT_LNG = 106.8456
@@ -24,6 +25,7 @@ export default function JamaahHome() {
   const [location, setLocation] = useState({ lat: DEFAULT_LAT, lng: DEFAULT_LNG })
   const [followedMosques, setFollowedMosques] = useState<FollowedMosque[]>([])
   const [nearbyMosques, setNearbyMosques] = useState<(Mosque & { distance_km?: number })[]>([])
+  const [campaigns, setCampaigns] = useState<(Campaign & { mosque_name?: string; progress?: number })[]>([])
   const [loading, setLoading] = useState(true)
   const [greeting, setGreeting] = useState('')
 
@@ -81,6 +83,26 @@ export default function JamaahHome() {
             .in('id', ids)
 
           setFollowedMosques(followed ?? [])
+
+          // Fetch active campaigns from followed mosques
+          const { data: campaignData } = await supabase
+            .from('campaigns')
+            .select('*, mosques(name)')
+            .in('mosque_id', ids)
+            .eq('status', 'active')
+            .order('created_at', { ascending: false })
+            .limit(3)
+
+          if (campaignData) {
+            const campaignsWithProgress = campaignData.map((c) => ({
+              ...c,
+              mosque_name: (c.mosques as any)?.name,
+              progress: c.target_amount
+                ? Math.min(100, Math.round((c.raised_amount / c.target_amount) * 100))
+                : 0,
+            }))
+            setCampaigns(campaignsWithProgress)
+          }
         }
       }
 
@@ -123,6 +145,53 @@ export default function JamaahHome() {
 
         {/* Daily quote */}
         <DailyQuote className="mb-5" />
+
+        {/* Featured Campaigns */}
+        {campaigns.length > 0 && (
+          <section className="mb-6">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="font-display text-base font-semibold text-tx1 flex items-center gap-2">
+                <Target size={14} className="text-gd3" />
+                Kampanye Donasi
+              </h2>
+              <Link href="/app/kampanye" className="text-xs text-white/40 hover:text-white/70 flex items-center gap-0.5">
+                Lihat semua <ChevronRight size={12} />
+              </Link>
+            </div>
+            <div className="space-y-3">
+              {campaigns.map((campaign) => (
+                <Link key={campaign.id} href={`/app/infaq?campaign=${campaign.id}`}>
+                  <Glass rounded="xl" padding="md" className="hover:border-gd3/30 transition-all active:scale-[0.98]">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <p className="text-xs text-gd3 mb-0.5">{campaign.mosque_name}</p>
+                        <p className="font-semibold text-tx1 text-sm">{campaign.title}</p>
+                        {campaign.description && (
+                          <p className="text-xs text-white/40 mt-0.5 line-clamp-1">{campaign.description}</p>
+                        )}
+                      </div>
+                      <Heart size={16} className="text-em4 shrink-0 mt-0.5" />
+                    </div>
+                    {campaign.target_amount && (
+                      <div className="mt-2">
+                        <div className="flex justify-between text-[10px] mb-1">
+                          <span className="text-white/40">{campaign.progress}% terkumpul</span>
+                          <span className="text-gd3">{formatRupiah(campaign.raised_amount)} / {formatRupiah(campaign.target_amount)}</span>
+                        </div>
+                        <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-gd3 rounded-full transition-all"
+                            style={{ width: `${campaign.progress}%` }}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </Glass>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Location */}
         <div className="flex items-center gap-1.5 mb-4 text-white/40">

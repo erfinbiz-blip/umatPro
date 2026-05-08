@@ -14,21 +14,37 @@ function InfaqContent() {
   const searchParams = useSearchParams()
   const mosqueId = searchParams.get('mosque')
 
+  const campaignId = searchParams.get('campaign')
+
   const [mosque, setMosque] = useState<Mosque | null>(null)
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!mosqueId) {
-      setLoading(false)
-      return
-    }
-
     async function fetchData() {
       const supabase = createClient()
+      let targetMosqueId = mosqueId
+
+      // If campaignId provided but no mosqueId, find mosque from campaign
+      if (!targetMosqueId && campaignId) {
+        const { data: campaign } = await supabase
+          .from('campaigns')
+          .select('mosque_id')
+          .eq('id', campaignId)
+          .single()
+        if (campaign) {
+          targetMosqueId = campaign.mosque_id
+        }
+      }
+
+      if (!targetMosqueId) {
+        setLoading(false)
+        return
+      }
+
       const [mosqueRes, campaignRes] = await Promise.all([
-        supabase.from('mosques').select('*').eq('id', mosqueId!).single(),
-        supabase.from('campaigns').select('*').eq('mosque_id', mosqueId!).eq('status', 'active'),
+        supabase.from('mosques').select('*').eq('id', targetMosqueId).single(),
+        supabase.from('campaigns').select('*').eq('mosque_id', targetMosqueId).eq('status', 'active'),
       ])
       setMosque(mosqueRes.data)
       setCampaigns(campaignRes.data ?? [])
@@ -36,7 +52,7 @@ function InfaqContent() {
     }
 
     fetchData()
-  }, [mosqueId])
+  }, [mosqueId, campaignId])
 
   if (loading) {
     return (
@@ -57,7 +73,7 @@ function InfaqContent() {
     )
   }
 
-  return <InfaqFlow mosque={mosque} campaigns={campaigns} />
+  return <InfaqFlow mosque={mosque} campaigns={campaigns} initialCampaignId={campaignId} />
 }
 
 export default function InfaqPage() {
