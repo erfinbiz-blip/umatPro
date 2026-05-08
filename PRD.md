@@ -27,9 +27,10 @@
 - **Sidebar DKM** — badge draft kas + pending infaq, tombol Upgrade untuk tier free
 - **Demo Data & Auto-Login Demo** — `POST /api/seed-demo` + `GET /api/demo-session?role=dkm|jamaah` + tombol di `/auth`
 - **Landing page statis + SEO** — `public/landing.html`
-- **Migrasi DB 001-003** — schema, RLS policies, RPC `increment_campaign_raised`
+- **Migrasi DB 001-003 + fix RLS** — schema, RLS policies, RPC `increment_campaign_raised`, fix `mosque_roles` first-admin insert policy
 - **Storage bucket** — `kas-receipts`
-- **Testing** — 9 test case (middleware auth + daily quote), pre-push hook blokir push kalau fail
+- **Phase A: Kampanye Donasi** — `/dkm/kampanye` (DKM CRUD + updates + donors), `/app/kampanye` (Jamaah discovery), featured on home, campaign pre-selection in infaq flow
+- **Testing** — 95 tests (15 test files), pre-push hook blokir push kalau fail
 
 ---
 
@@ -54,22 +55,19 @@
 
 ---
 
-## 🎯 Current Phase: Fix Demo Login di Produksi
-**Goal:** Demo DKM + Demo Jamaah berhasil login end-to-end di `umatpro.com`, tombol Upgrade arahkan ke nomor WA admin real.
+## 🎯 Current Phase: Phase B — Laporan Keuangan PDF
+**Goal:** Export laporan kas bulanan ke PDF dengan kop masjid — monetization driver untuk tier premium.
 
-Tasks:
-- [ ] Seed data demo di project Supabase baru — POST `/api/seed-demo` dari browser DevTools Console *(USER)*
-- [ ] Verifikasi Demo DKM login → harus sampai `/dkm` dengan data masjid Al-Ikhlas Demo *(USER)*
-- [ ] Verifikasi Demo Jamaah login → harus sampai `/app` dengan home jamaah *(USER)*
-- [ ] Set `NEXT_PUBLIC_WA_ADMIN_NUMBER` di Vercel (format `628xxx`) + Redeploy *(USER)*
-- [ ] Update `CONTEXT.md` + `PRD.md` — centang semua item pre-release, pindah ke ✅ Done *(AI)*
+**Driver:** Fitur premium yang membuat DKM mau berlangganan. DKM bisa export laporan kas dengan logo masjid, periode, dan rincian transaksi.
 
-**Done when:** 2 tombol Demo di `/auth` berhasil masuk ke dashboard masing-masing, dan klik "Upgrade Premium" di sidebar DKM buka WA ke nomor admin real (bukan dummy).
+**Tech:** `jspdf` atau `pdf-lib` (client-side) atau API route yang generate PDF server-side.
+
+**Done when:** DKM premium bisa klik tombol "Export PDF" di `/dkm/kas` dan mendapat file PDF dengan kop masjid + tabel transaksi.
 
 ---
 
 ## 📋 Next Phases (Boleh Masih Kasar)
-- **Phase A — Kampanye Donasi UI** (recommended): halaman kampanye untuk jamaah (list + detail + tombol donasi + progress bar) + DKM bisa posting update foto/teks ke kampanye. Tabel `campaigns` + `campaign_updates` sudah ada.
+- ✅ ~~**Phase A — Kampanye Donasi UI**~~ — selesai (9 Mei 2026). DKM CRUD di `/dkm/kampanye`, Jamaah discovery di `/app/kampanye`, featured di home, donation flow dengan campaign pre-selection.
 - **Phase B — Laporan Keuangan PDF** (premium benefit): export kas bulanan ke PDF dengan kop masjid via `jspdf` — monetization driver untuk tier premium.
 - **Phase C — PWA Install Banner**: bottom sheet kecil di `/app` pakai `beforeinstallprompt`, dismiss 7 hari via localStorage. Quick win ~1 sesi.
 - **Phase D — Push Notif Jadwal Sholat**: VAPID keys + service worker subscribe + cron kirim 5 menit sebelum adzan. Fase terbesar, butuh infra baru.
@@ -80,7 +78,7 @@ Tasks:
 ---
 
 ## 🛠️ Tech Stack (Existing)
-- **Frontend:** Next.js 14 App Router + TypeScript + Tailwind CSS (custom tokens `gd3`/`gd4` gold, `em3`/`em4` emerald, `tx1`/`bg0`), `lucide-react` icons, `clsx`, `qrcode.react`
+- **Frontend:** Next.js 16.2.5 App Router + React 19 + TypeScript + Tailwind CSS (custom tokens `gd3`/`gd4` gold, `em3`/`em4` emerald, `tx1`/`bg0`), `lucide-react` icons, `clsx`, `qrcode.react`
 - **Backend:** Next.js Route Handlers (`app/api/*`, `app/auth/confirm/route.ts`), Supabase Auth Admin API
 - **Database:** Supabase PostgreSQL — tabel utama: `profiles`, `mosques`, `mosque_roles`, `follows`, `infaq_codes`, `kas_transactions`, `announcements`, `kajians`, `prayer_schedules`, `campaigns`. Migrasi 001-003 live, RLS policies aktif
 - **Auth:** Supabase Auth (magic link OTP + SSR cookies via `@supabase/ssr`)
