@@ -33,6 +33,17 @@
 - All tests pass (9/9), build succeeds
 - Branch: `next-15-upgrade`
 
+## [2026-05-08] fix | Demo login cookie API fix
+- **Root cause**: `@supabase/ssr` v0.3.0 changed cookie API from `getAll/setAll` to `get/set/remove`. Production code still used old API, causing session cookies to not be read by middleware after demo login.
+- **Symptom**: "Demo DKM" and "Demo Jamaah" buttons showed spinner indefinitely, redirecting back to `/auth`.
+- **Files changed**:
+  - `app/auth/confirm/route.ts` — Updated cookie methods to `get/set/remove`
+  - `lib/supabase/server.ts` — Updated cookie methods
+  - `lib/supabase/client.ts` — Added `PUBLISHABLE_KEY` fallback
+  - `proxy.ts` — Updated cookie methods
+- **Commit**: `b34390d fix: update @supabase/ssr cookie API from getAll/setAll to get/set/remove`
+- **Verification**: Both demo buttons now work on `umatpro.com` — DKM redirects to `/dkm`, Jamaah redirects to `/app`.
+
 ## [2026-05-07] refactor | Business logic extraction from UI
 - Extracted embedded business logic from 5 HIGH-priority components into `lib/` and `hooks/`
 - **Infaq domain**: `lib/infaq/validation.ts`, `campaign.ts`, `constants.ts`, `calculation.ts`, `status.ts`, `qr.ts`; `hooks/useInfaqFlow.ts`, `useClipboard.ts`

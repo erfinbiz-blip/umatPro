@@ -22,6 +22,7 @@ Implementation has no permission restriction on folders in this project, except 
 ### Implementation Rules
 
 - Default base branch is main
+- **Auto deploy**: Push to `main` branch auto-deploys to `umatpro.com` via Vercel
 - Start work on feature or fix branch following GitHub branch workflow, approve subagent driven development with worktree
 - Use pnpm
 - Use strict typescript
