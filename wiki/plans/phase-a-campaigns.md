@@ -2,7 +2,7 @@
 type: plan
 date: 2026-05-09
 tags: [phase-a, campaigns, kampanye, donations, dkm, jamaah]
-status: in-progress
+status: completed
 ---
 
 # Plan: Phase A — Kampanye Donasi

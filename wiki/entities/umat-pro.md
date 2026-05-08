@@ -19,10 +19,10 @@ UmatPro is a digital platform for Indonesian mosque ecosystems, enabling digital
 - **Keberkahan** — every line of code as ongoing charity ([[amal-jariyah]])
 
 ## Key Metrics
-- Tests: 9/9 passing
+- Tests: 95/95 passing (15 test files)
 - Pre-existing TS errors: 21 (non-blocking)
 - Demo data: seeded
-- Status: Pre-release, 1 env var blocker
+- Status: v1.0 with Phase A complete
 
 ## Architecture
 See [[tech-stack]] for detailed technology breakdown.
@@ -47,10 +47,11 @@ See [[tech-stack]] for detailed technology breakdown.
 - Discover mosques with map
 - Mosque profile pages (public)
 - Digital infaq
+- **Campaign discovery** (Phase A): browse active campaigns, featured on home, donate with pre-selection
 - Profile management
 
 ### DKM
-- Dashboard with kas management
+- Dashboard with kas management + export CSV
 - Infaq verification
 - Kajian (study session) CRUD
 - Announcement CRUD (4 categories)
@@ -58,6 +59,7 @@ See [[tech-stack]] for detailed technology breakdown.
 - WA broadcast (premium-gated)
 - TV display for mosque
 - Settings management
+- **Campaign management** (Phase A): create, edit, toggle status, post updates, view donors
 
 ## See Also
 - [[sources/context]] — detailed project context

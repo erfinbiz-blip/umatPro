@@ -64,3 +64,27 @@
 - **Tests**: 12 test files, 70 tests all passing
 - **Commits**: `feat: extract infaq business logic`, `feat: extract kas business logic`, `feat: extract prayer/qr/verification business logic`, `fix: ts errors in useVerification and upload test`
 - Branch: `fix/business-logic-extraction`
+
+## [2026-05-09] feature | Phase A — Kampanye Donasi (Complete)
+- **Goal**: Lengkapi fitur kampanye donasi — DKM kelola campaign, Jamaah lihat & donasi
+- **DKM Management** (`/dkm/kampanye`):
+  - Full CRUD: create, edit, toggle status (draft → active ↔ paused → completed)
+  - Post campaign updates with text progress
+  - View donor counts and campaign statistics
+  - Progress bars with raised/target amounts
+- **Jamaah Discovery**:
+  - `/app/kampanye` — dedicated page listing active campaigns from followed mosques
+  - Featured campaigns section on Jamaah home (`/app`) — top 3 campaigns with progress
+  - Campaign cards with mosque name, progress bar, deadline
+- **Donation Flow**:
+  - Campaign pre-selection via URL: `/app/infaq?campaign=ID`
+  - Auto-selects campaign in existing infaq flow, skips "select purpose" step
+  - Uses existing infaq code generation + verification workflow
+- **Sidebar**: Added "Kampanye Donasi" menu item to DKM sidebar
+- **Tests**: 15 test files, 95 tests all passing (new: campaign status transitions, form validation, progress calculation)
+- **Build**: Successful, 28 routes generated
+- **Plan**: `wiki/plans/phase-a-campaigns.md`
+- **Branch**: `feat/phase-a-campaigns`
+- **Files changed**: 12 files, 1279 insertions
+  - New: `app/dkm/kampanye/page.tsx`, `app/app/kampanye/page.tsx`, `__tests__/campaigns/*.test.ts`
+  - Modified: `app/app/(jamaah)/page.tsx`, `app/app/(jamaah)/infaq/page.tsx`, `components/jamaah/InfaqFlow.tsx`, `hooks/useInfaqFlow.ts`, `components/takmir/Sidebar.tsx`
