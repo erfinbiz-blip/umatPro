@@ -170,7 +170,7 @@ export default function TakmirDashboard() {
           supabase.from('infaq_codes').select('id', { count: 'exact' }).eq('mosque_id', mosqueId).eq('status', 'pending'),
           supabase.from('follows').select('id', { count: 'exact' }).eq('mosque_id', mosqueId),
           supabase.from('campaigns').select('*').eq('mosque_id', mosqueId).eq('status', 'active').order('created_at', { ascending: false }).limit(3),
-          supabase.from('marketplace_products').select('*, profiles(full_name)').eq('mosque_id', mosqueId).order('created_at', { ascending: false }).limit(4),
+          supabase.from('marketplace_products').select('*').eq('mosque_id', mosqueId).order('created_at', { ascending: false }).limit(4),
         ])
 
         const transactions = kasRes.data ?? []
@@ -206,10 +206,7 @@ export default function TakmirDashboard() {
 
         // Marketplace products
         const productData = productsRes.data ?? []
-        setProducts(productData.map((p: MarketplaceProduct & { profiles?: { full_name: string } }) => ({
-          ...p,
-          seller_name: p.profiles?.full_name
-        })))
+        setProducts(productData as ProductWithSeller[])
 
         // Product counts
         const { count: approvedCount } = await supabase
