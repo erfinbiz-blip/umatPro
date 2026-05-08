@@ -1,0 +1,85 @@
+openapi: 3.0.0
+info:
+  title: UmatPro API
+  version: 1.0.0
+  description: API documentation for UmatPro platform
+
+paths:
+  # Auth
+  /auth:
+    get:
+      summary: Authentication page
+      description: Login/register with OTP
+  
+  # Campaigns
+  /dkm/kampanye:
+    get:
+      summary: DKM Campaign Management
+      description: List, create, edit, and manage donation campaigns
+      responses:
+        '200':
+          description: Campaign management page
+  
+  /app/kampanye:
+    get:
+      summary: Jamaah Campaign Discovery
+      description: Browse active donation campaigns from followed mosques
+      responses:
+        '200':
+          description: Campaign list page
+  
+  # Infaq with Campaign
+  /app/infaq:
+    get:
+      summary: Infaq & Donasi
+      description: Generate unique infaq code for donation
+      parameters:
+        - name: mosque
+          in: query
+          schema:
+            type: string
+          description: Mosque ID for general infaq
+        - name: campaign
+          in: query
+          schema:
+            type: string
+          description: Campaign ID to pre-select campaign donation
+  
+  # API Routes
+  /api/infaq/generate:
+    post:
+      summary: Generate Infaq Code
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                mosque_id:
+                  type: string
+                nominal:
+                  type: number
+                campaign_id:
+                  type: string
+                  nullable: true
+      responses:
+        '200':
+          description: Generated infaq code with transfer amount
+  
+  /api/seed-demo:
+    post:
+      summary: Seed Demo Data
+      description: Create demo users and mosque data
+  
+  /api/demo-session:
+    get:
+      summary: Demo Auto-Login
+      parameters:
+        - name: role
+          in: query
+          schema:
+            type: string
+            enum: [dkm, jamaah]
+      responses:
+        '302':
+          description: Redirect to dashboard with session

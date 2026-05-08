@@ -12,9 +12,10 @@ import { calculateProgress } from '@/lib/infaq/campaign'
 interface InfaqFlowProps {
   mosque: Mosque
   campaigns: Campaign[]
+  initialCampaignId?: string | null
 }
 
-export default function InfaqFlow({ mosque, campaigns }: InfaqFlowProps) {
+export default function InfaqFlow({ mosque, campaigns, initialCampaignId }: InfaqFlowProps) {
   const {
     step,
     selectedCampaign,
@@ -31,7 +32,14 @@ export default function InfaqFlow({ mosque, campaigns }: InfaqFlowProps) {
     setCustomAmount,
     generateCode,
     copy,
-  } = useInfaqFlow()
+    setInitialCampaign,
+  } = useInfaqFlow(initialCampaignId)
+
+  useEffect(() => {
+    if (initialCampaignId && campaigns.length > 0) {
+      setInitialCampaign(campaigns)
+    }
+  }, [initialCampaignId, campaigns, setInitialCampaign])
 
   async function handleCopy(text: string) {
     await copy(text)

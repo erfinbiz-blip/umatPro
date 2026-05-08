@@ -31,10 +31,11 @@ interface UseInfaqFlowReturn {
   reset: () => void
   copied: boolean
   copy: (text: string) => Promise<void>
+  setInitialCampaign: (campaigns: Campaign[]) => void
 }
 
-export function useInfaqFlow(): UseInfaqFlowReturn {
-  const [step, setStep] = useState<Step>('select')
+export function useInfaqFlow(initialCampaignId?: string | null): UseInfaqFlowReturn {
+  const [step, setStep] = useState<Step>(initialCampaignId ? 'amount' : 'select')
   const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null)
   const [amount, setAmount] = useState('')
   const [customAmount, setCustomAmount] = useState('')
@@ -50,6 +51,16 @@ export function useInfaqFlow(): UseInfaqFlowReturn {
     setSelectedCampaign(campaign)
     setStep('amount')
   }, [])
+
+  // Auto-select campaign if initialCampaignId provided
+  const setInitialCampaign = useCallback((campaigns: Campaign[]) => {
+    if (initialCampaignId && !selectedCampaign) {
+      const found = campaigns.find((c) => c.id === initialCampaignId)
+      if (found) {
+        setSelectedCampaign(found)
+      }
+    }
+  }, [initialCampaignId, selectedCampaign])
 
   const generateCode = useCallback(
     async (mosque: Mosque) => {
@@ -120,5 +131,6 @@ export function useInfaqFlow(): UseInfaqFlowReturn {
     reset,
     copied,
     copy,
+    setInitialCampaign,
   }
 }
