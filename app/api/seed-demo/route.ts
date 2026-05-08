@@ -274,7 +274,138 @@ export async function POST(req: NextRequest) {
       ])
     }
 
-    // 9. Pending infaq codes (shows badge in DKM dashboard)
+    // 9. Campaign updates (progress updates for campaigns)
+    const { data: campaignIds } = await admin
+      .from('campaigns')
+      .select('id, title')
+      .eq('mosque_id', mosqueId)
+
+    if (campaignIds && campaignIds.length > 0) {
+      const { count: updateCount } = await admin
+        .from('campaign_updates')
+        .select('id', { count: 'exact' })
+        .in('campaign_id', campaignIds.map((c) => c.id))
+
+      if (!updateCount || updateCount === 0) {
+        const mihrabCampaign = campaignIds.find((c) =>
+          c.title?.includes('Mihrab')
+        )
+        const acCampaign = campaignIds.find((c) =>
+          c.title?.includes('AC')
+        )
+
+        const updates = []
+        if (mihrabCampaign) {
+          updates.push(
+            {
+              campaign_id: mihrabCampaign.id,
+              content:
+                'Alhamdulillah! Pembangunan mihrab baru dimulai minggu ini. Tim kontraktor sudah mulai membongkar area lama.',
+              created_by: dkmId,
+            },
+            {
+              campaign_id: mihrabCampaign.id,
+              content:
+                'Update: Marmer import Turki sudah datang. Proses pemasangan dimulai hari ini.',
+              created_by: dkmId,
+            },
+            {
+              campaign_id: mihrabCampaign.id,
+              content:
+                'Kaligrafi khat ISTIQOMAH sedang dipasang. Estimasi selesai 2 minggu lagi.',
+              created_by: dkmId,
+            }
+          )
+        }
+        if (acCampaign) {
+          updates.push(
+            {
+              campaign_id: acCampaign.id,
+              content:
+                'Survey lokasi pemasangan AC sudah dilakukan. Rekomendasi: 4 unit split 2 PK merk Daikin.',
+              created_by: dkmId,
+            },
+            {
+              campaign_id: acCampaign.id,
+              content:
+                'Pembelian unit AC sedang diproses. Estimasi instalasi awal Mei 2025.',
+              created_by: dkmId,
+            }
+          )
+        }
+        if (updates.length > 0) {
+          await admin.from('campaign_updates').insert(updates)
+        }
+      }
+    }
+
+    // 10. Marketplace products (Pasar Masjid)
+    const { count: productCount } = await admin
+      .from('marketplace_products')
+      .select('id', { count: 'exact' })
+      .eq('mosque_id', mosqueId)
+
+    if (!productCount || productCount === 0) {
+      await admin.from('marketplace_products').insert([
+        {
+          mosque_id: mosqueId,
+          seller_user_id: jamaahId,
+          name: 'Kurma Ajwa Premium',
+          description:
+            'Kurma Ajwa asli Madinah, 1kg. Manis alami, tekstur lembut. Cocok untuk buka puasa atau hadiah.',
+          price: 185000,
+          wa_number: '628198765432',
+          status: 'approved',
+          approved_by: dkmId,
+        },
+        {
+          mosque_id: mosqueId,
+          seller_user_id: jamaahId,
+          name: 'Sajadah Turki Premium',
+          description:
+            'Sajadah tebal empuk dari Turki, ukuran 80x120cm. Anti-slip, bahan halus, motif mewah.',
+          price: 275000,
+          wa_number: '628198765432',
+          status: 'approved',
+          approved_by: dkmId,
+        },
+        {
+          mosque_id: mosqueId,
+          seller_user_id: jamaahId,
+          name: 'Parfum Oud Arab',
+          description:
+            'Parfum non-alkohol khas Timur Tengah, wangi oud & musk. Tahan 8-12 jam. Ukuran 50ml.',
+          price: 150000,
+          wa_number: '628198765432',
+          status: 'approved',
+          approved_by: dkmId,
+        },
+        {
+          mosque_id: mosqueId,
+          seller_user_id: jamaahId,
+          name: 'Buku Tafsir Ibnu Katsir Jilid 1',
+          description:
+            'Tafsir Al-Quran lengkap jilid 1 (Surah Al-Fatihah - Al-Baqarah). Terjemahan Bahasa Indonesia.',
+          price: 95000,
+          wa_number: '628198765432',
+          status: 'pending',
+          approved_by: null,
+        },
+        {
+          mosque_id: mosqueId,
+          seller_user_id: dkmId,
+          name: 'Tasbih Kayu Kaukah 33',
+          description:
+            'Tasbih kayu kaukah asli 33 butir. Wangi khas, ringan di tangan. Bonus pouch serut.',
+          price: 45000,
+          wa_number: '628112345678',
+          status: 'approved',
+          approved_by: dkmId,
+        },
+      ])
+    }
+
+    // 11. Pending infaq codes (shows badge in DKM dashboard)
     const { count: infaqCount } = await admin
       .from('infaq_codes')
       .select('id', { count: 'exact' })
@@ -314,7 +445,7 @@ export async function POST(req: NextRequest) {
       ])
     }
 
-    // 10. Prayer schedules for today + 7 days
+    // 12. Prayer schedules for today + 7 days
     const today = new Date()
     today.setHours(0, 0, 0, 0)
 

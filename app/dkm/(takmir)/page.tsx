@@ -5,7 +5,7 @@ import Link from 'next/link'
 import GoldButton from '@/components/ui/GoldButton'
 import {
   TrendingUp, TrendingDown, Users, Clock, CheckCircle2,
-  AlertCircle, DollarSign, Megaphone
+  AlertCircle, DollarSign, Megaphone, Target, Package
 } from 'lucide-react'
 import Glass from '@/components/ui/Glass'
 import LiquidCounter from '@/components/ui/LiquidCounter'
@@ -13,7 +13,7 @@ import ArabesqueBg from '@/components/ui/ArabesqueBg'
 import { createClient } from '@/lib/supabase/client'
 import { getCurrentMosqueRole } from '@/lib/auth/mosque'
 import { formatRupiah } from '@/lib/infaq/code'
-import type { KasTransaction } from '@/lib/supabase/types'
+import type { KasTransaction, Campaign, MarketplaceProduct } from '@/lib/supabase/types'
 
 interface DashboardStats {
   saldo: number
@@ -24,6 +24,14 @@ interface DashboardStats {
   followerCount: number
   mosqueId: string
   mosqueName: string
+}
+
+interface CampaignWithProgress extends Campaign {
+  progress: number
+}
+
+interface ProductWithSeller extends MarketplaceProduct {
+  seller_name?: string
 }
 
 function RegisterMosqueForm() {
@@ -141,6 +149,9 @@ function RegisterMosqueForm() {
 export default function TakmirDashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [recentTransactions, setRecentTransactions] = useState<KasTransaction[]>([])
+  const [campaigns, setCampaigns] = useState<CampaignWithProgress[]>([])
+  const [products, setProducts] = useState<ProductWithSeller[]>([])
+  const [productCounts, setProductCounts] = useState({ approved: 0, pending: 0 })
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -153,11 +164,13 @@ export default function TakmirDashboard() {
         const mosqueId = current.mosqueId
         const mosqueName = current.mosque?.name ?? 'Masjid Anda'
 
-        const [kasRes, draftRes, infaqRes, followRes] = await Promise.all([
+        const [kasRes, draftRes, infaqRes, followRes, campaignsRes, productsRes] = await Promise.all([
           supabase.from('kas_transactions').select('type, amount').eq('mosque_id', mosqueId).eq('status', 'approved'),
           supabase.from('kas_transactions').select('id', { count: 'exact' }).eq('mosque_id', mosqueId).eq('status', 'draft'),
           supabase.from('infaq_codes').select('id', { count: 'exact' }).eq('mosque_id', mosqueId).eq('status', 'pending'),
           supabase.from('follows').select('id', { count: 'exact' }).eq('mosque_id', mosqueId),
+          supabase.from('campaigns').select('*').eq('mosque_id', mosqueId).eq('status', 'active').order('created_at', { ascending: false }).limit(3),
+          supabase.from('marketplace_products').select('*, profiles(full_name)').eq('mosque_id', mosqueId).order('created_at', { ascending: false }).limit(4),
         ])
 
         const transactions = kasRes.data ?? []
@@ -183,6 +196,37 @@ export default function TakmirDashboard() {
           .limit(5)
 
         setRecentTransactions(recent ?? [])
+
+        // Campaigns with progress
+        const campaignData = campaignsRes.data ?? []
+        setCampaigns(campaignData.map((c: Campaign) => ({
+          ...c,
+          progress: c.target_amount ? Math.round((c.raised_amount / c.target_amount) * 100) : 0
+        })))
+
+        // Marketplace products
+        const productData = productsRes.data ?? []
+        setProducts(productData.map((p: MarketplaceProduct & { profiles?: { full_name: string } }) => ({
+          ...p,
+          seller_name: p.profiles?.full_name
+        })))
+
+        // Product counts
+        const { count: approvedCount } = await supabase
+          .from('marketplace_products')
+          .select('id', { count: 'exact' })
+          .eq('mosque_id', mosqueId)
+          .eq('status', 'approved')
+        const { count: pendingCount } = await supabase
+          .from('marketplace_products')
+          .select('id', { count: 'exact' })
+          .eq('mosque_id', mosqueId)
+          .eq('status', 'pending')
+
+        setProductCounts({
+          approved: approvedCount ?? 0,
+          pending: pendingCount ?? 0
+        })
       } catch {
         // network error — loading will stop, stats stays null → tampilkan form register
       } finally {
@@ -353,6 +397,92 @@ export default function TakmirDashboard() {
                     {tx.status === 'draft' && <span className="badge-draft text-[10px]">Draft</span>}
                     {tx.status === 'approved' && <span className="badge-approved text-[10px]">Approved</span>}
                   </div>
+                </Glass>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Campaigns — Kampanye Donasi */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Target size={16} className="text-gd3" />
+              <h2 className="font-display font-semibold text-tx1">Kampanye Donasi</h2>
+            </div>
+            <span className="text-xs text-white/40">{campaigns.length} aktif</span>
+          </div>
+          {campaigns.length === 0 ? (
+            <Glass rounded="xl" padding="md" className="text-center py-6">
+              <p className="text-white/40 text-sm">Belum ada kampanye</p>
+            </Glass>
+          ) : (
+            <div className="space-y-3">
+              {campaigns.map((c) => (
+                <Glass key={c.id} rounded="xl" padding="md" className="hover:border-gd3/30 transition-all">
+                  <div className="flex items-start justify-between mb-2">
+                    <div>
+                      <p className="text-sm font-semibold text-tx1">{c.title}</p>
+                      <p className="text-xs text-white/40 mt-0.5 line-clamp-1">{c.description}</p>
+                    </div>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full ${c.status === 'active' ? 'bg-em4/20 text-em4' : 'bg-white/10 text-white/40'}`}>
+                      {c.status === 'active' ? 'Aktif' : c.status}
+                    </span>
+                  </div>
+                  <div className="mt-3">
+                    <div className="flex justify-between text-xs mb-1">
+                      <span className="text-white/40">{c.progress}% terkumpul</span>
+                      <span className="text-gd3">{formatRupiah(c.raised_amount)} / {formatRupiah(c.target_amount ?? 0)}</span>
+                    </div>
+                    <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gd3 rounded-full transition-all"
+                        style={{ width: `${Math.min(c.progress, 100)}%` }}
+                      />
+                    </div>
+                  </div>
+                  {c.deadline && (
+                    <p className="text-[11px] text-white/30 mt-2">
+                      Deadline: {new Date(c.deadline).toLocaleDateString('id-ID')}
+                    </p>
+                  )}
+                </Glass>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Marketplace — Pasar Masjid */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Package size={16} className="text-gd3" />
+              <h2 className="font-display font-semibold text-tx1">Pasar Masjid</h2>
+            </div>
+            <div className="flex gap-2 text-xs">
+              <span className="text-em4">{productCounts.approved} aktif</span>
+              {productCounts.pending > 0 && (
+                <span className="text-yellow-400">{productCounts.pending} pending</span>
+              )}
+            </div>
+          </div>
+          {products.length === 0 ? (
+            <Glass rounded="xl" padding="md" className="text-center py-6">
+              <p className="text-white/40 text-sm">Belum ada produk</p>
+            </Glass>
+          ) : (
+            <div className="grid grid-cols-2 gap-3">
+              {products.map((p) => (
+                <Glass key={p.id} rounded="xl" padding="md" className="hover:border-gd3/30 transition-all">
+                  <div className="aspect-square bg-white/5 rounded-lg mb-2 flex items-center justify-center">
+                    <Package size={24} className="text-white/20" />
+                  </div>
+                  <p className="text-sm font-semibold text-tx1 truncate">{p.name}</p>
+                  <p className="text-xs text-gd3 font-semibold mt-0.5">{formatRupiah(p.price ?? 0)}</p>
+                  <p className="text-[10px] text-white/30 mt-1 truncate">{p.seller_name ?? 'Penjual'}</p>
+                  <span className={`text-[10px] px-1.5 py-0.5 rounded mt-2 inline-block ${p.status === 'approved' ? 'bg-em4/20 text-em4' : 'bg-yellow-500/20 text-yellow-400'}`}>
+                    {p.status === 'approved' ? 'Aktif' : 'Pending'}
+                  </span>
                 </Glass>
               ))}
             </div>
