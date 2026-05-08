@@ -34,6 +34,7 @@ export default function DkmOnboardingPage() {
   }
 
   async function handleSubmit() {
+    if (step === 'submitting') return
     setError('')
     setStep('submitting')
 
@@ -201,7 +202,7 @@ export default function DkmOnboardingPage() {
                 >
                   Kembali
                 </button>
-                <GoldButton onClick={handleSubmit} fullWidth size="lg" className="flex-[2]">
+                <GoldButton onClick={handleSubmit} fullWidth size="lg" className="flex-[2]" loading={step === 'submitting'}>
                   Daftarkan Masjid
                 </GoldButton>
               </div>
