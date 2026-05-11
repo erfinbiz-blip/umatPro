@@ -110,7 +110,10 @@
   - New: `__tests__/lib/auth/platform.test.ts` (6 tests), `__tests__/middleware.test.ts` (+4 tests superadmin protection)
 - **Build**: Successful
 - **Plan**: `wiki/plans/platform-roles-superadmin.md`
-- **Branch**: `feature/platform-roles-superadmin`
-- **Files changed**: 10 files
-  - New: `supabase/migrations/20260511095445_platform_roles.sql`, `supabase/seed_superadmin.sql`, `lib/auth/platform.ts`, `app/superadmin/page.tsx`, `app/superadmin/layout.tsx`, `components/superadmin/Sidebar.tsx`, `__tests__/lib/auth/platform.test.ts`
-  - Modified: `lib/supabase/types.ts`, `proxy.ts`, `__tests__/middleware.test.ts`
+- Branch: `feature/platform-roles-superadmin`
+- Files changed: 10 files
+
+## [2026-05-11] plan | Phase C — PWA Install Banner
+- Created `wiki/plans/phase-c-pwa-install.md` — implementation plan for PWA install banner
+- Status: In Progress, branch: `feat/phase-c-pwa-install`
+- Plan saved to wiki, ready for execution via subagent-driven-development

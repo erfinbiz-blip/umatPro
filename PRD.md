@@ -1,6 +1,6 @@
 # PRD — UmatPro
 **Status:** Mid-Development
-**Last Updated:** 22 April 2026
+**Last Updated:** 11 Mei 2026
 
 ---
 
@@ -30,8 +30,9 @@
 - **Migrasi DB 001-003 + fix RLS** — schema, RLS policies, RPC `increment_campaign_raised`, fix `mosque_roles` first-admin insert policy
 - **Storage bucket** — `kas-receipts`
 - **Phase A: Kampanye Donasi** — `/dkm/kampanye` (DKM CRUD + updates + donors), `/app/kampanye` (Jamaah discovery), featured on home, campaign pre-selection in infaq flow
-- **Platform Roles + Superadmin** — tabel `platform_roles`, RLS policies, helper `getPlatformRole`/`requireSuperadmin`, dashboard `/superadmin` (list & verifikasi masjid), proxy protection, seed script
-- **Testing** — 105 tests (16 test files), pre-push hook blokir push kalau fail
+- **Phase E: Platform Roles + Superadmin** — tabel `platform_roles`, RLS policies, helper `getPlatformRole`/`requireSuperadmin`, dashboard `/superadmin` (list & verifikasi masjid), proxy protection, seed script
+- **Phase C: PWA Install Banner** — bottom sheet di `/app/*` dengan `beforeinstallprompt`, dismiss 7 hari via localStorage. Plan: `wiki/plans/phase-c-pwa-install.md` — **IN PROGRESS**
+- **Testing** — 210 tests (32 test files), pre-push hook blokir push kalau fail
 
 ---
 
@@ -56,25 +57,27 @@
 
 ---
 
-## 🎯 Current Phase: Phase B — Laporan Keuangan PDF
-**Goal:** Export laporan kas bulanan ke PDF dengan kop masjid — monetization driver untuk tier premium.
+## 🎯 Current Phase: Phase C — PWA Install Banner
+**Goal:** Bottom sheet PWA install banner di `/app/*` yang muncul sekali per session, dismissable 7 hari via localStorage.
 
-**Driver:** Fitur premium yang membuat DKM mau berlangganan. DKM bisa export laporan kas dengan logo masjid, periode, dan rincian transaksi.
+**Driver:** Quick win untuk meningkatkan engagement jamaah dengan PWA install. Setelah Phase C selesai, lanjut ke Phase B (Laporan PDF).
 
-**Tech:** `jspdf` atau `pdf-lib` (client-side) atau API route yang generate PDF server-side.
+**Tech:** `beforeinstallprompt` event, `localStorage`, `sessionStorage`, `display-mode: standalone` detection.
 
-**Done when:** DKM premium bisa klik tombol "Export PDF" di `/dkm/kas` dan mendapat file PDF dengan kop masjid + tabel transaksi.
+**Done when:** Jamaah yang buka `/app/*` dari browser Chromium/Safari iOS melihat bottom sheet install banner, bisa dismiss atau install.
+
+**Plan:** `wiki/plans/phase-c-pwa-install.md`
 
 ---
 
 ## 📋 Next Phases (Boleh Masih Kasar)
-- ✅ ~~**Phase A — Kampanye Donasi UI**~~ — selesai (9 Mei 2026). DKM CRUD di `/dkm/kampanye`, Jamaah discovery di `/app/kampanye`, featured di home, donation flow dengan campaign pre-selection.
-- **Phase B — Laporan Keuangan PDF** (premium benefit): export kas bulanan ke PDF dengan kop masjid via `jspdf` — monetization driver untuk tier premium.
-- **Phase C — PWA Install Banner**: bottom sheet kecil di `/app` pakai `beforeinstallprompt`, dismiss 7 hari via localStorage. Quick win ~1 sesi.
-- **Phase D — Push Notif Jadwal Sholat**: VAPID keys + service worker subscribe + cron kirim 5 menit sebelum adzan. Fase terbesar, butuh infra baru.
-- ✅ ~~**Phase E — Verifikasi Masjid (admin-only)**~~ — selesai (11 Mei 2026). Superadmin dashboard di `/superadmin` untuk list & verifikasi masjid, proxy middleware protection, RLS policies.
-- **Phase F — Server-side Tier Enforcement**: refactor broadcast gate ke API route, enforce di backend (fix Half-Done).
-- **Phase G — Backlog Panjang**: Multi-Masjid, Pasar Masjid, Social Check (SHA-256 contact hash), Jadwal Imam & Khatib, Absensi Jamaah Kajian, Analytics jamaah (premium).
+- ✅ ~~**Phase A — Kampanye Donasi UI**~~ — selesai (9 Mei 2026)
+- ✅ ~~**Phase E — Verifikasi Masjid (admin-only)**~~ — selesai (11 Mei 2026)
+- **Phase B — Laporan Keuangan PDF** (premium benefit): export kas bulanan ke PDF dengan kop masjid via `jspdf`
+- **Phase D — Push Notif Jadwal Sholat**: VAPID keys + service worker subscribe/send + cron kirim 5 menit sebelum adzan
+- **Phase F — Server-side Tier Enforcement**: refactor broadcast gate ke API route, enforce di backend
+- **Phase G — Backlog Panjang**: Multi-Masjid, Pasar Masjid, Social Check, Jadwal Imam & Khatib, Absensi Jamaah Kajian, Analytics jamaah (premium)
+- **Phase H — GA4 Setup**: Google Analytics 4 tracking untuk user behavior, conversion funnel, dan mosque engagement metrics
 
 ---
 

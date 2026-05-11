@@ -30,10 +30,11 @@ tags: [index, catalog]
 | [[plans/dkm-onboarding]] | ✅ Completed | Separate login tabs + dedicated onboarding flow |
 | [[plans/phase-a-campaigns]] | ✅ Completed | Campaign donation feature (DKM management + Jamaah discovery) |
 | [[plans/platform-roles-superadmin]] | ✅ Completed | Platform-wide superadmin role + mosque verification dashboard |
+| [[plans/phase-c-pwa-install]] | 🔄 In Progress | PWA install banner for Jamaah app |
 
 ## Stats
 - **Sources**: 3
 - **Entities**: 1
 - **Concepts**: 2
-- **Plans**: 3
-- **Total pages**: 9
+- **Plans**: 4
+- **Total pages**: 10
