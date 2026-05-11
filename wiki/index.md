@@ -23,6 +23,7 @@ tags: [index, catalog]
 |------|------|---------|
 | [[concepts/tech-stack]] | Technology | Full technology stack overview |
 | [[concepts/architecture]] | Architecture | Module depth, seams, and architectural debt analysis |
+| [[concepts/auth-session]] | Security | Auth model, route protection, and session persistence behavior |
 
 ## Plans
 | Page | Status | Summary |
@@ -35,6 +36,6 @@ tags: [index, catalog]
 ## Stats
 - **Sources**: 3
 - **Entities**: 1
-- **Concepts**: 2
+- **Concepts**: 3
 - **Plans**: 4
-- **Total pages**: 10
+- **Total pages**: 11

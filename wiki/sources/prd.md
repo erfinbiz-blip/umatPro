@@ -24,6 +24,7 @@ Product requirements for UmatPro — a mosque ecosystem platform. Document defin
 - Landing page + SEO
 - **Phase A: Kampanye Donasi** (2026-05-09) — DKM CRUD + Jamaah discovery + donation flow
 - **Platform Roles + Superadmin** (2026-05-11) — `platform_roles` table, RLS policies, `/superadmin` dashboard
+- **Phase C: PWA Install Banner** (2026-05-11) — Bottom sheet install banner di `/app/*` dengan Chromium + Safari iOS support
 
 ## Do Not Touch (Critical)
 - `middleware.ts` — auth protection, needs test coverage update
@@ -49,12 +50,11 @@ Product requirements for UmatPro — a mosque ecosystem platform. Document defin
 
 ## Phase History
 - ✅ **Phase A**: Kampanye donasi UI — completed 2026-05-09
+- ✅ **Phase C**: PWA install banner — completed 2026-05-11
 
 ## Next Phases
 - **Phase B**: Laporan keuangan PDF (premium)
-- **Phase C**: PWA install banner
 - **Phase D**: Push notif jadwal sholat
-- **Phase E**: Verifikasi masjid (admin-only)
 - **Phase F**: Server-side tier enforcement
 - **Phase G**: Backlog (multi-masjid, marketplace, social check, etc.)
 

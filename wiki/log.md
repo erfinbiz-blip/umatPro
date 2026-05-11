@@ -130,3 +130,22 @@
 - **Build**: Successful, no new TS errors
 - **Plan**: `wiki/plans/phase-c-pwa-install.md`
 - **Branch**: `feat/phase-c-pwa-install`
+
+## [2026-05-11] fix | PWA Manifest start_url
+- **Problem**: PWA yang di-install membuka landing page (`/`) bukan Jamaah app (`/app`)
+- **Root cause**: `public/manifest.json` `start_url` = `/` seharusnya `/app`
+- **Fix**:
+  - `public/manifest.json` — `start_url`: `/` → `/app`
+  - Shortcuts juga diperbaiki: `/` → `/app`, `/discover` → `/app/discover`
+- **Impact**: Install PWA sekarang langsung buka Jamaah app dashboard
+- **Branch**: `main` (direct fix)
+
+## [2026-05-11] investigate | Auth behavior clarification
+- **Question**: Kenapa klik "Untuk Jamaah" dari landing page bisa masuk `/app` tanpa login?
+- **Finding**: BUKAN bug — `/app` sengaja public per PRD (line 9: "Home Jamaah")
+- **Auth model**:
+  - Public (no login): `/app` (browse), `/app/discover`, `/app/mosque/[id]` (view), `/mosque/[id]` (public profile)
+  - Login required: `/app/profile`, `/app/infaq`, `/app/notifications`, follow mosque, edit profile
+- **Session persistence**: No expiry (`auth.sessions.not_after` = null). Access token auto-refresh setiap 1 jam. User tetap login sampai explicit logout atau browser clear cookies.
+- **Middleware protection**: Hanya `/dkm/*` dan `/superadmin/*` yang diproteksi. `/app/*` tidak diproteksi (confirmed by test: `/app tanpa login → lanjut`).
+- **Conclusion**: Behavior is correct per PRD design. No code changes needed.

@@ -2,7 +2,7 @@
   "name": "UmatPro — Ekosistem Digital Masjid",
   "short_name": "UmatPro",
   "description": "Platform digital masjid modern untuk jamaah dan takmir",
-  "start_url": "/",
+  "start_url": "/app",
   "display": "standalone",
   "background_color": "#060D08",
   "theme_color": "#022D1A",
@@ -27,12 +27,12 @@
   "shortcuts": [
     {
       "name": "Jadwal Sholat",
-      "url": "/",
+      "url": "/app",
       "description": "Lihat jadwal sholat hari ini"
     },
     {
       "name": "Temukan Masjid",
-      "url": "/discover",
+      "url": "/app/discover",
       "description": "Cari masjid di sekitar Anda"
     }
   ]
