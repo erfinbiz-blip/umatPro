@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { Home, Search, Bell, User } from 'lucide-react'
 import { clsx } from 'clsx'
 import AtmosphereProvider from '@/components/jamaah/AtmosphereProvider'
+import PWAInstallBanner from '@/components/jamaah/PWAInstallBanner'
 
 const navItems = [
   { href: '/app', icon: Home, label: 'Beranda' },
@@ -21,6 +22,8 @@ export default function JamaahLayout({ children }: { children: React.ReactNode }
       <div className="min-h-dvh pb-20">
         {children}
       </div>
+
+      <PWAInstallBanner />
 
       {/* Bottom Navigation */}
       <nav className="bottom-nav">

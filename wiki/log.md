@@ -117,3 +117,16 @@
 - Created `wiki/plans/phase-c-pwa-install.md` — implementation plan for PWA install banner
 - Status: In Progress, branch: `feat/phase-c-pwa-install`
 - Plan saved to wiki, ready for execution via subagent-driven-development
+
+## [2026-05-11] feature | Phase C — PWA Install Banner (Complete)
+- **Goal**: Bottom sheet PWA install banner di `/app/*` yang muncul sekali per session, dismissable 7 hari via localStorage, dengan support Chromium dan Safari iOS
+- **Changes**:
+  - `hooks/usePWAInstall.ts` — Hook dengan fp-ts untuk browser detection dan state management
+  - `__tests__/hooks/usePWAInstall.test.ts` — 15 tests untuk pure functions (fp-ts Option, standalone detection, iOS Safari detection, dismiss logic)
+  - `components/jamaah/PWAInstallBanner.tsx` — Bottom sheet UI dengan Glassmorphism card, support Chromium (native install) dan iOS Safari (educational)
+  - `app/globals.css` — Tambah `animate-slide-up` animation
+  - `app/app/(jamaah)/layout.tsx` — Mount PWAInstallBanner di semua route `/app/*`
+- **Tests**: 33 test files, 225 tests all passing (15 new tests)
+- **Build**: Successful, no new TS errors
+- **Plan**: `wiki/plans/phase-c-pwa-install.md`
+- **Branch**: `feat/phase-c-pwa-install`

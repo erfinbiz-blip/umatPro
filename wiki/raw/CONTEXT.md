@@ -314,7 +314,7 @@ npm test
 
 ### Jamaah
 - [x] ~~**Quote Islami Harian**~~ — selesai (31 quote, rotasi harian, tombol salin)
-- [ ] **PWA Install Banner** — bottom sheet kecil muncul jika belum install PWA. Cek `beforeinstallprompt`. Dismiss → tidak muncul lagi 7 hari (localStorage).
+- [x] ~~**PWA Install Banner**~~ — selesai. Bottom sheet muncul di `/app/*`, support Chromium (native install prompt) dan Safari iOS (educational). Dismiss 7 hari via localStorage + sekali per session. Hook `usePWAInstall` dengan fp-ts.
 - [ ] **Push Notif Permission Reminder** — pengingat halus jika PWA install tapi notif belum di-allow (`Notification.permission === 'default'`). Bukan popup paksa.
 - [ ] **Notif Jadwal Sholat** — push notification 5 menit sebelum adzan (5 waktu). Butuh VAPID keys + service worker subscribe/send logic. Env: `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`.
 
