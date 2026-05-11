@@ -71,7 +71,7 @@ Tasks:
 ## 📋 Next Phases (Boleh Masih Kasar)
 - ✅ ~~**Phase A — Kampanye Donasi UI**~~: halaman kampanye untuk jamaah (list + detail + tombol donasi + progress bar) + DKM bisa posting update foto/teks ke kampanye. Tabel `campaigns` + `campaign_updates` sudah ada.
 - **Phase B — Laporan Keuangan PDF** (premium benefit): export kas bulanan ke PDF dengan kop masjid via `jspdf` — monetization driver untuk tier premium.
-- **Phase C — PWA Install Banner**: bottom sheet kecil di `/app` pakai `beforeinstallprompt`, dismiss 7 hari via localStorage. Quick win ~1 sesi.
+- ✅ ~~**Phase C — PWA Install Banner**~~: bottom sheet kecil di `/app` pakai `beforeinstallprompt`, dismiss 7 hari via localStorage. Quick win ~1 sesi.
 - **Phase D — Push Notif Jadwal Sholat**: VAPID keys + service worker subscribe + cron kirim 5 menit sebelum adzan. Fase terbesar, butuh infra baru.
 - **Phase E — Verifikasi Masjid (admin-only)**: halaman admin platform untuk verifikasi masjid → badge "Verified" di publik profile + home jamaah.
 - **Phase F — Server-side Tier Enforcement**: refactor broadcast gate ke API route, enforce di backend (fix Half-Done).
