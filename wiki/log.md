@@ -88,3 +88,29 @@
 - **Files changed**: 12 files, 1279 insertions
   - New: `app/dkm/kampanye/page.tsx`, `app/app/kampanye/page.tsx`, `__tests__/campaigns/*.test.ts`
   - Modified: `app/app/(jamaah)/page.tsx`, `app/app/(jamaah)/infaq/page.tsx`, `components/jamaah/InfaqFlow.tsx`, `hooks/useInfaqFlow.ts`, `components/takmir/Sidebar.tsx`
+
+## [2026-05-11] feature | Platform Roles + Superadmin
+- **Goal**: Implementasi sistem role platform-wide untuk superadmin yang bisa manage dan verifikasi masjid
+- **Database**:
+  - Migration `004_platform_roles.sql` — tabel `platform_roles` (user_id, role, created_at) dengan RLS policies
+  - Seed script `supabase/seed_superadmin.sql` — insert superadmin user ke auth.users, profiles, dan platform_roles
+- **Auth Helper** (`lib/auth/platform.ts`):
+  - `getPlatformRole(supabase)` → return 'superadmin' | null
+  - `requireSuperadmin(supabase)` → throw error jika bukan superadmin
+- **Superadmin Dashboard** (`/superadmin`):
+  - List semua masjid dengan stats (total, terverifikasi, belum verifikasi, premium)
+  - Toggle verifikasi masjid (update `is_verified`)
+  - Search/filter masjid by nama atau alamat
+  - Protected via layout-level role check → redirect ke `/auth`
+- **Proxy Protection** (`proxy.ts`):
+  - `/superadmin` tanpa login → redirect `/auth`
+  - `/superadmin` dengan user biasa → redirect `/app`
+  - `/superadmin` dengan superadmin → lanjut
+- **Tests**: 16 test files, 105 tests all passing
+  - New: `__tests__/lib/auth/platform.test.ts` (6 tests), `__tests__/middleware.test.ts` (+4 tests superadmin protection)
+- **Build**: Successful
+- **Plan**: `wiki/plans/platform-roles-superadmin.md`
+- **Branch**: `feature/platform-roles-superadmin`
+- **Files changed**: 10 files
+  - New: `supabase/migrations/20260511095445_platform_roles.sql`, `supabase/seed_superadmin.sql`, `lib/auth/platform.ts`, `app/superadmin/page.tsx`, `app/superadmin/layout.tsx`, `components/superadmin/Sidebar.tsx`, `__tests__/lib/auth/platform.test.ts`
+  - Modified: `lib/supabase/types.ts`, `proxy.ts`, `__tests__/middleware.test.ts`

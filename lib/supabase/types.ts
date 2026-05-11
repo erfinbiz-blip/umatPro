@@ -448,6 +448,25 @@ export interface Database {
         }
         Relationships: []
       }
+      platform_roles: {
+        Row: {
+          id: string
+          user_id: string
+          role: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          role: string
+          created_at?: string
+        }
+        Update: {
+          user_id?: string
+          role?: string
+        }
+        Relationships: []
+      }
     }
     Views: Record<string, never>
     Functions: Record<string, never>
@@ -467,3 +486,4 @@ export type InfaqCode = Database['public']['Tables']['infaq_codes']['Row']
 export type Campaign = Database['public']['Tables']['campaigns']['Row']
 export type Announcement = Database['public']['Tables']['announcements']['Row']
 export type Profile = Database['public']['Tables']['profiles']['Row']
+export type PlatformRole = Database['public']['Tables']['platform_roles']['Row']

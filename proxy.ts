@@ -2,6 +2,7 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 const TAKMIR_ROUTES = ['/dkm']
+const SUPERADMIN_ROUTES = ['/superadmin']
 
 export async function proxy(request: NextRequest) {
   try {
@@ -34,8 +35,29 @@ export async function proxy(request: NextRequest) {
     const pathname = request.nextUrl.pathname
 
     const isTakmirRoute = TAKMIR_ROUTES.some((r) => pathname.startsWith(r))
+    const isSuperadminRoute = SUPERADMIN_ROUTES.some((r) => pathname.startsWith(r))
+
     if (isTakmirRoute && !user) {
       return NextResponse.redirect(new URL('/auth', request.url))
+    }
+
+    // Superadmin route protection
+    if (isSuperadminRoute) {
+      if (!user) {
+        return NextResponse.redirect(new URL('/auth', request.url))
+      }
+      // Check if user is superadmin
+      const { data: roleData } = await supabase
+        .from('platform_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('role', 'superadmin')
+        .limit(1)
+        .single()
+      
+      if (!roleData) {
+        return NextResponse.redirect(new URL('/app', request.url))
+      }
     }
 
     // DKM user without mosque → redirect to onboarding
@@ -80,7 +102,8 @@ export async function proxy(request: NextRequest) {
     // If auth check fails, still protect takmir routes
     const pathname = request.nextUrl.pathname
     const isTakmirRoute = TAKMIR_ROUTES.some((r) => pathname.startsWith(r))
-    if (isTakmirRoute) {
+    const isSuperadminRoute = SUPERADMIN_ROUTES.some((r) => pathname.startsWith(r))
+    if (isTakmirRoute || isSuperadminRoute) {
       return NextResponse.redirect(new URL('/auth', request.url))
     }
     return NextResponse.next()

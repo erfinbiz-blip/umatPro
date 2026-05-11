@@ -30,7 +30,8 @@
 - **Migrasi DB 001-003 + fix RLS** — schema, RLS policies, RPC `increment_campaign_raised`, fix `mosque_roles` first-admin insert policy
 - **Storage bucket** — `kas-receipts`
 - **Phase A: Kampanye Donasi** — `/dkm/kampanye` (DKM CRUD + updates + donors), `/app/kampanye` (Jamaah discovery), featured on home, campaign pre-selection in infaq flow
-- **Testing** — 95 tests (15 test files), pre-push hook blokir push kalau fail
+- **Platform Roles + Superadmin** — tabel `platform_roles`, RLS policies, helper `getPlatformRole`/`requireSuperadmin`, dashboard `/superadmin` (list & verifikasi masjid), proxy protection, seed script
+- **Testing** — 105 tests (16 test files), pre-push hook blokir push kalau fail
 
 ---
 
@@ -71,7 +72,7 @@
 - **Phase B — Laporan Keuangan PDF** (premium benefit): export kas bulanan ke PDF dengan kop masjid via `jspdf` — monetization driver untuk tier premium.
 - **Phase C — PWA Install Banner**: bottom sheet kecil di `/app` pakai `beforeinstallprompt`, dismiss 7 hari via localStorage. Quick win ~1 sesi.
 - **Phase D — Push Notif Jadwal Sholat**: VAPID keys + service worker subscribe + cron kirim 5 menit sebelum adzan. Fase terbesar, butuh infra baru.
-- **Phase E — Verifikasi Masjid (admin-only)**: halaman admin platform untuk verifikasi masjid → badge "Verified" di publik profile + home jamaah.
+- ✅ ~~**Phase E — Verifikasi Masjid (admin-only)**~~ — selesai (11 Mei 2026). Superadmin dashboard di `/superadmin` untuk list & verifikasi masjid, proxy middleware protection, RLS policies.
 - **Phase F — Server-side Tier Enforcement**: refactor broadcast gate ke API route, enforce di backend (fix Half-Done).
 - **Phase G — Backlog Panjang**: Multi-Masjid, Pasar Masjid, Social Check (SHA-256 contact hash), Jadwal Imam & Khatib, Absensi Jamaah Kajian, Analytics jamaah (premium).
 
@@ -80,7 +81,7 @@
 ## 🛠️ Tech Stack (Existing)
 - **Frontend:** Next.js 16.2.5 App Router + React 19 + TypeScript + Tailwind CSS (custom tokens `gd3`/`gd4` gold, `em3`/`em4` emerald, `tx1`/`bg0`), `lucide-react` icons, `clsx`, `qrcode.react`
 - **Backend:** Next.js Route Handlers (`app/api/*`, `app/auth/confirm/route.ts`), Supabase Auth Admin API
-- **Database:** Supabase PostgreSQL — tabel utama: `profiles`, `mosques`, `mosque_roles`, `follows`, `infaq_codes`, `kas_transactions`, `announcements`, `kajians`, `prayer_schedules`, `campaigns`. Migrasi 001-003 live, RLS policies aktif
+- **Database:** Supabase PostgreSQL — tabel utama: `profiles`, `mosques`, `mosque_roles`, `follows`, `infaq_codes`, `kas_transactions`, `announcements`, `kajians`, `prayer_schedules`, `campaigns`, `platform_roles`. Migrasi 001-004 live, RLS policies aktif
 - **Auth:** Supabase Auth (magic link OTP + SSR cookies via `@supabase/ssr`)
 - **Storage:** Supabase Storage bucket `kas-receipts`
 - **Deploy:** Vercel auto-deploy dari `main`, domain `umatpro.com` (nameserver `ns1/ns2.vercel-dns.com`)

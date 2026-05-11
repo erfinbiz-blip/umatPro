@@ -30,3 +30,9 @@ Thumbs.db
 
 # Local tool configs
 opencode.json
+
+# pnpm workspace config (auto-generated)
+pnpm-workspace.yaml
+
+# Supabase temp files
+supabase/.temp/

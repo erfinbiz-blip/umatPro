@@ -49,6 +49,46 @@ function mockAuthError() {
   })
 }
 
+function mockSuperadminUser() {
+  ;(createServerClient as ReturnType<typeof vi.fn>).mockReturnValue({
+    auth: { getUser: async () => ({ data: { user: { id: 'superadmin-123' } } }) },
+    from: (table: string) => ({
+      select: () => ({
+        eq: () => ({
+          eq: () => ({
+            limit: () => ({
+              single: async () => ({ data: { role: 'superadmin' } }),
+            }),
+          }),
+          limit: () => ({
+            single: async () => ({ data: table === 'mosque_roles' ? { id: 'role-123' } : null }),
+          }),
+        }),
+      }),
+    }),
+  })
+}
+
+function mockRegularUser() {
+  ;(createServerClient as ReturnType<typeof vi.fn>).mockReturnValue({
+    auth: { getUser: async () => ({ data: { user: { id: 'user-123' } } }) },
+    from: () => ({
+      select: () => ({
+        eq: () => ({
+          eq: () => ({
+            limit: () => ({
+              single: async () => ({ data: null }),
+            }),
+          }),
+          limit: () => ({
+            single: async () => ({ data: { id: 'role-123' } }),
+          }),
+        }),
+      }),
+    }),
+  })
+}
+
 describe('proxy — auth protection', () => {
   beforeEach(() => vi.clearAllMocks())
 
@@ -104,5 +144,36 @@ describe('proxy — auth protection', () => {
     mockUser(null)
     const res = await proxy(makeRequest('/app'))
     expect(res.status).not.toBe(307)
+  })
+})
+
+describe('proxy — superadmin protection', () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  it('/superadmin tanpa login → redirect /auth', async () => {
+    mockUser(null)
+    const res = await proxy(makeRequest('/superadmin'))
+    expect(res.status).toBe(307)
+    expect(res.headers.get('location')).toContain('/auth')
+  })
+
+  it('/superadmin dengan user biasa → redirect /app', async () => {
+    mockRegularUser()
+    const res = await proxy(makeRequest('/superadmin'))
+    expect(res.status).toBe(307)
+    expect(res.headers.get('location')).toContain('/app')
+  })
+
+  it('/superadmin dengan superadmin → lanjut', async () => {
+    mockSuperadminUser()
+    const res = await proxy(makeRequest('/superadmin'))
+    expect(res.status).not.toBe(307)
+  })
+
+  it('/superadmin saat Supabase error → redirect /auth', async () => {
+    mockAuthError()
+    const res = await proxy(makeRequest('/superadmin'))
+    expect(res.status).toBe(307)
+    expect(res.headers.get('location')).toContain('/auth')
   })
 })
