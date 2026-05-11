@@ -19,10 +19,10 @@ UmatPro is a digital platform for Indonesian mosque ecosystems, enabling digital
 - **Keberkahan** — every line of code as ongoing charity ([[amal-jariyah]])
 
 ## Key Metrics
-- Tests: 95/95 passing (15 test files)
+- Tests: 210/210 passing (32 test files)
 - Pre-existing TS errors: 21 (non-blocking)
 - Demo data: seeded
-- Status: v1.0 with Phase A complete
+- Status: v1.0 with Phase A + Superadmin complete
 
 ## Architecture
 See [[tech-stack]] for detailed technology breakdown.
@@ -32,13 +32,16 @@ See [[tech-stack]] for detailed technology breakdown.
 - **Premium tier**: Rp 99rb/month or Rp 899rb/year
   - Broadcast WA unlimited
   - Laporan PDF (not yet built)
-  - Verifikasi masjid badge (not yet built)
+  - Verifikasi masjid badge ✅ (superadmin can verify)
   - Analytics jamaah (not yet built)
 
 ## User Types
 - **Jamaah** — mosque congregants, use `/app/*` routes
 - **DKM/Takmir** — mosque administrators, use `/dkm/*` routes
-- **Admin Platform** — UmatPro staff, verify mosques
+- **Superadmin** — platform administrator, use `/superadmin/*` routes
+  - Can verify/unverify mosques
+  - View all mosque statistics
+  - Protected by platform_roles table with RLS
 
 ## Key Features
 ### Jamaah
@@ -60,6 +63,11 @@ See [[tech-stack]] for detailed technology breakdown.
 - TV display for mosque
 - Settings management
 - **Campaign management** (Phase A): create, edit, toggle status, post updates, view donors
+
+### Superadmin
+- **Superadmin Dashboard** (`/superadmin`): view all mosques, statistics, verify/unverify
+- Protected by `platform_roles` table with RLS policies
+- Seed script for initial superadmin setup
 
 ## See Also
 - [[sources/context]] — detailed project context

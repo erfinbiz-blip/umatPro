@@ -14,7 +14,7 @@ UmatPro serves two personas: **Jamaah** (congregants) and **DKM/Takmir** (mosque
 ## Current Architecture Overview
 
 ### Stack
-- Next.js 14 App Router
+- Next.js 16.2.5 App Router + React 19
 - Supabase (PostgreSQL + Auth + Storage)
 - Tailwind CSS with custom tokens
 - Vitest + @edge-runtime/vm

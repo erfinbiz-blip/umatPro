@@ -29,10 +29,11 @@ tags: [index, catalog]
 |------|--------|---------|
 | [[plans/dkm-onboarding]] | ✅ Completed | Separate login tabs + dedicated onboarding flow |
 | [[plans/phase-a-campaigns]] | ✅ Completed | Campaign donation feature (DKM management + Jamaah discovery) |
+| [[plans/platform-roles-superadmin]] | ✅ Completed | Platform-wide superadmin role + mosque verification dashboard |
 
 ## Stats
 - **Sources**: 3
 - **Entities**: 1
 - **Concepts**: 2
-- **Plans**: 2
-- **Total pages**: 8
+- **Plans**: 3
+- **Total pages**: 9

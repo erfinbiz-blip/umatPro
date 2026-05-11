@@ -10,7 +10,7 @@ tags: [technology, stack, nextjs, supabase]
 UmatPro's technology stack is modern, full-stack JavaScript/TypeScript with serverless deployment.
 
 ## Frontend
-- **[[Next.js]] 14** — App Router, React framework
+- **[[Next.js]] 16.2.5** — App Router, React 19 framework
 - **TypeScript** — type safety
 - **Tailwind CSS** — utility-first styling with custom tokens:
   - `gd3` = `#D4AF37` (gold)
@@ -27,15 +27,15 @@ UmatPro's technology stack is modern, full-stack JavaScript/TypeScript with serv
 
 ## Database & Storage
 - **[[Supabase]] PostgreSQL** — main database
-  - Tables: profiles, mosques, mosque_roles, follows, infaq_codes, kas_transactions, announcements, kajians, prayer_schedules, campaigns
-  - Migrations: 001-003 live
+  - Tables: profiles, mosques, mosque_roles, platform_roles, follows, infaq_codes, kas_transactions, announcements, kajians, prayer_schedules, campaigns
+  - Migrations: 001-004 live
   - RLS policies active
 - **Supabase Storage** — bucket `kas-receipts` for transaction photos
 
 ## Auth
 - **[[Supabase Auth]]** — magic link OTP
 - **[[@supabase/ssr]]** — server-side auth with cookie sessions
-- Middleware protection for `/dkm/*` routes
+- Middleware protection for `/dkm/*` and `/superadmin/*` routes
 
 ## Deployment
 - **[[Vercel]]** — auto-deploy from `main` branch
@@ -43,7 +43,7 @@ UmatPro's technology stack is modern, full-stack JavaScript/TypeScript with serv
 
 ## Testing
 - **[[Vitest]]** + `@edge-runtime/vm`
-- 9 test cases (middleware auth + daily quotes)
+- 210 tests (32 test files) — middleware auth, daily quotes, platform roles, campaigns, kas, etc.
 - Pre-push hook blocks push on failure
 
 ## Special Libraries

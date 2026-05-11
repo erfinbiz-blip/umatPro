@@ -23,6 +23,7 @@ Product requirements for UmatPro — a mosque ecosystem platform. Document defin
 - Demo data & auto-login
 - Landing page + SEO
 - **Phase A: Kampanye Donasi** (2026-05-09) — DKM CRUD + Jamaah discovery + donation flow
+- **Platform Roles + Superadmin** (2026-05-11) — `platform_roles` table, RLS policies, `/superadmin` dashboard
 
 ## Do Not Touch (Critical)
 - `middleware.ts` — auth protection, needs test coverage update
