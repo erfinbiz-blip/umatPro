@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react'
 import { Copy, Check, AlertCircle, Clock } from 'lucide-react'
 import Glass from '@/components/ui/Glass'
 import GoldButton from '@/components/ui/GoldButton'
