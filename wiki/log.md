@@ -118,6 +118,13 @@
 - Status: In Progress, branch: `feat/phase-c-pwa-install`
 - Plan saved to wiki, ready for execution via subagent-driven-development
 
+## [2026-05-12] update | Implementation Status Refresh
+- **PRD.md updated**: Phase C marked complete, Phase B set as Current Phase
+- **Test count**: 225 tests (33 test files) — all passing
+- **Merged branches**: `feat/phase-c-pwa-install` and `feature/platform-roles-superadmin` both merged to `main`
+- **Branch cleanup**: `feat/phase-a-campaigns` still on remote (already merged), local branches `feat/phase-c-pwa-install` and `feature/platform-roles-superadmin` exist but even with main
+- **Next**: Phase B — Laporan Keuangan PDF (premium benefit)
+
 ## [2026-05-11] feature | Phase C — PWA Install Banner (Complete)
 - **Goal**: Bottom sheet PWA install banner di `/app/*` yang muncul sekali per session, dismissable 7 hari via localStorage, dengan support Chromium dan Safari iOS
 - **Changes**:

@@ -1,6 +1,6 @@
 # PRD — UmatPro
 **Status:** Mid-Development
-**Last Updated:** 11 Mei 2026
+**Last Updated:** 12 Mei 2026
 
 ---
 
@@ -31,8 +31,8 @@
 - **Storage bucket** — `kas-receipts`
 - **Phase A: Kampanye Donasi** — `/dkm/kampanye` (DKM CRUD + updates + donors), `/app/kampanye` (Jamaah discovery), featured on home, campaign pre-selection in infaq flow
 - **Phase E: Platform Roles + Superadmin** — tabel `platform_roles`, RLS policies, helper `getPlatformRole`/`requireSuperadmin`, dashboard `/superadmin` (list & verifikasi masjid), proxy protection, seed script
-- **Phase C: PWA Install Banner** — bottom sheet di `/app/*` dengan `beforeinstallprompt`, dismiss 7 hari via localStorage. Plan: `wiki/plans/phase-c-pwa-install.md` — **IN PROGRESS**
-- **Testing** — 210 tests (32 test files), pre-push hook blokir push kalau fail
+- **Phase C: PWA Install Banner** — bottom sheet di `/app/*` dengan `beforeinstallprompt`, dismiss 7 hari via localStorage. Plan: `wiki/plans/phase-c-pwa-install.md` — **COMPLETED 12 Mei 2026**
+- **Testing** — 225 tests (33 test files), pre-push hook blokir push kalau fail
 
 ---
 
@@ -54,25 +54,27 @@
 - **Fitur premium "(segera hadir)"** — Upgrade page menjanjikan laporan PDF, verifikasi masjid, analytics jamaah — UI label sudah ada, implementasi belum.
 - **21 TypeScript error pre-existing** — `components/takmir/Sidebar.tsx` (8 error lucide icon typing), `components/jamaah/PrayerStrip.tsx:38` (PrayerTimeStrings), `app/app/(jamaah)/notifications/page.tsx:102` (index type string), sisa 11 di file lain. Build tidak terganggu karena `ignoreBuildErrors`.
 - **Push Notification** — service worker `public/sw.js` ada tapi belum ada logic subscribe/send. Butuh VAPID keys di env.
+- **PWA Install Banner** — sudah selesai (Phase C), tapi perlu monitor analytics install rate setelah GA4 (Phase H) selesai.
 
 ---
 
-## 🎯 Current Phase: Phase C — PWA Install Banner
-**Goal:** Bottom sheet PWA install banner di `/app/*` yang muncul sekali per session, dismissable 7 hari via localStorage.
+## 🎯 Current Phase: Phase B — Laporan Keuangan PDF
+**Goal:** Export kas bulanan ke PDF dengan kop masjid via `jspdf` untuk user premium.
 
-**Driver:** Quick win untuk meningkatkan engagement jamaah dengan PWA install. Setelah Phase C selesai, lanjut ke Phase B (Laporan PDF).
+**Driver:** Premium benefit yang sudah dijanjikan di halaman Upgrade. Setelah Phase B selesai, lanjut ke Phase D (Push Notif Jadwal Sholat).
 
-**Tech:** `beforeinstallprompt` event, `localStorage`, `sessionStorage`, `display-mode: standalone` detection.
+**Tech:** `jspdf` + `jspdf-autotable` untuk tabel kas, HTML canvas untuk kop masjid.
 
-**Done when:** Jamaah yang buka `/app/*` dari browser Chromium/Safari iOS melihat bottom sheet install banner, bisa dismiss atau install.
+**Done when:** DKM dengan tier premium bisa klik "Export PDF" di `/dkm/kas` dan mendownload laporan keuangan bulanan dengan kop masjid, tabel transaksi, dan ringkasan saldo.
 
-**Plan:** `wiki/plans/phase-c-pwa-install.md`
+**Plan:** `wiki/plans/phase-b-laporan-pdf.md` (akan dibuat)
 
 ---
 
 ## 📋 Next Phases (Boleh Masih Kasar)
 - ✅ ~~**Phase A — Kampanye Donasi UI**~~ — selesai (9 Mei 2026)
 - ✅ ~~**Phase E — Verifikasi Masjid (admin-only)**~~ — selesai (11 Mei 2026)
+- ✅ ~~**Phase C — PWA Install Banner**~~ — selesai (12 Mei 2026)
 - **Phase B — Laporan Keuangan PDF** (premium benefit): export kas bulanan ke PDF dengan kop masjid via `jspdf`
 - **Phase D — Push Notif Jadwal Sholat**: VAPID keys + service worker subscribe/send + cron kirim 5 menit sebelum adzan
 - **Phase F — Server-side Tier Enforcement**: refactor broadcast gate ke API route, enforce di backend
