@@ -467,6 +467,64 @@ export interface Database {
         }
         Relationships: []
       }
+      weekly_reports: {
+        Row: {
+          id: string
+          mosque_id: string
+          period_start: string
+          period_end: string
+          status: string
+          generated_by: string | null
+          generated_at: string
+          approved_by: string | null
+          approved_at: string | null
+          pdf_url: string | null
+          signed_pdf_url: string | null
+          total_income: number
+          total_expense: number
+          opening_balance: number
+          closing_balance: number
+          notes: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          mosque_id: string
+          period_start: string
+          period_end: string
+          status?: string
+          generated_by?: string | null
+          generated_at?: string
+          approved_by?: string | null
+          approved_at?: string | null
+          pdf_url?: string | null
+          signed_pdf_url?: string | null
+          total_income?: number
+          total_expense?: number
+          opening_balance?: number
+          closing_balance?: number
+          notes?: string | null
+          created_at?: string
+        }
+        Update: {
+          mosque_id?: string
+          period_start?: string
+          period_end?: string
+          status?: string
+          generated_by?: string | null
+          generated_at?: string
+          approved_by?: string | null
+          approved_at?: string | null
+          pdf_url?: string | null
+          signed_pdf_url?: string | null
+          total_income?: number
+          total_expense?: number
+          opening_balance?: number
+          closing_balance?: number
+          notes?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: Record<string, never>
     Functions: Record<string, never>
@@ -487,3 +545,4 @@ export type Campaign = Database['public']['Tables']['campaigns']['Row']
 export type Announcement = Database['public']['Tables']['announcements']['Row']
 export type Profile = Database['public']['Tables']['profiles']['Row']
 export type PlatformRole = Database['public']['Tables']['platform_roles']['Row']
+export type WeeklyReport = Database['public']['Tables']['weekly_reports']['Row']
