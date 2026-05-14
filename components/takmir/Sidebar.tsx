@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard, BookOpenCheck, ShieldCheck, Megaphone,
   Settings, Menu, X, LogOut, Bell, QrCode, BookOpen, Crown,
-  Target,
+  Target, FileText,
 } from 'lucide-react'
 import { clsx } from 'clsx'
 import { createClient } from '@/lib/supabase/client'
@@ -52,6 +52,12 @@ const NAV_ITEMS: NavItem[] = [
     icon: Target,
     label: 'Kampanye Donasi',
     sublabel: 'Galang dana masjid',
+  },
+  {
+    href: '/dkm/laporan',
+    icon: FileText,
+    label: 'Laporan Mingguan',
+    sublabel: 'Keuangan Jumat–Kamis',
   },
   {
     href: '/dkm/pengumuman',
