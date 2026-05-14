@@ -31,7 +31,7 @@ Tanpa keberlanjutan finansial, proyek ini tidak bisa dirawat, dikembangkan, dan 
 |-------|-------|--------|
 | Tier Premium DKM | Subscription bulanan | ✅ Halaman `/dkm/upgrade` live |
 | Broadcast WA Unlimited | Premium only | ✅ Di-gate — free lihat paywall |
-| Laporan PDF | Premium only | Belum dibangun |
+| Laporan PDF | Premium only | ✅ Phase B selesai (14 Mei 2026) |
 | Verifikasi Masjid (badge) | Premium benefit | Belum dibangun |
 | Pasar Masjid | Revenue share / listing fee | Tabel ada, UI belum |
 
@@ -73,6 +73,7 @@ Tanpa keberlanjutan finansial, proyek ini tidak bisa dirawat, dikembangkan, dan 
 | `/dkm/verifikasi` | Verifikasi infaq | `app/dkm/(takmir)/verifikasi/page.tsx` |
 | `/dkm/kajian` | CRUD jadwal kajian | `app/dkm/(takmir)/kajian/page.tsx` |
 | `/dkm/kampanye` | **(BARU)** Kelola kampanye donasi — CRUD, update progress, lihat donor | `app/dkm/kampanye/page.tsx` |
+| `/dkm/laporan` | **(BARU)** Laporan keuangan mingguan — generate PDF, upload ttd basah | `app/dkm/(takmir)/laporan/page.tsx` |
 | `/dkm/pengumuman` | CRUD pengumuman | `app/dkm/(takmir)/pengumuman/page.tsx` |
 | `/dkm/qr` | QR Infaq — cetak & unduh | `app/dkm/(takmir)/qr/page.tsx` |
 | `/dkm/broadcast` | Broadcast WA | `app/dkm/(takmir)/broadcast/page.tsx` |
@@ -85,7 +86,7 @@ Tanpa keberlanjutan finansial, proyek ini tidak bisa dirawat, dikembangkan, dan 
 
 ## Sidebar DKM — Urutan Menu
 
-Dashboard → Kas Masjid → Verifikasi Infaq → **Kajian** → **Kampanye Donasi** → **Pengumuman** → **QR Infaq** → Broadcast WA → Pengaturan
+Dashboard → Kas Masjid → Verifikasi Infaq → **Kajian** → **Kampanye Donasi** → **Pengumuman** → **QR Infaq** → **Laporan Mingguan** → Broadcast WA → Pengaturan
 
 File: `components/takmir/Sidebar.tsx`
 - Semua href sudah `/dkm/*`
@@ -100,6 +101,9 @@ File: `components/takmir/Sidebar.tsx`
 - [x] `001_initial_schema.sql` — semua tabel utama
 - [x] `002_rls_policies.sql` — Row Level Security
 - [x] `003_rpc_functions.sql` — RPC `increment_campaign_raised(uuid, bigint)`
+- [x] `004_platform_roles.sql` — tabel `platform_roles` untuk superadmin
+- [x] `005_weekly_reports.sql` — tabel `weekly_reports` untuk laporan keuangan mingguan
+- [x] `006_storage_weekly_reports.sql` — storage bucket `weekly-reports`
 
 ### Tabel utama
 | Tabel | Kolom penting |
@@ -114,9 +118,11 @@ File: `components/takmir/Sidebar.tsx`
 | `kajians` | mosque_id, title, ustadz, day_of_week, time_start, topic, is_recurring, is_active |
 | `prayer_schedules` | mosque_id, date, iqamah_*_offset |
 | `campaigns` | mosque_id, title, target_amount, raised_amount, status |
+| `weekly_reports` | mosque_id, period_start, period_end, status (generated/approved), pdf_url, signed_pdf_url, total_income, total_expense, opening_balance, closing_balance |
 
 ### Storage bucket
 - `kas-receipts` — bukti foto transaksi kas
+- `weekly-reports` — PDF laporan mingguan (original + signed)
 
 ---
 
@@ -152,6 +158,12 @@ File: `components/takmir/Sidebar.tsx`
 | `__tests__/campaigns/campaign-utils.test.ts` | 3 kasus — status transitions, labels, deadline |
 | `__tests__/campaigns/jamaah-discovery.test.ts` | 4 kasus — progress calculation |
 | `__tests__/campaigns/donation-flow.test.ts` | 6 kasus — form validation, donation flow |
+| `__tests__/report/period.test.ts` | 4 kasus — periode Jumat–Kamis calculator |
+| `__tests__/report/aggregate.test.ts` | 3 kasus — aggregate transaksi approved |
+| `__tests__/report/pdf-generator.test.ts` | 1 kasus — generate PDF blob |
+| `__tests__/report/actions.test.ts` | 1 kasus — server actions exist |
+| `__tests__/hooks/usePWAInstall.test.ts` | 15 kasus — PWA install detection & dismiss logic |
+| `__tests__/lib/auth/platform.test.ts` | 6 kasus — platform role helper functions |
 
 ### Cara jalankan manual
 ```bash
@@ -257,6 +269,45 @@ npm test
 - **Plan**: `wiki/plans/phase-a-campaigns.md`
 - **Branch**: `feat/phase-a-campaigns`
 
+### Phase B — Laporan Keuangan Mingguan (14 Mei 2026)
+- **Goal**: DKM generate laporan keuangan mingguan (periode Jumat–Kamis) dari transaksi kas approved, export PDF dengan kop masjid, lalu upload hasil ttd basah untuk approve
+- **Flow**: DKM (bendahara/admin) generate → PDF dicetak/dibacakan Jumat → ttd basah dewan pembina → upload scan → status jadi `approved`
+- **Database**: Migration `005_weekly_reports.sql` — tabel `weekly_reports` dengan RLS policies
+- **Storage**: Bucket `weekly-reports` untuk menyimpan PDF original dan signed PDF
+- **Domain** (with fp-ts):
+  - `lib/report/period.ts` — Jumat–Kamis calculator using fp-ts `pipe`, `A.map`, `A.reduce`
+  - `lib/report/aggregate.ts` — Transaction aggregator with fp-ts `Array` operations and `Number` Semigroup
+  - `lib/report/pdf-generator.ts` — jspdf + jspdf-autotable for PDF generation
+- **Server Actions**: `app/dkm/(takmir)/laporan/actions.ts` — `generateWeeklyReport()` dan `uploadSignedReport()`
+- **UI**: `/dkm/laporan` — list laporan, generate button, upload ttd basah, status badge (generated/approved)
+- **Sidebar**: Menu "Laporan Mingguan" dengan icon FileText
+- **Tests**: 37 test files, 236 tests all passing (10 new tests for report domain)
+- **Build**: Successful, no new TS errors (21 pre-existing errors remain)
+- **Plan**: `wiki/plans/phase-b-laporan-mingguan.md`
+- **Branch**: `feat/phase-b-laporan-mingguan`
+
+### Phase C — PWA Install Banner (12 Mei 2026)
+- **Goal**: Bottom sheet PWA install banner di `/app/*` yang muncul sekali per session, dismissable 7 hari via localStorage, dengan support Chromium dan Safari iOS
+- **Changes**:
+  - `hooks/usePWAInstall.ts` — Hook dengan fp-ts untuk browser detection dan state management
+  - `__tests__/hooks/usePWAInstall.test.ts` — 15 tests untuk pure functions
+  - `components/jamaah/PWAInstallBanner.tsx` — Bottom sheet UI dengan Glassmorphism card
+  - `app/globals.css` — Tambah `animate-slide-up` animation
+  - `app/app/(jamaah)/layout.tsx` — Mount PWAInstallBanner di semua route `/app/*`
+- **Tests**: 33 test files, 225 tests all passing (15 new tests)
+- **Plan**: `wiki/plans/phase-c-pwa-install.md`
+- **Branch**: `feat/phase-c-pwa-install`
+
+### Platform Roles + Superadmin (11 Mei 2026)
+- **Goal**: Implementasi sistem role platform-wide untuk superadmin yang bisa manage dan verifikasi masjid
+- **Database**: Migration `004_platform_roles.sql` — tabel `platform_roles` dengan RLS policies
+- **Auth Helper**: `lib/auth/platform.ts` — `getPlatformRole()` dan `requireSuperadmin()`
+- **Superadmin Dashboard**: `/superadmin` — list masjid, toggle verifikasi, search/filter
+- **Proxy Protection**: `/superadmin` diproteksi — tanpa login redirect `/auth`, user biasa redirect `/app`
+- **Tests**: 16 test files, 105 tests all passing
+- **Plan**: `wiki/plans/platform-roles-superadmin.md`
+- **Branch**: `feature/platform-roles-superadmin`
+
 ### Fase 2H — Demo Data & Akun Demo
 - `POST /api/seed-demo`: buat 2 user demo + data lengkap masjid via Supabase Admin API (idempoten)
 - `GET /api/demo-session?role=dkm|jamaah`: generate magic link one-time → auto-login tanpa OTP
@@ -325,9 +376,14 @@ npm test
 |------|--------|
 | Vercel env vars | ✅ Done |
 | Domain umatpro.com | ✅ Active |
-| Supabase migrations 001-003 | ✅ Done |
+| Supabase migrations 001-006 | ✅ Done |
 | Storage bucket kas-receipts | ✅ Done |
+| Storage bucket weekly-reports | ✅ Done |
 | Fase 2 A/B/C/D/E/G/H | ✅ Done |
+| Phase A (Kampanye Donasi) | ✅ Done |
+| Phase B (Laporan Mingguan) | ✅ Done |
+| Phase C (PWA Install Banner) | ✅ Done |
+| Platform Roles + Superadmin | ✅ Done |
 | Demo data di Supabase | ✅ Done |
 | Supabase Auth Site URL + Redirect URLs | ✅ Done |
 | NEXT_PUBLIC_WA_ADMIN_NUMBER di Vercel | ⬜ Wajib diset — nomor WA admin real |
@@ -339,15 +395,15 @@ npm test
 
 ### Jamaah
 - [x] ~~**Quote Islami Harian**~~ — selesai (31 quote, rotasi harian, tombol salin)
-- [ ] **PWA Install Banner** — bottom sheet kecil muncul jika belum install PWA. Cek `beforeinstallprompt`. Dismiss → tidak muncul lagi 7 hari (localStorage).
+- [x] ~~**PWA Install Banner**~~ — selesai (12 Mei 2026). Bottom sheet di `/app/*` dengan Chromium + Safari iOS support, dismiss 7 hari via localStorage
 - [ ] **Push Notif Permission Reminder** — pengingat halus jika PWA install tapi notif belum di-allow (`Notification.permission === 'default'`). Bukan popup paksa.
 - [ ] **Notif Jadwal Sholat** — push notification 5 menit sebelum adzan (5 waktu). Butuh VAPID keys + service worker subscribe/send logic. Env: `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`.
 
 ### DKM / Takmir
 - [x] ~~**Kampanye Donasi**~~ — selesai (Phase A, 2026-05-09). DKM: CRUD campaign, toggle status, post update progress, lihat donor. Jamaah: list campaign, featured di home, donate dengan pre-select campaign.
+- [x] ~~**Laporan Keuangan Mingguan**~~ — selesai (Phase B, 2026-05-14). Periode Jumat–Kamis, generate PDF dengan kop masjid, workflow approval via upload ttd basah. Domain logic pakai fp-ts.
 - [ ] **Jadwal Imam & Khatib** — manajemen jadwal imam sholat harian dan khatib Jumat. Belum ada tabel, perlu migrasi baru.
 - [ ] **Absensi Jamaah Kajian** — check-in jamaah saat hadir kajian. Belum ada tabel.
-- [ ] **Laporan Keuangan PDF** — export laporan kas bulanan ke PDF dengan kop masjid. Client-side via `jspdf` atau server-side.
 - [ ] **Multi-Masjid** — satu akun bisa kelola lebih dari satu masjid. Perlu UI switcher masjid di sidebar.
 
 ### Marketplace & Komunitas
@@ -377,6 +433,9 @@ npm test
 | `adhan` | — | Hitung waktu sholat dari koordinat GPS |
 | `lucide-react` | — | Ikon UI |
 | `clsx` | — | Conditional className |
+| `fp-ts` | ^2.16.11 | Functional programming utilities (Option, Either, Array, pipe) |
+| `jspdf` | ^4.2.1 | PDF generation client-side |
+| `jspdf-autotable` | ^5.0.7 | Table rendering in PDFs |
 
 **Tailwind custom tokens** (`tailwind.config.ts`):
 - `gd3` = `#D4AF37` (gold), `gd4` = `#F0D060`

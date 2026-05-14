@@ -1,5 +1,22 @@
 # Wiki Log
 
+## [2026-05-14] maintenance | Wiki & CONTEXT.md Update
+- **Updated `CONTEXT.md`**:
+  - Added `/dkm/laporan` route to struktur route
+  - Updated sidebar menu order (tambah Laporan Mingguan)
+  - Updated database: migrations 001-006, tabel `weekly_reports`, storage bucket `weekly-reports`
+  - Updated test files: tambah report tests (period, aggregate, pdf-generator, actions)
+  - Updated library dependencies: fp-ts, jspdf, jspdf-autotable
+  - Updated monetization status: Laporan PDF ✅ completed
+  - Updated deployment status: Phase B ✅ Done
+  - Updated backlog: Phase B & PWA Install Banner marked complete
+  - Added Phase B entry to riwayat perubahan
+  - Added Platform Roles + Superadmin entry to riwayat perubahan
+  - Added Phase C entry to riwayat perubahan
+- **Updated `wiki/sources/context.md`**: Refresh status, test count (236), completed phases, monetization table
+- **Updated `wiki/index.md`**: Date refresh, stats update (5 plans, 12 pages)
+- **Status**: All wiki pages now reflect Phase B completion
+
 ## [2026-05-06] ingest | CONTEXT.md
 - Copied `CONTEXT.md` to `wiki/raw/`
 - Created [[sources/context]] — source summary

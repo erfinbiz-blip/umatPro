@@ -1,6 +1,6 @@
 ---
 type: index
-date: 2026-05-06
+date: 2026-05-14
 tags: [index, catalog]
 ---
 
@@ -9,7 +9,7 @@ tags: [index, catalog]
 ## Sources
 | Page | Summary | Date |
 |------|---------|------|
-| [[sources/context]] | UmatPro project context and status | 2026-05-06 |
+| [[sources/context]] | UmatPro project context and status | 2026-05-14 |
 | [[sources/prd]] | Product requirements document | 2026-05-06 |
 | [[sources/openapi]] | API documentation (OpenAPI) | 2026-05-09 |
 
@@ -38,5 +38,5 @@ tags: [index, catalog]
 - **Sources**: 3
 - **Entities**: 1
 - **Concepts**: 3
-- **Plans**: 4
-- **Total pages**: 11
+- **Plans**: 5
+- **Total pages**: 12

@@ -1,6 +1,6 @@
 ---
 type: source
-date: 2026-05-06
+date: 2026-05-14
 source_count: 1
 tags: [context, umat-pro, project-status]
 ---
@@ -11,7 +11,7 @@ tags: [context, umat-pro, project-status]
 [[raw/CONTEXT.md]]
 
 ## Summary
-UmatPro is a digital platform for Indonesian mosque ecosystems. Built with [[Next.js]] 14 + [[Supabase]], deployed on [[Vercel]] at `umatpro.com`. The project exists not for business but out of a personal longing to stay connected with mosques and contribute digitally when physical presence isn't possible.
+UmatPro is a digital platform for Indonesian mosque ecosystems. Built with [[Next.js]] 16 + [[React]] 19 + [[Supabase]], deployed on [[Vercel]] at `umatpro.com`. The project exists not for business but out of a personal longing to stay connected with mosques and contribute digitally when physical presence isn't possible.
 
 ## Core Values
 - **Transparansi** — trust in financial management
@@ -20,33 +20,45 @@ UmatPro is a digital platform for Indonesian mosque ecosystems. Built with [[Nex
 - **Keberkahan** — every line of code as ongoing charity
 
 ## Current Status
-- **Pre-release**: Ready with notes — 1 env var blocker (`NEXT_PUBLIC_WA_ADMIN_NUMBER`)
-- **Tests**: 9/9 passing
-- **Build**: `ignoreBuildErrors: true` (21 pre-existing TS errors)
+- **Phase**: Phase B completed — 236/236 tests passing (37 test files)
+- **Build**: `ignoreBuildErrors: true` (21 pre-existing TS errors, no new errors)
 - **Demo data**: Seeded in Supabase
+- **Current branch**: `feat/phase-b-laporan-mingguan`
 
 ## Architecture
-- **Frontend**: Next.js 14 App Router + TypeScript + Tailwind CSS
+- **Frontend**: Next.js 16.2.5 App Router + React 19 + TypeScript + Tailwind CSS
 - **Backend**: Next.js Route Handlers + Supabase
-- **Database**: PostgreSQL (migrations 001-003 live)
+- **Database**: PostgreSQL (migrations 001-006 live)
 - **Auth**: Supabase magic link OTP + SSR cookies
-- **Storage**: Supabase Storage bucket `kas-receipts`
+- **Storage**: Supabase Storage buckets `kas-receipts`, `weekly-reports`
 - **Testing**: Vitest + `@edge-runtime/vm`
+- **Libraries**: fp-ts, jspdf, jspdf-autotable, qrcode.react, adhan, lucide-react
 
 ## Key Features Implemented
-- Auth system with demo accounts
-- Jamaah app (home, discover, mosque detail, infaq, profile)
-- DKM dashboard (kas, verifikasi, kajian, pengumuman, QR, broadcast, settings)
+- Auth system with dual role (Jamaah/DKM) + demo accounts
+- Jamaah app (home, discover, mosque detail, infaq, profile, kampanye, notifications)
+- DKM dashboard (kas, verifikasi, kajian, pengumuman, QR, broadcast, settings, kampanye, laporan)
 - TV Display for mosques
 - Premium upgrade page (Free vs Premium Rp 99rb/bln)
 - Demo data & auto-login
+- Platform roles + Superadmin dashboard
+- PWA Install Banner
+- Weekly Financial Reports (Jumat–Kamis) with PDF export
+
+## Completed Phases
+| Phase | Feature | Date | Tests |
+|-------|---------|------|-------|
+| A | Kampanye Donasi | 9 Mei 2026 | 95 pass |
+| B | Laporan Keuangan Mingguan | 14 Mei 2026 | 236 pass |
+| C | PWA Install Banner | 12 Mei 2026 | 225 pass |
+| — | Platform Roles + Superadmin | 11 Mei 2026 | 105 pass |
 
 ## Monetization
 | Fitur | Model | Status |
 |-------|-------|--------|
-| Tier Premium DKM | Subscription | Live |
-| Broadcast WA Unlimited | Premium only | Gated |
-| Laporan PDF | Premium only | Not built |
+| Tier Premium DKM | Subscription | ✅ Live |
+| Broadcast WA Unlimited | Premium only | ✅ Gated |
+| Laporan PDF | Premium only | ✅ Phase B complete |
 | Verifikasi Masjid | Premium benefit | Not built |
 | Pasar Masjid | Revenue share | UI not built |
 
@@ -56,7 +68,8 @@ UmatPro is a digital platform for Indonesian mosque ecosystems. Built with [[Nex
 
 ## Backlog Highlights
 - Push notifications (VAPID keys needed)
-- Kampanye donasi UI
-- Laporan keuangan PDF
+- Jadwal Imam & Khatib
+- Absensi Jamaah Kajian
 - Multi-masjid support
 - Pasar masjid marketplace
+- Social Check
