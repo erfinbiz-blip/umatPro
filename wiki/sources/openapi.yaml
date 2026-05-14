@@ -83,3 +83,123 @@ paths:
       responses:
         '302':
           description: Redirect to dashboard with session
+
+  # Weekly Reports
+  /dkm/laporan:
+    get:
+      summary: Laporan Keuangan Mingguan
+      description: DKM weekly financial report list page
+      responses:
+        '200':
+          description: Weekly report management page
+
+  /api/reports/generate:
+    post:
+      summary: Generate Weekly Report (Server Action)
+      description: Generate PDF report for current Friday-Thursday period
+      responses:
+        '200':
+          description: Report generated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  reportId:
+                    type: string
+                  error:
+                    type: string
+
+  /api/reports/{id}/upload:
+    post:
+      summary: Upload Signed Report (Server Action)
+      description: Upload scanned signed PDF to approve report
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Report approved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  error:
+                    type: string
+
+components:
+  schemas:
+    WeeklyReport:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        mosque_id:
+          type: string
+          format: uuid
+        period_start:
+          type: string
+          format: date
+        period_end:
+          type: string
+          format: date
+        status:
+          type: string
+          enum: [generated, approved]
+        generated_by:
+          type: string
+          format: uuid
+          nullable: true
+        generated_at:
+          type: string
+          format: date-time
+        approved_by:
+          type: string
+          format: uuid
+          nullable: true
+        approved_at:
+          type: string
+          format: date-time
+          nullable: true
+        pdf_url:
+          type: string
+          nullable: true
+        signed_pdf_url:
+          type: string
+          nullable: true
+        total_income:
+          type: integer
+          default: 0
+        total_expense:
+          type: integer
+          default: 0
+        opening_balance:
+          type: integer
+          default: 0
+        closing_balance:
+          type: integer
+          default: 0
+        notes:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
