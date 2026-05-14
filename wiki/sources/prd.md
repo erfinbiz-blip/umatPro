@@ -25,6 +25,7 @@ Product requirements for UmatPro — a mosque ecosystem platform. Document defin
 - **Phase A: Kampanye Donasi** (2026-05-09) — DKM CRUD + Jamaah discovery + donation flow
 - **Platform Roles + Superadmin** (2026-05-11) — `platform_roles` table, RLS policies, `/superadmin` dashboard
 - **Phase C: PWA Install Banner** (2026-05-11) — Bottom sheet install banner di `/app/*` dengan Chromium + Safari iOS support
+- **Phase B: Laporan Keuangan Mingguan** (2026-05-14) — Periode Jumat–Kamis, PDF generator, upload ttd basah
 
 ## Do Not Touch (Critical)
 - `middleware.ts` — auth protection, needs test coverage update
@@ -44,13 +45,14 @@ Product requirements for UmatPro — a mosque ecosystem platform. Document defin
 - Push notifications (service worker exists, no logic)
 
 ## Current Phase
-**Next: Phase B — Laporan Keuangan PDF**
-- Goal: Export kas bulanan ke PDF dengan kop masjid (premium benefit)
-- Driver: monetization untuk tier premium
+**Next: Phase D — Push Notif Jadwal Sholat**
+- Goal: Push notification 5 menit sebelum adzan (5 waktu)
+- Driver: engagement jamaah + PWA value
 
 ## Phase History
 - ✅ **Phase A**: Kampanye donasi UI — completed 2026-05-09
 - ✅ **Phase C**: PWA install banner — completed 2026-05-11
+- ✅ **Phase B**: Laporan keuangan mingguan (Jumat–Kamis) — completed 2026-05-14
 
 ## Next Phases
 - **Phase B**: Laporan keuangan PDF (premium)

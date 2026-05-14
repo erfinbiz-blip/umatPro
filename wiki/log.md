@@ -125,6 +125,29 @@
 - **Branch cleanup**: `feat/phase-a-campaigns` still on remote (already merged), local branches `feat/phase-c-pwa-install` and `feature/platform-roles-superadmin` exist but even with main
 - **Next**: Phase B — Laporan Keuangan PDF (premium benefit)
 
+## [2026-05-14] feature | Phase B — Laporan Keuangan Mingguan (Complete)
+- **Goal**: DKM generate laporan keuangan mingguan (periode Jumat–Kamis) dari transaksi kas approved, export PDF dengan kop masjid, lalu upload hasil ttd basah untuk approve
+- **Flow**: DKM (bendahara/admin) generate → PDF dicetak/dibacakan Jumat → ttd basah dewan pembina → upload scan → status jadi `approved`
+- **Database**: Migration `005_weekly_reports.sql` — tabel `weekly_reports` dengan RLS policies
+- **Storage**: Bucket `weekly-reports` untuk menyimpan PDF original dan signed PDF
+- **Domain** (with fp-ts):
+  - `lib/report/period.ts` — Jumat–Kamis calculator using fp-ts `pipe`, `A.map`, `A.reduce`
+  - `lib/report/aggregate.ts` — Transaction aggregator with fp-ts `Array` operations and `Number` Semigroup
+  - `lib/report/pdf-generator.ts` — jspdf + jspdf-autotable for PDF generation
+- **Server Actions**: `app/dkm/(takmir)/laporan/actions.ts` — `generateWeeklyReport()` dan `uploadSignedReport()`
+- **UI**: `/dkm/laporan` — list laporan, generate button, upload ttd basah, status badge (generated/approved)
+- **Sidebar**: Menu "Laporan Mingguan" dengan icon FileText
+- **Tests**: 37 test files, 236 tests all passing (10 new tests for report domain)
+  - `__tests__/report/period.test.ts` — 4 tests (Wednesday, Friday, Thursday, Sunday period calculation)
+  - `__tests__/report/aggregate.test.ts` — 3 tests (totals, filter non-approved, empty transactions)
+  - `__tests__/report/pdf-generator.test.ts` — 1 test (returns PDF blob)
+  - `__tests__/report/actions.test.ts` — 1 test (server actions exist)
+- **Build**: Successful, no new TS errors (21 pre-existing errors remain)
+- **OpenAPI**: Updated with weekly report endpoints and `WeeklyReport` schema
+- **Plan**: `wiki/plans/phase-b-laporan-mingguan.md`
+- **Branch**: `feat/phase-b-laporan-mingguan`
+- **Commits**: 6 commits — db migration, domain logic, PDF generator, server actions, UI page, sidebar + storage, OpenAPI docs
+
 ## [2026-05-11] feature | Phase C — PWA Install Banner (Complete)
 - **Goal**: Bottom sheet PWA install banner di `/app/*` yang muncul sekali per session, dismissable 7 hari via localStorage, dengan support Chromium dan Safari iOS
 - **Changes**:
