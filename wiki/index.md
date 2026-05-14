@@ -31,7 +31,8 @@ tags: [index, catalog]
 | [[plans/dkm-onboarding]] | ✅ Completed | Separate login tabs + dedicated onboarding flow |
 | [[plans/phase-a-campaigns]] | ✅ Completed | Campaign donation feature (DKM management + Jamaah discovery) |
 | [[plans/platform-roles-superadmin]] | ✅ Completed | Platform-wide superadmin role + mosque verification dashboard |
-| [[plans/phase-c-pwa-install]] | 🔄 In Progress | PWA install banner for Jamaah app |
+| [[plans/phase-c-pwa-install]] | ✅ Completed | PWA install banner for Jamaah app |
+| [[plans/phase-b-laporan-mingguan]] | ✅ Completed | Laporan keuangan mingguan Jumat–Kamis dengan PDF export dan approval workflow |
 
 ## Stats
 - **Sources**: 3

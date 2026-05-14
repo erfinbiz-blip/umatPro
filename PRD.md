@@ -75,7 +75,7 @@
 - ✅ ~~**Phase A — Kampanye Donasi UI**~~ — selesai (9 Mei 2026)
 - ✅ ~~**Phase E — Verifikasi Masjid (admin-only)**~~ — selesai (11 Mei 2026)
 - ✅ ~~**Phase C — PWA Install Banner**~~ — selesai (12 Mei 2026)
-- **Phase B — Laporan Keuangan PDF** (premium benefit): export kas bulanan ke PDF dengan kop masjid via `jspdf`
+- ✅ ~~**Phase B — Laporan Keuangan Mingguan**~~ (premium benefit): export kas periode Jumat–Kamis ke PDF dengan kop masjid, workflow approval via upload ttd basah — selesai (14 Mei 2026)
 - **Phase D — Push Notif Jadwal Sholat**: VAPID keys + service worker subscribe/send + cron kirim 5 menit sebelum adzan
 - **Phase F — Server-side Tier Enforcement**: refactor broadcast gate ke API route, enforce di backend
 - **Phase G — Backlog Panjang**: Multi-Masjid, Pasar Masjid, Social Check, Jadwal Imam & Khatib, Absensi Jamaah Kajian, Analytics jamaah (premium)
