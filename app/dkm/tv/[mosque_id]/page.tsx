@@ -31,14 +31,33 @@ export default function TVDisplayPage() {
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date())
   const [currentTime, setCurrentTime] = useState(new Date())
   const [prayerTimes, setPrayerTimes] = useState<{ name: string; label: string; time: string; iqamah?: string }[]>([])
+  const [hasCoordinates, setHasCoordinates] = useState(true)
 
   const atmosphere = getCurrentAtmosphere(currentTime.getHours())
 
-  // Clock tick
+  // Clock tick + auto adzan detection
   useEffect(() => {
-    const tick = setInterval(() => setCurrentTime(new Date()), 1000)
+    const tick = setInterval(() => {
+      const now = new Date()
+      setCurrentTime(now)
+
+      // Auto-trigger adzan when prayer time arrives
+      if (mode === 'normal' && prayerTimes.length > 0) {
+        const currentTimeStr = now.toLocaleTimeString('id-ID', {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false,
+          timeZone: 'Asia/Jakarta',
+        })
+
+        const matchingPrayer = prayerTimes.find((p) => p.time === currentTimeStr)
+        if (matchingPrayer) {
+          setMode('adzan')
+        }
+      }
+    }, 1000)
     return () => clearInterval(tick)
-  }, [])
+  }, [mode, prayerTimes])
 
   // Fetch mosque data
   const fetchData = useCallback(async () => {
@@ -52,6 +71,7 @@ export default function TVDisplayPage() {
 
       if (mosqueRes.data) {
         setMosque(mosqueRes.data)
+        setHasCoordinates(!!(mosqueRes.data.lat && mosqueRes.data.lng))
 
         if (mosqueRes.data.lat && mosqueRes.data.lng) {
           const times = formatPrayerTimes(mosqueRes.data.lat, mosqueRes.data.lng)
@@ -216,6 +236,13 @@ export default function TVDisplayPage() {
           <div className="flex-1 min-w-0">
             {prayerTimes.length > 0 ? (
               <PrayerSchedule prayers={prayerTimes} />
+            ) : !hasCoordinates ? (
+              <div className="h-full flex items-center justify-center">
+                <div className="text-center">
+                  <p className="text-gd3 text-lg font-semibold mb-2">Koordinat masjid belum diatur</p>
+                  <p className="text-white/40 text-sm">Silakan atur latitude & longitude di pengaturan masjid</p>
+                </div>
+              </div>
             ) : (
               <div className="h-full flex items-center justify-center">
                 <p className="text-white/30 text-sm">Memuat jadwal sholat...</p>
