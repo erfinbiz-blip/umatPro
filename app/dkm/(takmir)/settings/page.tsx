@@ -15,6 +15,8 @@ export default function SettingsPage() {
     name: '',
     address: '',
     description: '',
+    lat: '',
+    lng: '',
     bank_name: '',
     bank_account: '',
     bank_holder: '',
@@ -44,6 +46,8 @@ export default function SettingsPage() {
           name: mosqueData.name,
           address: mosqueData.address ?? '',
           description: mosqueData.description ?? '',
+          lat: mosqueData.lat != null ? String(mosqueData.lat) : '',
+          lng: mosqueData.lng != null ? String(mosqueData.lng) : '',
           bank_name: mosqueData.bank_name ?? '',
           bank_account: mosqueData.bank_account ?? '',
           bank_holder: mosqueData.bank_holder ?? '',
@@ -68,6 +72,8 @@ export default function SettingsPage() {
         name: form.name,
         address: form.address || null,
         description: form.description || null,
+        lat: form.lat ? parseFloat(form.lat) : null,
+        lng: form.lng ? parseFloat(form.lng) : null,
         bank_name: form.bank_name || null,
         bank_account: form.bank_account || null,
         bank_holder: form.bank_holder || null,
@@ -132,6 +138,33 @@ export default function SettingsPage() {
                     maxLength={500}
                   />
                 </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-sm text-white/60 mb-1.5 block">Latitude</label>
+                    <input
+                      type="number"
+                      step="any"
+                      className="input-field font-mono"
+                      value={form.lat}
+                      onChange={(e) => setForm((f) => ({ ...f, lat: e.target.value }))}
+                      placeholder="-6.2088"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm text-white/60 mb-1.5 block">Longitude</label>
+                    <input
+                      type="number"
+                      step="any"
+                      className="input-field font-mono"
+                      value={form.lng}
+                      onChange={(e) => setForm((f) => ({ ...f, lng: e.target.value }))}
+                      placeholder="106.8456"
+                    />
+                  </div>
+                </div>
+                <p className="text-xs text-white/30">
+                  Diperlukan untuk jadwal sholat di TV Display. Cari di Google Maps → klik kanan → koordinat.
+                </p>
               </div>
             </Glass>
 
