@@ -60,12 +60,9 @@ export function formatPrayerTimes(lat: number, lng: number, date?: Date): Prayer
 }
 
 function formatTime(date: Date): string {
-  return date.toLocaleTimeString('id-ID', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-    timeZone: 'Asia/Jakarta',
-  })
+  const h = String(date.getHours()).padStart(2, '0')
+  const m = String(date.getMinutes()).padStart(2, '0')
+  return `${h}:${m}`
 }
 
 export function getQiblaDirection(lat: number, lng: number): number {

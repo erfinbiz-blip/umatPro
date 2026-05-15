@@ -145,6 +145,12 @@ describe('proxy — auth protection', () => {
     const res = await proxy(makeRequest('/app'))
     expect(res.status).not.toBe(307)
   })
+
+  it('/dkm/tv/:id tanpa login → lanjut (public display)', async () => {
+    mockUser(null)
+    const res = await proxy(makeRequest('/dkm/tv/0b801da6-2bf3-47b5-98a0-72632e20a644'))
+    expect(res.status).not.toBe(307)
+  })
 })
 
 describe('proxy — superadmin protection', () => {

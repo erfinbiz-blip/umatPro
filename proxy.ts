@@ -34,7 +34,7 @@ export async function proxy(request: NextRequest) {
 
     const pathname = request.nextUrl.pathname
 
-    const isTakmirRoute = TAKMIR_ROUTES.some((r) => pathname.startsWith(r))
+    const isTakmirRoute = TAKMIR_ROUTES.some((r) => pathname.startsWith(r)) && !pathname.startsWith('/dkm/tv')
     const isSuperadminRoute = SUPERADMIN_ROUTES.some((r) => pathname.startsWith(r))
 
     if (isTakmirRoute && !user) {
